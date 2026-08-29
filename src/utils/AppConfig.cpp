@@ -41,15 +41,22 @@ bool AppConfig::loadConfig()
         return false;
     }
     prefs.getString(WIFI_SID_KEY, (this->wifi.sid), sizeof(this->wifi.sid)-1);
+    this->wifi.sid[sizeof(this->wifi.sid)-1] = '\0';
     prefs.getString(WIFI_PASSWORD_KEY, (this->wifi.password), sizeof(this->wifi.password)-1);
+    this->wifi.sid[sizeof(this->wifi.password.sid)-1] = '\0';
     if (!prefs.isKey(MQTT_SERVER_KEY))
     {
         this->mqtt.ready = false;
         return false;
     }
     prefs.getString(MQTT_SERVER_KEY, (this->mqtt.server), sizeof(this->mqtt.server)-1);
+    this->wifi.sid[sizeof(this->mqtt.server)-1] = '\0';
     prefs.getString(MQTT_USERNAME_KEY, (this->mqtt.username), sizeof(this->mqtt.username)-1);
+    this->wifi.sid[sizeof(this->mqtt.username)-1] = '\0';
     prefs.getString(MQTT_PASSWORD_KEY, (this->mqtt.password), sizeof(this->mqtt.password)-1);
+    this->wifi.sid[sizeof(this->mqtt.password)-1] = '\0';
+
+    prefs.end();
     return true;
 }
 

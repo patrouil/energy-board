@@ -18,7 +18,6 @@ WelcomePage::WelcomePage(Display& disp)
 void WelcomePage::create()
 {
     LOG_DEBUG("WelcomePage::create");
-    APP_ASSERT(this->page != nullptr);
     titleLabel = lv_label_create(this->page);
     APP_ASSERT(titleLabel != nullptr)
     lv_label_set_text(titleLabel, "About Energy Monitor");

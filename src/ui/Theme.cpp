@@ -19,15 +19,13 @@ const lv_font_t* Theme::LARGE_FONT = LV_FONT_MONTSERRAT_16;
 
 const lv_coord_t Theme::LABEL_SPACING = 20;
 
-Theme* Theme::instance = nullptr;
-
-
 Theme::Theme()
     : primaryColor(Theme::PRIMARY_COLOR),
       secondaryColor(Theme::SECONDARY_COLOR),
       backgroundColor(Theme::PAGE_BACKGROUND_COLOR),
       textColor(Theme::TEXT_COLOR),
       font((Theme::DEFAULT_FONT)) {
+
     lv_style_init(&style);
 }
 
@@ -40,10 +38,8 @@ Theme::~Theme() {
 
 
 Theme& Theme::getInstance() {
-    if (!instance) {
-        instance = new Theme();
-    }
-    return *instance;
+    static Theme instance;
+    return instance;
 }
 
 

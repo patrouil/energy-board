@@ -10,21 +10,20 @@
 
 #include "AppTask.h"
 #include "app_event_queue.h"
-#include "AppWifiControler.h"
 
 
 AppWifiControler::AppWifiControler(AppConfigWifi* wificonfig, AppEventQueue* outQueue) :
-    AppTask("AppWifiControler", APP_WIFI_CONTROLER_STACK_SIZE, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
+    AppTask("AppWifiControler", APP_WIFI_CONTROLER_STACK_SIZE, APP_TASK_PRIORITY_BACKEND, new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE), outQueue)
 {
     this->wificonfig = wificonfig;
 
-    this->incomingQueue = new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE);
     LOG_DEBUG("AppWifiControler::AppWifiControler");
 }
 
+
 bool AppWifiControler::connect(uint16_t maxTries)
 {
-    volatile uint16_t i;
+     uint16_t i;
 
     if (this->wificonfig == nullptr
         || this->status == WIFI_DO_NOTHING_STATE
@@ -45,13 +44,14 @@ bool AppWifiControler::connect(uint16_t maxTries)
                       this->wificonfig->password);
              WiFi.begin(this->wificonfig->sid, this->wificonfig->password);
             LOG_INFO("AppWifiControler : done begin");
-            this->sleep(200);
-            volatile uint8_t s  = WiFi.status();
-            if (s == WL_CONNECTED)
-            {
-                LOG_INFO("AppWifiControler : connected");
-                return true;
+            for (uint8_t j = 0; j < 20; j++) {  // 20 * 500ms = 10s
+                this->sleep(500);
+                if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != INADDR_NONE) {
+                    LOG_INFO("WiFi connected! IP: %s", WiFi.localIP().toString().c_str());
+                    return true;
+                }
             }
+            WiFi.disconnect();
             LOG_ERROR("AppWifiControler : login error");
             this->sleep(500);
         }

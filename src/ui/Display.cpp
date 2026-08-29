@@ -12,12 +12,11 @@
 lv_disp_draw_buf_t draw_buf;
 lv_color_t color_buffer[displayWidth * displayHeight/4];
 
-TFT_eSPI Display::_tft_screen = TFT_eSPI(displayWidth, displayHeight); // the LCD screen
 lv_disp_drv_t Display::disp_drv;
 
 Display *Display::me = nullptr;
 
-Display::Display() {
+Display::Display(): _tft_screen(displayWidth, displayHeight) {
    if ( Display::me == nullptr)
        Display::me = this;
 }

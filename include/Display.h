@@ -45,7 +45,7 @@ public:
     }
 
 private:
-    static TFT_eSPI _tft_screen;
+     TFT_eSPI _tft_screen;
     static lv_disp_drv_t disp_drv;
     lv_disp_t* disp = nullptr;
 

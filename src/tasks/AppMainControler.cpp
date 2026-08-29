@@ -27,7 +27,7 @@ void AppMainControler::manage_wifi_event()
     if (this->wifiOutQueue->isEmpty())
         return;
 
-    AppEvent ev(APP_EVENT_NONE);
+    AppEvent ev(AppEventType::NONE);
 
     if (!this->wifiOutQueue->pop(&ev))
     {
@@ -38,13 +38,13 @@ void AppMainControler::manage_wifi_event()
 
     switch (ev.getId())
     {
-    case APP_EVENT_WIFI_IDLE:
+    case  AppEventType::WIFI_IDLE  :
         LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
 
         this->get_welcome_page()->show();
 
         break;
-    case APP_EVENT_WIFI_CONNECTED:
+    case AppEventType::WIFI_CONNECTED :
         {
             LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_CONNECTED :%d", ev.getId());
             // notify MQTT and UI
@@ -58,7 +58,7 @@ void AppMainControler::manage_wifi_event()
 
         }
         break;
-    case APP_EVENT_WIFI_DISCONNECTED:
+    case AppEventType::WIFI_DISCONNECTED :
         {
             LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_DISCONNECTED :%d", ev.getId());
             // notidy MQTT and UI
@@ -78,7 +78,7 @@ void AppMainControler::manage_incoming_event()
     if (this->incomingQueue->isEmpty())
         return;
 
-    AppEvent ev(APP_EVENT_NONE);
+    AppEvent ev(AppEventType::NONE );
 
     if (!this->incomingQueue->pop(&ev))
     {
@@ -89,19 +89,19 @@ void AppMainControler::manage_incoming_event()
 
     switch (ev.getId())
     {
-    case APP_EVENT_UNPHONE_BUTTON1:
+    case AppEventType::UNPHONE_BUTTON1 :
         LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON1 :%d", ev.getId());
 
         // this->get_welcome_page()->show();
 
         break;
-    case APP_EVENT_UNPHONE_BUTTON2:
+    case AppEventType::UNPHONE_BUTTON2 :
         LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON2 :%d", ev.getId());
 
         // this->get_welcome_page()->show();
 
         break;
-    case APP_EVENT_UNPHONE_BUTTON3:
+    case AppEventType::UNPHONE_BUTTON3 :
         LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON2 :%d", ev.getId());
 
         this->get_welcome_page()->show();

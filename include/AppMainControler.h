@@ -8,7 +8,7 @@
 #include "AppWifiControler.h"
 #include "WelcomePage.h"
 
-#define APP_CONTROLER_STACK_SIZE 8192
+#define APP_CONTROLER_STACK_SIZE (4*1024)
 
 class AppMainControler : public AppTask
 {

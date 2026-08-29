@@ -32,17 +32,20 @@
 // translating from touchscreen coordinates to LCD coordinates
 
 
-// main variables
+// GLOBAL VARIABLES.
+
 unPhone this_phone_u = unPhone();
 Display this_display = Display();
 AppConfig* this_config = nullptr;
 AppMainControler* this_controler = nullptr;
 uint8_t currentButton = 0xFF;
 
+// END OF GLOBALS
+
+
 //long my_mapper(long, long, long, long, long);
 void my_print(const char* buf)
 {
-    LOG_DEBUG(buf);
     Serial.printf(buf);
     Serial.flush();
 }
@@ -119,27 +122,36 @@ void panic_handler(void* arg)
 
 void launch_tasks()
 {
-    xTaskCreate(
-        [] (void *pvParameters) {  // Lambda sans capture
+    BaseType_t result;
+    TaskHandle_t handle;
+    result = xTaskCreate(
+        [](void* pvParameters)
+        {
+            // Lambda sans capture
             this_controler->run();
         },
         this_controler->get_task_name(),
         this_controler->get_stack_size(),
         nullptr,
         this_controler->get_priority(),
-        nullptr
+        &handle
     );
-    AppWifiControler *w = this_controler->get_wifi_controler();
-    xTaskCreate(
-     [] (void *pvParameters) {  // Lambda sans capture
-         this_controler->get_wifi_controler()->run();
-     },
-     w->get_task_name(),
-     w->get_stack_size(),
-     nullptr,
-     w->get_priority(),
-     nullptr
- );
+
+    APP_ASSERT(result == pdPASS)
+    AppWifiControler* w = this_controler->get_wifi_controler();
+    result = xTaskCreate(
+        [](void* pvParameters)
+        {
+            // Lambda sans capture
+            this_controler->get_wifi_controler()->run();
+        },
+        w->get_task_name(),
+        w->get_stack_size(),
+        nullptr,
+        w->get_priority(),
+        &handle
+    );
+    APP_ASSERT(result == pdPASS)
 }
 
 void setup()
@@ -147,9 +159,14 @@ void setup()
     unPhone& ph = this_phone_u;
     Display& dsp = this_display;
 
- //   Serial.begin(115200); /* prepare for possible serial debug */
- //   while (!Serial);
- //    Serial.setDebugOutput(true);
+    //   Serial.begin(115200); /* prepare for possible serial debug */
+    //   while (!Serial);
+    //    Serial.setDebugOutput(true);
+
+#if LV_USE_LOG != 0
+    lv_log_register_print_cb(my_print); /* register print function for debugging */
+#endif
+
     LOG_INIT(Log::DEBUG, 115200);
 
     ph.begin();
@@ -160,9 +177,6 @@ void setup()
     // after unPhone init
     LOG_DEBUG("display  init");
 
-#if LV_USE_LOG != 0
-    lv_log_register_print_cb(my_print); /* register print function for debugging */
-#endif
     try
     {
         dsp.init();
@@ -176,6 +190,10 @@ void setup()
     {
         LOG_ERROR("Une exception inconnue s'est produite.");
     }
+    lv_timer_create([](lv_timer_t* timer)
+    {
+        lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
+    }, 50, nullptr); // ✅ Toutes les 50ms
 
 #if 0
     /* Simple boot screen */
@@ -185,14 +203,13 @@ void setup()
     lv_obj_t* boot_page = lv_obj_create(dsp.getActiveScreen());
     lv_coord_t width = lv_disp_get_hor_res(dsp.lvgl_display());
     lv_coord_t height = lv_disp_get_ver_res(dsp.lvgl_display());
-    lv_obj_set_size(boot_page, width , height );
+    lv_obj_set_size(boot_page, width, height);
     lv_obj_t* label = lv_label_create(boot_page);
     lv_label_set_text(label, LVGL_Arduino.c_str());
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     lv_scr_load(boot_page);
     // should do some refresh here.
 #endif
-    lv_timer_handler(); /* let the GUI do its work */
     LOG_DEBUG("let start config");
 
     this_config = new AppConfig(&this_phone_u);
@@ -206,34 +223,35 @@ void setup()
     LOG_DEBUG("setup : create tasks");
 
     this_controler = new AppMainControler();
-    LOG_DEBUG("setup : controler adr %x",this_controler);
+    LOG_DEBUG("setup : controler adr %x", this_controler);
 
     this_controler->setup();
-    LOG_DEBUG("setup : wifi adr %x",this_controler->get_wifi_controler());
+    LOG_DEBUG("setup : wifi adr %x", this_controler->get_wifi_controler());
     //this_controler->get_wifi_controler()->start();
     //this_controler->start();
     launch_tasks();
     LOG_DEBUG("setup : done");
 }
 
-const AppEvent button1Event = AppEvent(APP_EVENT_UNPHONE_BUTTON1   );
+const AppEvent button1Event = AppEvent(APP_EVENT_UNPHONE_BUTTON1);
 const AppEvent button2Event = AppEvent(APP_EVENT_UNPHONE_BUTTON2);
 const AppEvent button3Event = AppEvent(APP_EVENT_UNPHONE_BUTTON3);
 
-void handleButtonPress() {
+void handleButtonPress()
+{
     unPhone& ph = this_phone_u;
 
-    if ( ph.button1() && currentButton != unPhone::BUTTON1)
+    if (ph.button1() && currentButton != unPhone::BUTTON1)
     {
         this_controler->getIncomingEventQueue()->push(button1Event);
         currentButton = unPhone::BUTTON1;
     }
-    else if ( ph.button2() && currentButton != unPhone::BUTTON2)
+    else if (ph.button2() && currentButton != unPhone::BUTTON2)
     {
         this_controler->getIncomingEventQueue()->push(button2Event);
         currentButton = unPhone::BUTTON2;
     }
-    else if ( ph.button3() && currentButton != unPhone::BUTTON3)
+    else if (ph.button3() && currentButton != unPhone::BUTTON3)
     {
         this_controler->getIncomingEventQueue()->push(button3Event);
         currentButton = unPhone::BUTTON3;
@@ -248,7 +266,6 @@ void handleButtonPress() {
 void loop()
 {
     LOG_DEBUG("main : loop");
-    lv_timer_handler(); /* let the GUI do its work */
     handleButtonPress();
     delay(3000);
 }

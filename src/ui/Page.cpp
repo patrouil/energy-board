@@ -12,6 +12,10 @@
 Page::Page(Display& parent) : display(parent)
 {
     this->page = lv_obj_create(Display::me->getActiveScreen());
+    if (!this->page) {  // ✅ Vérifier avant d'utiliser
+        LOG_ERROR("Page::Page : lv_obj_create failed!");
+        return;
+    }
     lv_coord_t width = lv_disp_get_hor_res(display.lvgl_display());
     lv_coord_t height = lv_disp_get_ver_res(display.lvgl_display());
     lv_obj_set_size(this->page, width , height );

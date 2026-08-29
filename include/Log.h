@@ -2,6 +2,8 @@
 #define LOG_H
 
 #include <stdarg.h>
+#include <freertos/semphr.h>
+
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
@@ -86,6 +88,7 @@ public:
     void log(Level level, char const * const msg, ...);
 
 private:
+    SemaphoreHandle_t logMutex;
     int _level = Log::TRACE;
     long _baud = 0;
 
@@ -131,7 +134,7 @@ Log& getLogger() {
 
 #define LOG_ERROR(msg...) \
     do { \
-        getLogger().log(Log::ERROR, msg); \
+    getLogger().log(Log::ERROR, msg); \
     } while (false)
 
 #define LOG_FATAL(msg...) \

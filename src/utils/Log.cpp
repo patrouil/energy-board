@@ -1,4 +1,5 @@
 #include "Log.h"
+#include <lvgl.h>
 
 
 Log Log::appLogger;
@@ -20,7 +21,7 @@ void Log::_detectSerial(long baud) {
     int const interval = 5000;
     unsigned long initialMillis = millis();
     unsigned long currentMillis;
-    int elapsed;
+    unsigned long elapsed;
     do {
         currentMillis = millis();
         elapsed = currentMillis - initialMillis;
@@ -37,6 +38,8 @@ void Log::_detectSerial(long baud) {
 
 void Log::log(Level level, char const * const msg, ...) {
     if (level <= _level) {
+        xSemaphoreTake(logMutex, portMAX_DELAY);
+
         char loglevel[8];
         sprintf(loglevel, "%s:", LevelNames[level]);
         _stream->print(loglevel);
@@ -44,6 +47,8 @@ void Log::log(Level level, char const * const msg, ...) {
         va_start(args, msg);
         _print(msg, args);
         _stream->print(CR);
+        xSemaphoreGive(logMutex);
+
     }
 }
 

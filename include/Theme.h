@@ -38,7 +38,6 @@ public:
     void operator=(Theme const&) = delete;
 
 private:
-    static Theme* instance;
     lv_theme_t* theme;
 
     lv_style_t style;
