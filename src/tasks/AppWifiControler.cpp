@@ -13,7 +13,7 @@
 
 
 AppWifiControler::AppWifiControler(AppConfigWifi* wificonfig, AppEventQueue* outQueue) :
-    AppTask("AppWifiControler", APP_WIFI_CONTROLER_STACK_SIZE, APP_TASK_PRIORITY_BACKEND, new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE), outQueue)
+    AppTask("AppWifiControler", APP_WIFI_CONTROLER_STACK_SIZE, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
     this->wificonfig = wificonfig;
 

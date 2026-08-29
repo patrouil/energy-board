@@ -2,7 +2,7 @@
 #define LOG_H
 
 #include <stdarg.h>
-#include <freertos/semphr.h>
+#include <freertos/FreeRTOS.h>
 
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
@@ -97,7 +97,6 @@ private:
     void _print(const char *format, va_list args);
 
     void _detectSerial(long baud);
-
 
 };
 

@@ -43,7 +43,7 @@ bool AppConfig::loadConfig()
     prefs.getString(WIFI_SID_KEY, (this->wifi.sid), sizeof(this->wifi.sid)-1);
     this->wifi.sid[sizeof(this->wifi.sid)-1] = '\0';
     prefs.getString(WIFI_PASSWORD_KEY, (this->wifi.password), sizeof(this->wifi.password)-1);
-    this->wifi.sid[sizeof(this->wifi.password.sid)-1] = '\0';
+    this->wifi.sid[sizeof(this->wifi.password)-1] = '\0';
     if (!prefs.isKey(MQTT_SERVER_KEY))
     {
         this->mqtt.ready = false;

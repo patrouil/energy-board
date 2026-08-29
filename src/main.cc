@@ -233,9 +233,9 @@ void setup()
     LOG_DEBUG("setup : done");
 }
 
-const AppEvent button1Event = AppEvent(APP_EVENT_UNPHONE_BUTTON1);
-const AppEvent button2Event = AppEvent(APP_EVENT_UNPHONE_BUTTON2);
-const AppEvent button3Event = AppEvent(APP_EVENT_UNPHONE_BUTTON3);
+const AppEvent button1Event = AppEvent(AppEventType::UNPHONE_BUTTON1  );
+const AppEvent button2Event = AppEvent( AppEventType::UNPHONE_BUTTON2 );
+const AppEvent button3Event = AppEvent( AppEventType::UNPHONE_BUTTON3 );
 
 void handleButtonPress()
 {

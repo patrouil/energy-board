@@ -20,6 +20,13 @@ AppMainControler::~AppMainControler()
     LOG_DEBUG("AppMainControler::delete AppMainControler");
 
     this->wifiManager->disconnect();
+    
+    delete this->wifiManager;
+    delete this->wifiOutQueue;
+    delete this->welcome_page;
+    this->wifiManager = nullptr;
+    this->wifiOutQueue = nullptr;
+    this->welcome_page = nullptr;
 }
 
 void AppMainControler::manage_wifi_event()
