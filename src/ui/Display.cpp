@@ -8,9 +8,8 @@
 
 #include "Theme.h"
 
-
 lv_disp_draw_buf_t draw_buf;
-lv_color_t color_buffer[displayWidth * displayHeight/4];
+lv_color_t color_buffer[displayWidth * displayHeight/10];
 
 lv_disp_drv_t Display::disp_drv;
 
@@ -62,7 +61,7 @@ void Display::setOrientation(lv_disp_rot_t rotation) {
     lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p
 )
 {
-    //LOG_DEBUG("Display::display_flush %x", disp);
+    LOG_DEBUG("Display::display_flush %x", disp);
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = area->y2 - area->y1 + 1;
     TFT_eSPI & tft = Display::me->get_tft_screen();

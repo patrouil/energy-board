@@ -151,7 +151,9 @@ void launch_tasks()
         w->get_priority(),
         &handle
     );
-    APP_ASSERT(result == pdPASS)
+    APP_ASSERT(result == pdPASS);
+    //this_controler->get_wifi_controler()->start();
+    //this_controler->start();
 }
 
 void setup()
@@ -162,18 +164,13 @@ void setup()
     //   Serial.begin(115200); /* prepare for possible serial debug */
     //   while (!Serial);
     //    Serial.setDebugOutput(true);
-
-#if LV_USE_LOG != 0
-    lv_log_register_print_cb(my_print); /* register print function for debugging */
-#endif
+    sleep(2);  // wait init PSRAM.
 
     LOG_INIT(Log::DEBUG, 115200);
+    LOG_DEBUG("unphone  init");
 
     ph.begin();
-    ph.tftp = (void*)&(dsp.get_tft_screen());
 
-    ph.tsp->setRotation(1);
-    ph.backlight(true);
     // after unPhone init
     LOG_DEBUG("display  init");
 
@@ -181,6 +178,11 @@ void setup()
     {
         dsp.init();
         Theme::getInstance().init(dsp.lvgl_display());
+        ph.tftp = (void*)&(dsp.get_tft_screen());
+
+        ph.tsp->setRotation(1);
+        ph.backlight(true);
+
     }
     catch (const std::exception& e)
     {
@@ -190,10 +192,15 @@ void setup()
     {
         LOG_ERROR("Une exception inconnue s'est produite.");
     }
+
     lv_timer_create([](lv_timer_t* timer)
     {
         lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
-    }, 50, nullptr); // ✅ Toutes les 50ms
+
+    }, 100, nullptr); // ✅ Toutes les 50ms
+#if LV_USE_LOG != 0
+    lv_log_register_print_cb(my_print); /* register print function for debugging */
+#endif
 
 #if 0
     /* Simple boot screen */
@@ -227,8 +234,7 @@ void setup()
 
     this_controler->setup();
     LOG_DEBUG("setup : wifi adr %x", this_controler->get_wifi_controler());
-    //this_controler->get_wifi_controler()->start();
-    //this_controler->start();
+
     launch_tasks();
     LOG_DEBUG("setup : done");
 }
@@ -241,31 +247,43 @@ void handleButtonPress()
 {
     unPhone& ph = this_phone_u;
 
-    if (ph.button1() && currentButton != unPhone::BUTTON1)
+    try
     {
-        this_controler->getIncomingEventQueue()->push(button1Event);
-        currentButton = unPhone::BUTTON1;
+        if (ph.button1() && currentButton != unPhone::BUTTON1)
+        {
+            this_controler->getIncomingEventQueue()->push(button1Event);
+            currentButton = unPhone::BUTTON1;
+        }
+        else if (ph.button2() && currentButton != unPhone::BUTTON2)
+        {
+            this_controler->getIncomingEventQueue()->push(button2Event);
+            currentButton = unPhone::BUTTON2;
+        }
+        else if (ph.button3() && currentButton != unPhone::BUTTON3)
+        {
+            this_controler->getIncomingEventQueue()->push(button3Event);
+            currentButton = unPhone::BUTTON3;
+        }
+        else
+        {
+            currentButton = 0xFF;
+        }
+        // LOG_DEBUG("handleButtonPress : button is %d", currentButton);
     }
-    else if (ph.button2() && currentButton != unPhone::BUTTON2)
+    catch (const std::exception& e)
     {
-        this_controler->getIncomingEventQueue()->push(button2Event);
-        currentButton = unPhone::BUTTON2;
+        LOG_ERROR("handleButtonPress : known exception : %s", e.what());
     }
-    else if (ph.button3() && currentButton != unPhone::BUTTON3)
+    catch (...)
     {
-        this_controler->getIncomingEventQueue()->push(button3Event);
-        currentButton = unPhone::BUTTON3;
+        LOG_ERROR("handleButtonPress : uncatched exception");
     }
-    else
-    {
-        currentButton = 0xFF;
-    }
-    LOG_DEBUG("handleButtonPress : button is %d", currentButton);
 }
 
 void loop()
 {
-    LOG_DEBUG("main : loop");
+    // LOG_DEBUG("main : loop");
     handleButtonPress();
+
     delay(3000);
 }

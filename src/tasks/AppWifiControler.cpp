@@ -77,10 +77,9 @@ void AppWifiControler::run()
 {
     while (true)
     {
-        //taskDISABLE_INTERRUPTS();
+        // LOG_DEBUG("AppWifiControler::loop :");
 
-        //checkStack();
-        volatile uint8_t s = WiFi.status();
+        uint8_t s = WiFi.status();
         if (s != this->status) // status change
         {
             LOG_INFO("AppWifiControler : new status is %d", s);
@@ -117,7 +116,6 @@ void AppWifiControler::run()
                 LOG_ERROR("AppWifiControler : unable to connect");
             }
         }
-        //taskENABLE_INTERRUPTS();
 
         this->sleep(1000);
     }

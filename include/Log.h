@@ -88,7 +88,7 @@ public:
     void log(Level level, char const * const msg, ...);
 
 private:
-    SemaphoreHandle_t logMutex;
+    SemaphoreHandle_t logMutex = xSemaphoreCreateMutex();
     int _level = Log::TRACE;
     long _baud = 0;
 

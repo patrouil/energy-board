@@ -19,7 +19,7 @@ Page::Page(Display& parent) : display(parent)
     lv_coord_t width = lv_disp_get_hor_res(display.lvgl_display());
     lv_coord_t height = lv_disp_get_ver_res(display.lvgl_display());
     lv_obj_set_size(this->page, width , height );
-    lv_obj_align(this->page, LV_ALIGN_CENTER, 0, 0);
+    // lv_obj_align(this->page, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_color(this->page, Theme::BACKGROUND_COLOR, LV_PART_MAIN);
 
     // Theme::getInstance().apply(page);

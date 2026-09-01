@@ -9,7 +9,7 @@
 AppMainControler* AppMainControler::controler = nullptr;
 
 AppMainControler::AppMainControler() : AppTask("mainControler", APP_CONTROLER_STACK_SIZE, APP_TASK_PRIORITY_BUSINESS,
-                                               nullptr, nullptr)
+                                               new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE), nullptr)
 {
     AppMainControler::controler = this;
     LOG_DEBUG("AppMainControler::AppMainControler");
@@ -20,7 +20,7 @@ AppMainControler::~AppMainControler()
     LOG_DEBUG("AppMainControler::delete AppMainControler");
 
     this->wifiManager->disconnect();
-    
+
     delete this->wifiManager;
     delete this->wifiOutQueue;
     delete this->welcome_page;
@@ -79,7 +79,6 @@ void AppMainControler::manage_wifi_event()
     }
 }
 
-
 void AppMainControler::manage_incoming_event()
 {
     if (this->incomingQueue->isEmpty())
@@ -98,9 +97,7 @@ void AppMainControler::manage_incoming_event()
     {
     case AppEventType::UNPHONE_BUTTON1 :
         LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON1 :%d", ev.getId());
-
-        // this->get_welcome_page()->show();
-
+        this->get_welcome_page()->show();
         break;
     case AppEventType::UNPHONE_BUTTON2 :
         LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON2 :%d", ev.getId());
@@ -116,7 +113,6 @@ void AppMainControler::manage_incoming_event()
     default:
         break;
     }
-
 }
 
 void AppMainControler::setup()
@@ -161,19 +157,13 @@ AppWifiControler* AppMainControler::get_wifi_controler()
 
 void AppMainControler::run()
 {
-    LOG_DEBUG("AppMainControler::run :");
 
-    //AppWifiControler* w = this->get_wifi_controler();
-    //w->start();
     while (true)
     {
-        LOG_DEBUG("AppMainControler::loop :");
-        //taskDISABLE_INTERRUPTS();
+        // LOG_DEBUG("AppMainControler::loop :");
         // checkStack();
-        //manage_wifi_event();
-        //manage_incoming_event();
-        //Display::me->refresh();
-        //taskENABLE_INTERRUPTS();
+        manage_wifi_event();
+        manage_incoming_event();
 
         this->sleep(5000);
     }

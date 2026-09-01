@@ -8,6 +8,7 @@ void Log::init(Level level, long baud) {
     _level = level;
     _baud = baud;
     _detectSerial(baud);
+
 }
 
 void Log::init(Level level, Stream* stream) {
