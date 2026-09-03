@@ -29,8 +29,8 @@ Preferences AppConfig::prefs;
 AppConfig::AppConfig(unPhone* board):board(board)
 {
     this->appConfig = this;
-
 }
+
 
 bool AppConfig::loadConfig()
 {
@@ -49,11 +49,11 @@ bool AppConfig::loadConfig()
         this->mqtt.ready = false;
         return false;
     }
-    prefs.getString(MQTT_SERVER_KEY, (this->mqtt.server), sizeof(this->mqtt.server)-1);
+    prefs.getString(MQTT_SERVER_KEY, (this->mqtt.server), sizeof(this->mqtt.server));
     this->wifi.sid[sizeof(this->mqtt.server)-1] = '\0';
-    prefs.getString(MQTT_USERNAME_KEY, (this->mqtt.username), sizeof(this->mqtt.username)-1);
+    prefs.getString(MQTT_USERNAME_KEY, (this->mqtt.username), sizeof(this->mqtt.username));
     this->wifi.sid[sizeof(this->mqtt.username)-1] = '\0';
-    prefs.getString(MQTT_PASSWORD_KEY, (this->mqtt.password), sizeof(this->mqtt.password)-1);
+    prefs.getString(MQTT_PASSWORD_KEY, (this->mqtt.password), sizeof(this->mqtt.password));
     this->wifi.sid[sizeof(this->mqtt.password)-1] = '\0';
 
     prefs.end();

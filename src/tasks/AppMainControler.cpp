@@ -19,11 +19,9 @@ AppMainControler::~AppMainControler()
 {
     LOG_DEBUG("AppMainControler::delete AppMainControler");
 
-    this->wifiManager->disconnect();
-
-    delete this->wifiManager;
-    delete this->wifiOutQueue;
-    delete this->welcome_page;
+    if ( wifiManager) delete this->wifiManager;
+    if (wifiOutQueue) delete this->wifiOutQueue;
+    if ( welcome_page ) delete this->welcome_page;
     this->wifiManager = nullptr;
     this->wifiOutQueue = nullptr;
     this->welcome_page = nullptr;

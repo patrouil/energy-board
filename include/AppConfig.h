@@ -43,6 +43,7 @@ public:
     AppConfigMqtt mqtt;
 
     AppConfig(unPhone *board);
+    ~AppConfig() = default;
 
     bool loadConfig();
     bool saveConfig() const;

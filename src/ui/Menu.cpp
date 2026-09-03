@@ -10,7 +10,7 @@ Menu::Menu(lv_obj_t* parent) {
     Theme::getInstance().apply(menuContainer);
 }
 
-void Menu::addPage(Page* page, const char* name) {
+void Menu::addPage(Screen* page, const char* name) {
     windows.push_back(page);
     lv_obj_t* btn = lv_btn_create(menuContainer);
     lv_obj_t* label = lv_label_create(btn);

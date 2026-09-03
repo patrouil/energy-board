@@ -10,7 +10,7 @@
 #include "Theme.h"
 
 WelcomePage::WelcomePage(Display& disp)
-    : Page(disp)
+    : Screen(disp)
 {
     //LOG_DEBUG("WelcomePage::WelcomePage");
 }
@@ -18,6 +18,7 @@ WelcomePage::WelcomePage(Display& disp)
 void WelcomePage::create()
 {
     LOG_DEBUG("WelcomePage::create");
+    Screen::create();
     titleLabel = lv_label_create(this->page);
     APP_ASSERT(titleLabel != nullptr)
     lv_label_set_text(titleLabel, "About Energy Monitor");
@@ -48,6 +49,9 @@ void WelcomePage::create()
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
 
     LOG_DEBUG("WelcomePage::create done");
+    lv_scr_load(this->page);
+    lv_timer_handler();
+
 }
 
 void WelcomePage::setIPAddress(const char* ip)

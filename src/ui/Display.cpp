@@ -5,11 +5,10 @@
 #include <Log.h>
 
 #include "Display.h"
-
 #include "Theme.h"
 
 lv_disp_draw_buf_t draw_buf;
-lv_color_t color_buffer[displayWidth * displayHeight/10];
+static lv_color_t color_buffer[displayWidth * displayHeight/10];
 
 lv_disp_drv_t Display::disp_drv;
 
@@ -22,7 +21,6 @@ Display::Display(): _tft_screen(displayWidth, displayHeight) {
 
 // call it once.
 void Display::init() {
-
     LOG_DEBUG("Display::init: %s", "init tft");
     _tft_screen.init();
     _tft_screen.setRotation(1); /* Landscape orientation */
@@ -43,13 +41,11 @@ void Display::init() {
     disp_drv.draw_buf = &draw_buf;
     this->disp = lv_disp_drv_register(&disp_drv);
     this->setBackgroundColor(Theme::PAGE_BACKGROUND_COLOR);
-
 }
 
 void Display::setBackgroundColor(lv_color_t color) {
-    // lv_obj_set_style_bg_color(lv_scr_act(), color, LV_PART_MAIN);
-    lv_disp_set_bg_color(this->disp, color);
-
+    lv_obj_set_style_bg_color(lv_scr_act(), color, LV_PART_MAIN);
+    //lv_disp_set_bg_color(this->disp, color);
 }
 
 void Display::setOrientation(lv_disp_rot_t rotation) {

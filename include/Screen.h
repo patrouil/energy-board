@@ -8,17 +8,17 @@
 #include "Display.h"
 
 #define DEFAULT_VERTICAL_SPACING 20
-class Page
+class Screen
 {
 public:
-    Page(Display& disp);
-    virtual ~Page();
-    virtual void create() = 0;
+    Screen(Display& disp);
+    virtual ~Screen();
+    virtual void create() ;
     virtual void show();
     virtual void hide();
 
 protected:
-    Display& display;
+    const Display& display;
     lv_obj_t* page;  // each page is a LVGL Screen.
 };
 

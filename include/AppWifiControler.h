@@ -27,7 +27,7 @@ class AppWifiControler : public AppTask
 
 public:
     AppWifiControler(AppConfigWifi* wificonfig, AppEventQueue* outQueue);
-    ~AppWifiControler() override = default;
+    ~AppWifiControler() override;
 
     AppConfigWifi* get_wificonfig() const
     {

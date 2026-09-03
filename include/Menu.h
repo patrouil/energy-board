@@ -6,17 +6,17 @@
 #define ENERGY_BOARD_MENU_H
 
 #include <vector>
-#include "Page.h"
+#include "Screen.h"
 
 class Menu {
 public:
     Menu(lv_obj_t* parent);
-    void addPage(Page* page, const char* name);
+    void addPage(Screen* page, const char* name);
     void show();
 
 private:
     lv_obj_t* menuContainer;
-    std::vector<Page*> windows;
+    std::vector<Screen*> windows;
 };
 
 

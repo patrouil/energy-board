@@ -21,6 +21,13 @@ AppWifiControler::AppWifiControler(AppConfigWifi* wificonfig, AppEventQueue* out
 }
 
 
+AppWifiControler::~AppWifiControler()
+{
+    LOG_DEBUG("AppWifiControler::AppWifiControler");
+    this->disconnect();
+}
+
+
 bool AppWifiControler::connect(uint16_t maxTries)
 {
      uint16_t i;
@@ -45,7 +52,7 @@ bool AppWifiControler::connect(uint16_t maxTries)
              WiFi.begin(this->wificonfig->sid, this->wificonfig->password);
             LOG_INFO("AppWifiControler : done begin");
             for (uint8_t j = 0; j < 20; j++) {  // 20 * 500ms = 10s
-                this->sleep(500);
+                this->sleep(100);
                 if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != INADDR_NONE) {
                     LOG_INFO("WiFi connected! IP: %s", WiFi.localIP().toString().c_str());
                     return true;
@@ -53,7 +60,7 @@ bool AppWifiControler::connect(uint16_t maxTries)
             }
             WiFi.disconnect();
             LOG_ERROR("AppWifiControler : login error");
-            this->sleep(500);
+            this->sleep(100);
         }
         catch (const std::exception& e)
         {

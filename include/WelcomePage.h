@@ -5,9 +5,9 @@
 #ifndef ENERGY_BOARD_WELCOMEPAGE_H
 #define ENERGY_BOARD_WELCOMEPAGE_H
 
-#include "Page.h"
+#include "Screen.h"
 
-class WelcomePage : public Page
+class WelcomePage : public Screen
 {
     lv_obj_t* titleLabel;
     lv_obj_t* ipLabel;

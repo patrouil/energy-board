@@ -27,6 +27,7 @@
 #include <Display.h>
 #include "AppMainControler.h"
 #include "Theme.h"
+#include "../include/BootPage.h"
 
 // create an unPhone; add a custom version of Arduino's map command for
 // translating from touchscreen coordinates to LCD coordinates
@@ -136,7 +137,9 @@ void launch_tasks()
         this_controler->get_priority(),
         &handle
     );
+    this_controler->set_task_handle(handle);
 
+    /*
     APP_ASSERT(result == pdPASS)
     AppWifiControler* w = this_controler->get_wifi_controler();
     result = xTaskCreate(
@@ -151,9 +154,11 @@ void launch_tasks()
         w->get_priority(),
         &handle
     );
+    this_controler->get_wifi_controler()->set_task_handle(handle);
     APP_ASSERT(result == pdPASS);
-    //this_controler->get_wifi_controler()->start();
-    //this_controler->start();
+    */
+    this_controler->get_wifi_controler()->start();
+
 }
 
 void setup()
@@ -164,7 +169,6 @@ void setup()
     //   Serial.begin(115200); /* prepare for possible serial debug */
     //   while (!Serial);
     //    Serial.setDebugOutput(true);
-    sleep(2);  // wait init PSRAM.
 
     LOG_INIT(Log::DEBUG, 115200);
     LOG_DEBUG("unphone  init");
@@ -197,7 +201,7 @@ void setup()
     {
         lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
 
-    }, 100, nullptr); // ✅ Toutes les 50ms
+    }, 100, nullptr); // ✅ Toutes les 100ms
 #if LV_USE_LOG != 0
     lv_log_register_print_cb(my_print); /* register print function for debugging */
 #endif
@@ -216,10 +220,15 @@ void setup()
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
     lv_scr_load(boot_page);
     // should do some refresh here.
+    lv_timer_handler();
+#else
+    BootPage boot_page(*Display::me);
+    boot_page.create(ph);
+    boot_page.show();
 #endif
     LOG_DEBUG("let start config");
 
-    this_config = new AppConfig(&this_phone_u);
+    this_config = new AppConfig(&ph);
     this_config->loadConfig();
     if (!this_config->wifi.ready)
     {
@@ -284,6 +293,7 @@ void loop()
 {
     // LOG_DEBUG("main : loop");
     handleButtonPress();
+    lv_timer_handler();
 
     delay(3000);
 }

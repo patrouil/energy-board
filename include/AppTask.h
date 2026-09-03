@@ -5,7 +5,6 @@
 #ifndef UPHONE1_APPTASK_H
 #define UPHONE1_APPTASK_H
 
-
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <Log.h>
@@ -77,27 +76,22 @@ public:
     {
         return this->outgoingQueue;
     }
-    virtual void run() = 0;
-protected:
 
+    TaskHandle_t get_task_handle() const
+    {
+        return taskHandle;
+    }
 
-    bool sendEvent(const AppEvent& event) const;
-    bool receiveEvent(AppEvent* event);
+    void set_task_handle(TaskHandle_t task_handle)
+    {
+        taskHandle = task_handle;
+    }
 
-    TaskHandle_t taskHandle = nullptr;
-    AppEventQueue* incomingQueue;
-    AppEventQueue* outgoingQueue;
-
-private:
-    static void taskWrapper(void* parameters);
-
-    const char* taskName;
-
-public:
     const char* get_task_name() const
     {
         return taskName;
     }
+
 
     uint16_t get_stack_size() const
     {
@@ -109,7 +103,19 @@ public:
         return priority;
     }
 
+    virtual void run() = 0;
+
+protected:
+    bool sendEvent(const AppEvent& event) const;
+    bool receiveEvent(AppEvent* event);
+
+    TaskHandle_t taskHandle = nullptr;
+
+    AppEventQueue* incomingQueue;
+    AppEventQueue* outgoingQueue;
+
 private:
+    const char* taskName;
     uint16_t stackSize;
     UBaseType_t priority;
 };
