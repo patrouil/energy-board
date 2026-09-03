@@ -59,6 +59,7 @@ public:
             AppEventQueue* incomingQueue = nullptr, AppEventQueue* outgoingQueue = nullptr);
     virtual ~AppTask();
     void start();
+    void setup() {}
 
     void suspend() const;
     void resume() const;

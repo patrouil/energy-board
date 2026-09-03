@@ -2,7 +2,7 @@
 // Created by Patrick Rouillon on 03/09/2026.
 //
 
-#include "../../include/BootPage.h"
+#include "BootPage.h"
 
 void BootPage::create()
 {
@@ -18,9 +18,8 @@ void BootPage::create()
 
 }
 
-void BootPage::~BootPage() override
+ BootPage::~BootPage()
 {
-    Screen::~Screen();
     if ( obj_label) lv_obj_del(obj_label);
     obj_label = nullptr;
 }

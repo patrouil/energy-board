@@ -27,7 +27,7 @@ public:
     AppMainControler();
     ~AppMainControler() override;
 
-    void setup();
+    void setup() ;
 
     WelcomePage* get_welcome_page();
     AppWifiControler* get_wifi_controler();

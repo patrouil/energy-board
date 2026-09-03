@@ -75,6 +75,7 @@ void AppTask::sleep(int milli)
     vTaskDelay(pdMS_TO_TICKS(milli));
 }
 
+
 bool AppTask::sendEvent(const AppEvent& event) const
 {
     LOG_DEBUG("AppTask::sendEvent %x to %x", event.getId(), this->outgoingQueue);

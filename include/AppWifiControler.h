@@ -40,7 +40,6 @@ public:
     }
 
     void disconnect();
-    void setup();
 
 public:
     void run() override;

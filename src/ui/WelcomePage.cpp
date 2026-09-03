@@ -15,6 +15,19 @@ WelcomePage::WelcomePage(Display& disp)
     //LOG_DEBUG("WelcomePage::WelcomePage");
 }
 
+WelcomePage::~WelcomePage()
+{
+    if (titleLabel) lv_obj_del(titleLabel);
+    if (ipLabel) lv_obj_del(ipLabel);
+    if (mqttLabel) lv_obj_del(mqttLabel);
+    if (messageLabel) lv_obj_del(messageLabel);
+    titleLabel = nullptr;
+    ipLabel = nullptr;
+    mqttLabel = nullptr;
+    messageLabel = nullptr;
+
+}
+
 void WelcomePage::create()
 {
     LOG_DEBUG("WelcomePage::create");

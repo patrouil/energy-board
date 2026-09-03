@@ -12,7 +12,7 @@ class Screen
 {
 public:
     Screen(Display& disp);
-    virtual ~Screen();
+    ~Screen();
     virtual void create() ;
     virtual void show();
     virtual void hide();

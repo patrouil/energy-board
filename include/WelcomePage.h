@@ -16,6 +16,7 @@ class WelcomePage : public Screen
 
 public:
     explicit WelcomePage(Display& display);
+    ~WelcomePage() ;
 
     void create() override;
 

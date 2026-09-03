@@ -12,7 +12,6 @@
 static constexpr uint16_t displayWidth = 480;
 static constexpr uint16_t displayHeight = 320;
 
-
 class Display
 {
 public:
@@ -38,7 +37,6 @@ public:
     {
         return disp;
     }
-
 
 private:
      TFT_eSPI _tft_screen;

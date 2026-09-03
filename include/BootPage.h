@@ -4,8 +4,8 @@
 
 #ifndef ENERGY_BOARD_BOOTPAGE_H
 #define ENERGY_BOARD_BOOTPAGE_H
-#include "Screen.h"
 #include "unPhone.h"
+#include "Screen.h"
 
 
 class BootPage : public Screen
@@ -16,13 +16,12 @@ public:
     {
     }
 
-    ~BootPage() override ;
+    ~BootPage() ;
     void create() override;
     void create(unPhone &phone);
 
 private:
     lv_obj_t* obj_label = nullptr;
 };
-
 
 #endif //ENERGY_BOARD_BOOTPAGE_H

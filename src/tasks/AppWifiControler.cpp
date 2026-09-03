@@ -127,8 +127,3 @@ void AppWifiControler::run()
         this->sleep(1000);
     }
 }
-
-void AppWifiControler::setup()
-{
-
-}
