@@ -4,7 +4,6 @@
 
 #ifndef ENERGY_BOARD_BOOTPAGE_H
 #define ENERGY_BOARD_BOOTPAGE_H
-#include "unPhone.h"
 #include "Screen.h"
 
 
@@ -18,7 +17,7 @@ public:
 
     ~BootPage() ;
     void create() override;
-    void create(unPhone &phone);
+    void set_version(uint8_t  vers);
 
 private:
     lv_obj_t* obj_label = nullptr;

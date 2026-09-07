@@ -26,8 +26,9 @@
 #include <AppWifiControler.h>
 #include <Display.h>
 #include "AppMainControler.h"
+#include "PageRouter.h"
 #include "Theme.h"
-#include "../include/BootPage.h"
+#include "BootPage.h"
 
 // create an unPhone; add a custom version of Arduino's map command for
 // translating from touchscreen coordinates to LCD coordinates
@@ -37,12 +38,13 @@
 
 unPhone this_phone_u = unPhone();
 Display this_display = Display();
+PageRouter router = PageRouter(this_display);
+
+uint8_t currentButton = 0xFF;
 AppConfig* this_config = nullptr;
 AppMainControler* this_controler = nullptr;
-uint8_t currentButton = 0xFF;
 
 // END OF GLOBALS
-
 
 //long my_mapper(long, long, long, long, long);
 void my_print(const char* buf)
@@ -175,6 +177,8 @@ void setup()
 
     ph.begin();
 
+    ph.expanderPower(false);
+    ph.backlight(true);
     // after unPhone init
     LOG_DEBUG("display  init");
 
@@ -197,11 +201,6 @@ void setup()
         LOG_ERROR("Une exception inconnue s'est produite.");
     }
 
-    lv_timer_create([](lv_timer_t* timer)
-    {
-        lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
-
-    }, 100, nullptr); // ✅ Toutes les 100ms
 #if LV_USE_LOG != 0
     lv_log_register_print_cb(my_print); /* register print function for debugging */
 #endif
@@ -222,9 +221,11 @@ void setup()
     // should do some refresh here.
     lv_timer_handler();
 #else
-    BootPage boot_page(*Display::me);
-    boot_page.create(ph);
+    static BootPage boot_page(*Display::me);
+    boot_page.set_version(ph.version());
     boot_page.show();
+    lv_timer_handler();
+    sleep(3);
 #endif
     LOG_DEBUG("let start config");
 
@@ -273,6 +274,7 @@ void handleButtonPress()
             this_controler->getIncomingEventQueue()->push(button3Event);
             currentButton = unPhone::BUTTON3;
         }
+
         else
         {
             currentButton = 0xFF;
@@ -296,4 +298,6 @@ void loop()
     lv_timer_handler();
 
     delay(3000);
+    // sleep on power off
+    this_phone_u.checkPowerSwitch();
 }

@@ -41,6 +41,17 @@ void Display::init() {
     disp_drv.draw_buf = &draw_buf;
     this->disp = lv_disp_drv_register(&disp_drv);
     this->setBackgroundColor(Theme::PAGE_BACKGROUND_COLOR);
+    // TODO add in destructor
+    /*
+    this->lv_timer = lv_timer_create([](lv_timer_t* timer)
+    {
+        LOG_DEBUG("display  callback timer.");
+
+        lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
+
+    }, 100, nullptr); // ✅ Toutes les 100ms
+*/
+
 }
 
 void Display::setBackgroundColor(lv_color_t color) {

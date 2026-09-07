@@ -27,7 +27,10 @@ void AppTask::start()
             {
                 AppTask* task = static_cast<AppTask*>(parameter);
                 LOG_DEBUG("AppTask::taskWrapper :run %s", task->taskName);
-                //task->run();
+                task->run();
+                // no exit.
+                APP_ASSERT(false);
+
             }
             catch (const std::exception& e)
             {

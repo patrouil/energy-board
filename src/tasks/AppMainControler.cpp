@@ -45,8 +45,7 @@ void AppMainControler::manage_wifi_event()
     {
     case  AppEventType::WIFI_IDLE  :
         LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
-
-        this->get_welcome_page()->show();
+        // this->get_welcome_page()->show();
 
         break;
     case AppEventType::WIFI_CONNECTED :

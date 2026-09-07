@@ -2,11 +2,12 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
-#ifndef ENERGY_BOARD_SCREENMANAGER_H
-#define ENERGY_BOARD_SCREENMANAGER_H
+#ifndef ENERGY_BOARD_DISPLAY_H
+#define ENERGY_BOARD_DISPLAY_H
 
-#include <lvgl.h>
 #include <TFT_eSPI.h>
+#include <lvgl.h>
+
 
 /*Change to your screen resolution*/
 static constexpr uint16_t displayWidth = 480;
@@ -18,6 +19,7 @@ public:
     static Display* me;
 
     Display();
+    ~Display() = default;
 
     void init();
     void setBackgroundColor(lv_color_t color);
@@ -40,10 +42,11 @@ public:
 
 private:
      TFT_eSPI _tft_screen;
+    lv_timer_t* lv_timer = nullptr;
     static lv_disp_drv_t disp_drv;
     lv_disp_t* disp = nullptr;
 
     static void display_flush(lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p);
 };
 
-#endif //ENERGY_BOARD_SCREENMANAGER_H
+#endif //ENERGY_BOARD_DISPLAY_H

@@ -2,7 +2,7 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
-#include "../../include/WelcomePage.h"
+#include "WelcomePage.h"
 
 #include "Log.h"
 
@@ -17,6 +17,7 @@ WelcomePage::WelcomePage(Display& disp)
 
 WelcomePage::~WelcomePage()
 {
+    LOG_DEBUG("WelcomePage::~WelcomePage");
     if (titleLabel) lv_obj_del(titleLabel);
     if (ipLabel) lv_obj_del(ipLabel);
     if (mqttLabel) lv_obj_del(mqttLabel);
@@ -25,25 +26,27 @@ WelcomePage::~WelcomePage()
     ipLabel = nullptr;
     mqttLabel = nullptr;
     messageLabel = nullptr;
-
 }
 
 void WelcomePage::create()
 {
     LOG_DEBUG("WelcomePage::create");
     Screen::create();
+    lv_obj_set_style_bg_color(page, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN); // Bleu (palette)
+
     titleLabel = lv_label_create(this->page);
     APP_ASSERT(titleLabel != nullptr)
     lv_label_set_text(titleLabel, "About Energy Monitor");
-
+    lv_obj_set_style_text_color(titleLabel, Theme::BUTTON_COLOR, LV_PART_MAIN);
     lv_obj_set_style_text_font(titleLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
-
     lv_obj_align(titleLabel, LV_ALIGN_TOP_MID, 0, Theme::LABEL_SPACING);
 
     // Ligne pour l'adresse IP
     ipLabel = lv_label_create(this->page);
     this->setIPAddress("--");
     lv_obj_set_style_text_font(ipLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_color(ipLabel, Theme::PRIMARY_COLOR, LV_PART_MAIN);
+
     lv_obj_align_to(ipLabel, titleLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
     LOG_DEBUG("WelcomePage::create ip");
 
@@ -51,6 +54,7 @@ void WelcomePage::create()
     mqttLabel = lv_label_create(this->page);
     this->setMQTTStatus("--");
     lv_obj_set_style_text_font(mqttLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_color(mqttLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_obj_align_to(mqttLabel, ipLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
 
     LOG_DEBUG("WelcomePage::create mqtt");
@@ -60,11 +64,9 @@ void WelcomePage::create()
     this->setMessage("Welcome");
     lv_obj_set_style_text_font(messageLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
+    lv_obj_set_style_text_color(ipLabel, Theme::SECONDARY_COLOR, LV_PART_MAIN);
 
     LOG_DEBUG("WelcomePage::create done");
-    lv_scr_load(this->page);
-    lv_timer_handler();
-
 }
 
 void WelcomePage::setIPAddress(const char* ip)

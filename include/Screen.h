@@ -8,6 +8,7 @@
 #include "Display.h"
 
 #define DEFAULT_VERTICAL_SPACING 20
+
 class Screen
 {
 public:
