@@ -63,8 +63,9 @@ void WelcomePage::create()
     messageLabel = lv_label_create(this->page);
     this->setMessage("Welcome");
     lv_obj_set_style_text_font(messageLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_color(messageLabel, Theme::SECONDARY_COLOR, LV_PART_MAIN);
+
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
-    lv_obj_set_style_text_color(ipLabel, Theme::SECONDARY_COLOR, LV_PART_MAIN);
 
     LOG_DEBUG("WelcomePage::create done");
 }

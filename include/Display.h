@@ -19,10 +19,9 @@ public:
     static Display* me;
 
     Display();
-    ~Display() = default;
+    ~Display() ;
 
     void init();
-    void setBackgroundColor(lv_color_t color);
     void setOrientation(lv_disp_rot_t rotation);
 
     lv_obj_t* getActiveScreen() const

@@ -19,6 +19,15 @@ Display::Display(): _tft_screen(displayWidth, displayHeight) {
        Display::me = this;
 }
 
+Display::~Display()
+{
+    if ( this->lv_timer)
+        lv_timer_del(this->lv_timer);
+    this->lv_timer = nullptr;
+   // TODO unregister driver
+    this->disp = nullptr;
+}
+
 // call it once.
 void Display::init() {
     LOG_DEBUG("Display::init: %s", "init tft");
@@ -40,23 +49,16 @@ void Display::init() {
     disp_drv.flush_cb =  Display::display_flush;
     disp_drv.draw_buf = &draw_buf;
     this->disp = lv_disp_drv_register(&disp_drv);
-    this->setBackgroundColor(Theme::PAGE_BACKGROUND_COLOR);
+    lv_disp_set_default(this->disp);
     // TODO add in destructor
-    /*
+
     this->lv_timer = lv_timer_create([](lv_timer_t* timer)
     {
         LOG_DEBUG("display  callback timer.");
-
-        lv_timer_handler(); // ✅ Appelé automatiquement par LVGL
-
+        lv_timer_handler();
     }, 100, nullptr); // ✅ Toutes les 100ms
-*/
+    APP_ASSERT(this->lv_timer != nullptr);
 
-}
-
-void Display::setBackgroundColor(lv_color_t color) {
-    lv_obj_set_style_bg_color(lv_scr_act(), color, LV_PART_MAIN);
-    //lv_disp_set_bg_color(this->disp, color);
 }
 
 void Display::setOrientation(lv_disp_rot_t rotation) {

@@ -16,10 +16,10 @@ void BootPage::create()
 {
     Screen::create();
 
-    lv_coord_t width = lv_disp_get_hor_res(display.lvgl_display());
-    lv_coord_t height = lv_disp_get_ver_res(display.lvgl_display());
+    //lv_coord_t width = lv_disp_get_hor_res(display.lvgl_display());
+    //lv_coord_t height = lv_disp_get_ver_res(display.lvgl_display());
 
-    lv_obj_set_size(page, width, height);
+    //lv_obj_set_size(page, width, height);
     lv_obj_t* label = lv_label_create(page);
     obj_label = label;
     lv_label_set_text(obj_label, "boot ....");
