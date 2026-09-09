@@ -2,18 +2,16 @@
 // Created by Patrick Rouillon on 03/09/2026.
 //
 
+#pragma once
+
 #ifndef ENERGY_BOARD_BOOTPAGE_H
 #define ENERGY_BOARD_BOOTPAGE_H
 #include "Screen.h"
 
-
 class BootPage : public Screen
 {
 public:
-    explicit BootPage(Display& disp)
-        : Screen(disp)
-    {
-    }
+    explicit BootPage() = default;
 
     ~BootPage() ;
     void create() override;

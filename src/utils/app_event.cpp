@@ -3,14 +3,16 @@
 //
 
 
+
 #include "app_event.h"
 
+static const EventData dummyData;
 
-AppEvent::AppEvent(AppEventType id, const void* data) : id(id), data(data)
+AppEvent::AppEvent(AppEventType id, EventData & data) : id(id), data(data)
 {
 }
 
-AppEvent::AppEvent(AppEventType id) : id(id), data(nullptr)
+AppEvent::AppEvent(AppEventType id) : id(id), data(dummyData)
 {
 }
 
@@ -20,7 +22,7 @@ AppEventType AppEvent::getId() const
     return id;
 }
 
-const void* AppEvent::getData() const
+const EventData& AppEvent::getData() const
 {
     return data;
 }

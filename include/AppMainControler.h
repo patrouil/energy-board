@@ -6,33 +6,44 @@
 #define UPHONE1_MAINCONTROLER_H
 #include "AppTask.h"
 #include "AppWifiControler.h"
-#include "WelcomePage.h"
-
-#define APP_CONTROLER_STACK_SIZE (4*1024)
+#include "UnphoneControler.h"
 
 class AppMainControler : public AppTask
 {
 private:
-    static AppMainControler* controler;
+    AppMainControler();
+    ~AppMainControler() override;
 
     // WIFI section
     AppEventQueue* wifiOutQueue = nullptr;
     AppWifiControler* wifiManager = nullptr;
-    WelcomePage* welcome_page = nullptr;
     //
     void manage_wifi_event();
-    void manage_incoming_event();
+    void manage_unphone_event();
+
+    // unphone section
+    AppEventQueue* unphoneOutQueue = nullptr;
+    UnphoneControler* unphoneManager = nullptr;
 
 public:
-    AppMainControler();
-    ~AppMainControler() override;
+    static AppMainControler& getInstance()
+    {
+        static AppMainControler instance;
+        return instance;
+    }
 
-    void setup() ;
+    void setup();
 
-    WelcomePage* get_welcome_page();
-    AppWifiControler* get_wifi_controler();
+    AppWifiControler* get_wifi_controler() const
+    {
+        return wifiManager;
+    }
 
-public:
+    UnphoneControler* get_unphone_controler() const
+    {
+        return unphoneManager;
+    }
+
     void run() override;
 };
 

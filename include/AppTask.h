@@ -2,6 +2,8 @@
 // Created by Patrick Rouillon on 24/01/2026.
 //
 
+#pragma once
+
 #ifndef UPHONE1_APPTASK_H
 #define UPHONE1_APPTASK_H
 
@@ -49,8 +51,9 @@ void loop() {}
 #define APP_TASK_PRIORITY_UI        (configMAX_PRIORITIES-2)
 #define APP_TASKS_PRIORITY_DEFAULT  (tskIDLE_PRIORITY+2)
 
-#define APP_TASK_STACK_DEFAULT (2048)
-
+#define APP_TASK_STACK_MIN (2048)
+#define APP_TASK_STACK_DEFAULT (3192)
+#define APP_TASK_STACK_MAX (4096)
 
 class AppTask
 {

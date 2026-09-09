@@ -8,8 +8,8 @@
 #include "WelcomePage.h"
 #include "BootPage.h"
 
-PageRouter::PageRouter(Display& disp)
-    : display(disp)
+PageRouter::PageRouter()
+
 {
     for (uint8_t i = 0; i < static_cast<uint8_t>(ScreenId::SCREEN_COUNT); ++i) {
         screens[i] = nullptr;
@@ -24,7 +24,7 @@ PageRouter::~PageRouter()
             screens[i] = nullptr;
         }
     }
-    LOG_DEBUG("PageRouter::~PageRouter");
+
 }
 
 Screen* PageRouter::get_screen(ScreenId id)
@@ -38,12 +38,12 @@ Screen* PageRouter::get_screen(ScreenId id)
     if (screens[index] == nullptr) {
         switch (id) {
         case ScreenId::WELCOME_PAGE:
-            screens[index] = new WelcomePage(display);
+            screens[index] = new WelcomePage();
             screens[index]->create();
             LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
             break;
         case ScreenId::BOOT_PAGE:
-            screens[index] = new BootPage(display);
+            screens[index] = new BootPage();
             screens[index]->create();
             LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
             break;

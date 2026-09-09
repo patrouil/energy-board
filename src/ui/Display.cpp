@@ -7,16 +7,14 @@
 #include "Display.h"
 #include "Theme.h"
 
-lv_disp_draw_buf_t draw_buf;
-static lv_color_t color_buffer[displayWidth * displayHeight/10];
+static lv_disp_draw_buf_t draw_buf;
+static lv_color_t color_buffer[Display::displayWidth * Display::displayHeight/10];
 
 lv_disp_drv_t Display::disp_drv;
 
-Display *Display::me = nullptr;
 
 Display::Display(): _tft_screen(displayWidth, displayHeight) {
-   if ( Display::me == nullptr)
-       Display::me = this;
+
 }
 
 Display::~Display()
@@ -27,6 +25,7 @@ Display::~Display()
    // TODO unregister driver
     this->disp = nullptr;
 }
+
 
 // call it once.
 void Display::init() {
@@ -50,14 +49,6 @@ void Display::init() {
     disp_drv.draw_buf = &draw_buf;
     this->disp = lv_disp_drv_register(&disp_drv);
     lv_disp_set_default(this->disp);
-    // TODO add in destructor
-
-    this->lv_timer = lv_timer_create([](lv_timer_t* timer)
-    {
-        LOG_DEBUG("display  callback timer.");
-        lv_timer_handler();
-    }, 100, nullptr); // ✅ Toutes les 100ms
-    APP_ASSERT(this->lv_timer != nullptr);
 
 }
 
@@ -70,10 +61,10 @@ void Display::setOrientation(lv_disp_rot_t rotation) {
     lv_disp_drv_t* disp, const lv_area_t* area, lv_color_t* color_p
 )
 {
-    LOG_DEBUG("Display::display_flush %x", disp);
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = area->y2 - area->y1 + 1;
-    TFT_eSPI & tft = Display::me->get_tft_screen();
+    // LOG_DEBUG("Display::display_flush %x", disp);
+    int32_t w = (area->x2 - area->x1 + 1);
+    int32_t h = area->y2 - area->y1 + 1;
+    TFT_eSPI & tft = Display::getInstance().get_tft_screen();
 
     tft.setAddrWindow(area->x1, area->y1, w, h);
     tft.pushColors((uint16_t*)&color_p->full, w * h, true);

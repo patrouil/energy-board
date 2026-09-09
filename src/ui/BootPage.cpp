@@ -12,6 +12,15 @@ lv_obj_set_style_bg_color(lv_scr_act(), lv_color_white(), LV_PART_MAIN); // Blan
 lv_obj_set_style_bg_color(lv_scr_act(), lv_palette_main(LV_PALETTE_BLUE), LV_PART_MAIN); // Bleu (palette)
 */
 
+
+BootPage::~BootPage()
+{
+    LOG_DEBUG("Boot Page destruction");
+    if ( obj_label) lv_obj_del(obj_label);
+    obj_label = nullptr;
+}
+
+
 void BootPage::create()
 {
     Screen::create();
@@ -24,15 +33,10 @@ void BootPage::create()
     obj_label = label;
     lv_label_set_text(obj_label, "boot ....");
     lv_obj_set_style_text_color(obj_label, Theme::TEXT_COLOR, LV_PART_MAIN);
+    //lv_obj_set_style_text_font(obj_label, Theme::DEFAULT_FONT, LV_PART_MAIN);
+
     lv_obj_align(obj_label, LV_ALIGN_CENTER, 0, 0);
 
-}
-
- BootPage::~BootPage()
-{
-    LOG_DEBUG("Boot Page destruction");
-    if ( obj_label) lv_obj_del(obj_label);
-    obj_label = nullptr;
 }
 
 /*

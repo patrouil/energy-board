@@ -2,6 +2,8 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
+#pragma once
+
 #ifndef ENERGY_BOARD_PAGE_H
 #define ENERGY_BOARD_PAGE_H
 
@@ -12,14 +14,13 @@
 class Screen
 {
 public:
-    Screen(Display& disp);
+    Screen() = default;
     ~Screen();
     virtual void create() ;
     virtual void show();
     virtual void hide();
 
 protected:
-    const Display& display;
     lv_obj_t* page;  // each page is a LVGL Screen.
 };
 

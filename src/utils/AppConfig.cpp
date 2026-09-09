@@ -5,32 +5,24 @@
  *      Author: patrick
  */
 
-#include <stdio.h>
+
+
+// #include <stdio.h>
 #include <string.h>
-//#include <ctype.h>
-//#include <stdbool.h>
-//#include <ff_studio.h>
-#include <unPhone.h>
+
+// #include <unPhone.h>
 
 #include "AppConfig.h"
 
-#include "Log.h"
 
-static const char WIFI_SID_KEY[] = "wifisid";
-static const char WIFI_PASSWORD_KEY[] = "wifikey";
+static constexpr char WIFI_SID_KEY[] = "wifisid";
+static constexpr char WIFI_PASSWORD_KEY[] = "wifikey";
 
-static const char MQTT_SERVER_KEY[] = "mqttserver";
-static const char MQTT_USERNAME_KEY[] = "username";
-static const char MQTT_PASSWORD_KEY[] = "password";
+static constexpr char MQTT_SERVER_KEY[] = "mqttserver";
+static constexpr char MQTT_USERNAME_KEY[] = "username";
+static constexpr char MQTT_PASSWORD_KEY[] = "password";
 
-AppConfig* AppConfig::appConfig = nullptr;
 Preferences AppConfig::prefs;
-
-AppConfig::AppConfig(unPhone* board):board(board)
-{
-    this->appConfig = this;
-}
-
 
 bool AppConfig::loadConfig()
 {
@@ -62,6 +54,7 @@ bool AppConfig::loadConfig()
 
 bool AppConfig::saveConfig() const
 {
+
     prefs.putString(WIFI_SID_KEY, (this->wifi.sid));
     prefs.putString(WIFI_PASSWORD_KEY, (this->wifi.password));
     prefs.putString(MQTT_SERVER_KEY, (this->mqtt.server));

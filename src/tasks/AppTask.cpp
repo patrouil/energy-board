@@ -30,7 +30,6 @@ void AppTask::start()
                 task->run();
                 // no exit.
                 APP_ASSERT(false);
-
             }
             catch (const std::exception& e)
             {
@@ -95,13 +94,15 @@ UBaseType_t AppTask::checkStack()
 {
     UBaseType_t ret = uxTaskGetStackHighWaterMark(this->taskHandle);
 
-    LOG_DEBUG("AppTask::checkStack : %s %d", this->taskName, ret);
+    if (100 * ret >= 80 * this->stackSize)
+        LOG_WARN("AppTask::checkStack HIGH : %s %d / %d", this->taskName, ret, this->stackSize);
+    else if (100 * ret < 50 * this->stackSize)
+        LOG_WARN("AppTask::checkStack LOW : %s %d / %d", this->taskName, ret, this->stackSize);
 
     return ret;
 }
 
-void vApplicationStackOverflowHook(TaskHandle_t xTask,
-                                   char* pcTaskName)
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName)
 {
     UBaseType_t ret = uxTaskGetStackHighWaterMark(xTask);
     LOG_FATAL("AppTask::overflow : %s %x", pcTaskName, ret);

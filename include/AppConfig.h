@@ -4,6 +4,7 @@
  *  Created on: Dec 13, 2025
  *      Author: patrick
  */
+#pragma once
 
 #ifndef CONFIG_H_
 #define CONFIG_H_
@@ -32,25 +33,24 @@ typedef struct {
 class AppConfig
 {
 protected :
+    AppConfig() = default;
+    ~AppConfig() = default;
+
     static Preferences prefs;
-    unPhone *board;
 
 public:
 
-    static AppConfig *appConfig;
+    static AppConfig& getInstance()
+    {
+        static AppConfig instance;
+        return instance;
+    }
 
     AppConfigWifi wifi;
     AppConfigMqtt mqtt;
 
-    AppConfig(unPhone *board);
-    ~AppConfig() = default;
-
     bool loadConfig();
     bool saveConfig() const;
-    static Preferences & getPreferences()
-    {
-        return prefs;
-    }
 
     void defaultWifi();
 

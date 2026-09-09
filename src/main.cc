@@ -36,13 +36,8 @@
 
 // GLOBAL VARIABLES.
 
-unPhone this_phone_u = unPhone();
-Display this_display = Display();
-PageRouter router = PageRouter(this_display);
 
-uint8_t currentButton = 0xFF;
-AppConfig* this_config = nullptr;
-AppMainControler* this_controler = nullptr;
+static uint8_t currentButton = 0xFF;
 
 // END OF GLOBALS
 
@@ -69,9 +64,10 @@ long my_mapper(long x, long in_min, long in_max, long out_min, long out_max)
 void my_touchpad_read(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
 {
     uint16_t touchX, touchY;
+    unPhone * this_phone_u = unPhone::me;
 
     // start of changes for unPhone ////////////////////////////////////////////
-    bool touched = this_phone_u.tsp->touched();
+    bool touched = this_phone_u->tsp->touched();
 
     if (!touched)
     {
@@ -83,7 +79,7 @@ void my_touchpad_read(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
 
         /*Set the coordinates*/
         TS_Point p(-1, -1, -1);
-        p = this_phone_u.tsp->getPoint();
+        p = this_phone_u->tsp->getPoint();
 
         // filter the ghosting on version 9 boards (on USB power; ~300 pressure)
 #if UNPHONE_SPIN >= 9
@@ -100,10 +96,10 @@ void my_touchpad_read(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
         long yMin = 420;
         long yMax = 3915;
 
-        long xscld = my_mapper((long)p.x, xMin, xMax, 0, (long)displayWidth);
+        long xscld = my_mapper((long)p.x, xMin, xMax, 0, (long)Display::displayWidth);
         long yscld = // Y is inverted on rotation 1 (landscape, buttons right)
-            ((long)displayHeight) -
-            my_mapper((long)p.y, yMin, yMax, 0, (long)displayHeight);
+            static_cast<long>(Display::displayHeight) -
+            my_mapper((long)p.y, yMin, yMax, 0, (long)Display::displayHeight);
         touchX = (uint16_t)xscld;
         touchY = (uint16_t)yscld;
 
@@ -125,52 +121,19 @@ void panic_handler(void* arg)
 
 void launch_tasks()
 {
-    BaseType_t result;
-    TaskHandle_t handle;
-    result = xTaskCreate(
-        [](void* pvParameters)
-        {
-            // Lambda sans capture
-            this_controler->run();
-        },
-        this_controler->get_task_name(),
-        this_controler->get_stack_size(),
-        nullptr,
-        this_controler->get_priority(),
-        &handle
-    );
-    this_controler->set_task_handle(handle);
 
-    /*
-    APP_ASSERT(result == pdPASS)
-    AppWifiControler* w = this_controler->get_wifi_controler();
-    result = xTaskCreate(
-        [](void* pvParameters)
-        {
-            // Lambda sans capture
-            this_controler->get_wifi_controler()->run();
-        },
-        w->get_task_name(),
-        w->get_stack_size(),
-        nullptr,
-        w->get_priority(),
-        &handle
-    );
-    this_controler->get_wifi_controler()->set_task_handle(handle);
-    APP_ASSERT(result == pdPASS);
-    */
-    this_controler->get_wifi_controler()->start();
+    AppMainControler& this_controler = AppMainControler::getInstance();
 
+    this_controler.start();
+    this_controler.get_wifi_controler()->start();
+    this_controler.get_unphone_controler()->start();
 }
 
 void setup()
 {
-    unPhone& ph = this_phone_u;
-    Display& dsp = this_display;
-
-    //   Serial.begin(115200); /* prepare for possible serial debug */
-    //   while (!Serial);
-    //    Serial.setDebugOutput(true);
+    Display& dsp = Display::getInstance();
+    PageRouter &router = PageRouter::getInstance();
+    unPhone ph = unPhone(); // create then access over global.
 
     LOG_INIT(Log::DEBUG, 115200);
     LOG_DEBUG("unphone  init");
@@ -221,83 +184,43 @@ void setup()
     // should do some refresh here.
     lv_timer_handler();
 #else
-    static BootPage boot_page(*Display::me);
-    boot_page.set_version(ph.version());
-    boot_page.show();
+     BootPage *boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
+    boot_page->set_version(ph.version());
+    boot_page->show();
     lv_timer_handler();
     sleep(3);
 #endif
     LOG_DEBUG("let start config");
-
-    this_config = new AppConfig(&ph);
-    this_config->loadConfig();
-    if (!this_config->wifi.ready)
+    // first of all load config
+    AppConfig &this_config = AppConfig::getInstance();
+    this_config.loadConfig();
+    if (!this_config.wifi.ready)
     {
         LOG_DEBUG("setup : default wifi");
-        this_config->defaultWifi();
+        this_config.defaultWifi();  // never saved wet
     }
 
     LOG_DEBUG("setup : create tasks");
 
-    this_controler = new AppMainControler();
-    LOG_DEBUG("setup : controler adr %x", this_controler);
+    AppMainControler& this_controler = AppMainControler::getInstance();
 
-    this_controler->setup();
-    LOG_DEBUG("setup : wifi adr %x", this_controler->get_wifi_controler());
+    LOG_DEBUG("setup : controler adr %x", &this_controler);
+
+    this_controler.setup();
+    LOG_DEBUG("setup : wifi adr %x", this_controler.get_wifi_controler());
+    LOG_DEBUG("setup : unphone adr %x", this_controler.get_unphone_controler());
 
     launch_tasks();
     LOG_DEBUG("setup : done");
 }
 
-const AppEvent button1Event = AppEvent(AppEventType::UNPHONE_BUTTON1  );
-const AppEvent button2Event = AppEvent( AppEventType::UNPHONE_BUTTON2 );
-const AppEvent button3Event = AppEvent( AppEventType::UNPHONE_BUTTON3 );
-
-void handleButtonPress()
-{
-    unPhone& ph = this_phone_u;
-
-    try
-    {
-        if (ph.button1() && currentButton != unPhone::BUTTON1)
-        {
-            this_controler->getIncomingEventQueue()->push(button1Event);
-            currentButton = unPhone::BUTTON1;
-        }
-        else if (ph.button2() && currentButton != unPhone::BUTTON2)
-        {
-            this_controler->getIncomingEventQueue()->push(button2Event);
-            currentButton = unPhone::BUTTON2;
-        }
-        else if (ph.button3() && currentButton != unPhone::BUTTON3)
-        {
-            this_controler->getIncomingEventQueue()->push(button3Event);
-            currentButton = unPhone::BUTTON3;
-        }
-
-        else
-        {
-            currentButton = 0xFF;
-        }
-        // LOG_DEBUG("handleButtonPress : button is %d", currentButton);
-    }
-    catch (const std::exception& e)
-    {
-        LOG_ERROR("handleButtonPress : known exception : %s", e.what());
-    }
-    catch (...)
-    {
-        LOG_ERROR("handleButtonPress : uncatched exception");
-    }
-}
 
 void loop()
 {
     // LOG_DEBUG("main : loop");
-    handleButtonPress();
     lv_timer_handler();
 
     delay(3000);
     // sleep on power off
-    this_phone_u.checkPowerSwitch();
+    unPhone::me->checkPowerSwitch();
 }

@@ -2,6 +2,8 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
+#pragma once
+
 #ifndef ENERGY_BOARD_WELCOMEPAGE_H
 #define ENERGY_BOARD_WELCOMEPAGE_H
 
@@ -9,13 +11,13 @@
 
 class WelcomePage : public Screen
 {
-    lv_obj_t* titleLabel;
-    lv_obj_t* ipLabel;
-    lv_obj_t* mqttLabel;
-    lv_obj_t* messageLabel;
+    lv_obj_t* titleLabel = nullptr;
+    lv_obj_t* ipLabel = nullptr;
+    lv_obj_t* mqttLabel = nullptr;
+    lv_obj_t* messageLabel = nullptr;
 
 public:
-    explicit WelcomePage(Display& display);
+    WelcomePage() = default;
     ~WelcomePage() ;
 
     void create() override;

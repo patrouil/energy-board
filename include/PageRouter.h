@@ -1,11 +1,16 @@
 //
 // Created by Patrick Rouillon on 06/09/2026.
 //
+
+#pragma once
+
 #ifndef ENERGY_BOARD_PAGEROUTER_H
 #define ENERGY_BOARD_PAGEROUTER_H
 
+#include "BootPage.h"
 #include "Display.h"
 #include "Screen.h"
+#include "WelcomePage.h"
 
 
 /**
@@ -27,8 +32,23 @@ enum class ScreenId : uint8_t
 class PageRouter
 {
 public:
-    explicit PageRouter(Display& display);
-    ~PageRouter();
+
+    static PageRouter& getInstance()
+    {
+        static PageRouter instance;
+        return instance;
+    }
+
+
+    WelcomePage* getWelcomePage()
+    {
+        return static_cast<WelcomePage*>(this->get_screen(ScreenId::WELCOME_PAGE));
+    }
+
+    BootPage * getBootPage()
+    {
+        return static_cast<BootPage*>(this->get_screen(ScreenId::BOOT_PAGE));
+    }
 
     /**
      * @brief Récupère ou crée une instance d'écran.
@@ -44,7 +64,10 @@ public:
     void display_screen(ScreenId id);
 
 private:
-    Display& display;
+
+    PageRouter();
+    ~PageRouter();
+
     Screen* screens[static_cast<uint8_t>(ScreenId::SCREEN_COUNT)] = {nullptr};
 };
 

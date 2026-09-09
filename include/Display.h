@@ -10,17 +10,18 @@
 
 
 /*Change to your screen resolution*/
-static constexpr uint16_t displayWidth = 480;
-static constexpr uint16_t displayHeight = 320;
+
 
 class Display
 {
 public:
-    static Display* me;
+    static constexpr uint16_t displayWidth = 480;
+    static constexpr uint16_t displayHeight = 320;
 
-    Display();
-    ~Display() ;
-
+    static Display& getInstance() {
+        static Display instance;
+        return instance;
+    }
     void init();
     void setOrientation(lv_disp_rot_t rotation);
 
@@ -40,6 +41,10 @@ public:
     }
 
 private:
+
+    Display();
+    ~Display() ;
+
      TFT_eSPI _tft_screen;
     lv_timer_t* lv_timer = nullptr;
     static lv_disp_drv_t disp_drv;
