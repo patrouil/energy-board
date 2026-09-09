@@ -17,6 +17,15 @@ enum class AppEventType : uint8_t
     UNPHONE_BUTTON1 = 20,
     UNPHONE_BUTTON2 = 21,
     UNPHONE_BUTTON3 = 22,
+    UNPHONE_TOUCH_PRESSED = 30,
+    UNPHONE_TOUCH_RELEASED = 31,
+};
+
+struct TouchPoint
+{
+    uint16_t x = 0;
+    uint16_t y = 0;
+    uint16_t z = 0;
 };
 
 
