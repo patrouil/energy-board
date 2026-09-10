@@ -7,6 +7,7 @@
 #include "AppTask.h"
 #include "AppWifiControler.h"
 #include "MqttControler.h"
+#include "SimulationControler.h"
 #include "UnphoneControler.h"
 
 class AppMainControler : public AppTask
@@ -22,10 +23,15 @@ private:
     void manage_wifi_event();
     void manage_unphone_event();
     void manage_mqtt_event();
+    void manage_simulation_event();
 
     // MQTT section
     AppEventQueue* mqttOutQueue = nullptr;
     MqttControler* mqttManager = nullptr;
+
+    // simulation section
+    AppEventQueue* simulationOutQueue = nullptr;
+    SimulationControler* simulationManager = nullptr;
 
     // unphone section
     AppEventQueue* unphoneOutQueue = nullptr;
@@ -54,6 +60,11 @@ public:
     UnphoneControler* get_unphone_controler() const
     {
         return unphoneManager;
+    }
+
+    SimulationControler* get_simulation_controler() const
+    {
+        return simulationManager;
     }
 
     void run() override;
