@@ -2,8 +2,8 @@
 // Created by Patrick Rouillon on 24/01/2026.
 //
 
-#include <freertos.h>
-#include <queue.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 #include "app_event_queue.h"
 
 #include "Log.h"

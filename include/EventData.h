@@ -24,6 +24,10 @@ public :
     // WIFI Task Data
     String ipAddress;
 
+    // MQTT Task Data
+    String mqttTopic;
+    String mqttPayload;
+
     // MQ Data
     int32_t currentProduction = 0;
     int32_t currentConsuption = 0;

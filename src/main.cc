@@ -127,6 +127,7 @@ void launch_tasks()
     this_controler.start();
     this_controler.get_wifi_controler()->start();
     this_controler.get_unphone_controler()->start();
+    this_controler.get_mqtt_controler()->start();
 }
 
 void setup()
@@ -199,6 +200,11 @@ void setup()
         LOG_DEBUG("setup : default wifi");
         this_config.defaultWifi();  // never saved wet
     }
+    if (!this_config.mqtt.ready)
+    {
+        LOG_DEBUG("setup : default mqtt");
+        this_config.defaultMqtt();
+    }
 
     LOG_DEBUG("setup : create tasks");
 
@@ -209,6 +215,10 @@ void setup()
     this_controler.setup();
     LOG_DEBUG("setup : wifi adr %x", this_controler.get_wifi_controler());
     LOG_DEBUG("setup : unphone adr %x", this_controler.get_unphone_controler());
+    LOG_DEBUG("setup : mqtt adr %x", this_controler.get_mqtt_controler());
+
+    this_controler.subscribeMqtt("energy/board/production");
+    this_controler.subscribeMqtt("energy/board/consumption");
 
     launch_tasks();
     LOG_DEBUG("setup : done");
