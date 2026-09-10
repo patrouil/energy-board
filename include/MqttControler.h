@@ -7,41 +7,33 @@
 #ifndef UPHONE1_MQTTCONTROLER_H
 #define UPHONE1_MQTTCONTROLER_H
 
-#include <WiFiClient.h>
+#include "mqtt_client.h"
 
 #include "AppConfig.h"
 #include "AppTask.h"
 #include "EventData.h"
 
-class PubSubClient;
-
 #define MQTT_DEFAULT_PORT 1883
-#define MQTT_DEFAULT_RETRY 5
-#define MQTT_DO_NOTHING_STATE (-1)
 #define MQTT_MAX_SUBSCRIPTIONS 8
 
 class MqttControler : public AppTask
 {
     AppConfigMqtt* mqttconfig = nullptr;
-    int8_t status = MQTT_DO_NOTHING_STATE;
-
-    WiFiClient wifiClient;
-    PubSubClient* mqttClient = nullptr;
+    esp_mqtt_client_handle_t mqttClient = nullptr;
 
     const char* subscriptions[MQTT_MAX_SUBSCRIPTIONS];
     uint8_t subscriptionCount = 0;
 
     EventData mqttData;
 
-    const AppEvent idleEvent = AppEvent(AppEventType::MQTT_IDLE);
     const AppEvent discEvent = AppEvent(AppEventType::MQTT_DISCONNECTED);
     const AppEvent connectEvent = AppEvent(AppEventType::MQTT_CONNECTED, mqttData);
     const AppEvent messageEvent = AppEvent(AppEventType::MQTT_MESSAGE_RECEIVED, mqttData);
 
-    bool connect(uint16_t maxTries = MQTT_DEFAULT_RETRY);
     void resubscribe();
 
-    static void onMqttCallback(char* topic, byte* payload, unsigned int length);
+    static void onMqttEvent(void* handler_arg, esp_event_base_t base, int32_t event_id,
+                            void* event_data);
 
 public:
     MqttControler(AppConfigMqtt* mqttconfig, AppEventQueue* outQueue);

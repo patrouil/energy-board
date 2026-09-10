@@ -2,18 +2,11 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
-#include <PubSubClient.h>
-
-#undef MQTT_CONNECTED
-#undef MQTT_DISCONNECTED
+#include "MqttControler.h"
 
 #include <WiFi.h>
 
-#include "MqttControler.h"
-
 #include "Log.h"
-
-MqttControler* MqttControler_self = nullptr;
 
 MqttControler::MqttControler(AppConfigMqtt* mqttconfig, AppEventQueue* outQueue) :
     AppTask("MqttControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
@@ -24,12 +17,6 @@ MqttControler::MqttControler(AppConfigMqtt* mqttconfig, AppEventQueue* outQueue)
         this->subscriptions[i] = nullptr;
     }
 
-    this->mqttClient = new PubSubClient(wifiClient);
-    APP_ASSERT(this->mqttClient != nullptr);
-
-    MqttControler_self = this;
-    this->mqttClient->setCallback(MqttControler::onMqttCallback);
-
     LOG_DEBUG("MqttControler::MqttControler");
 }
 
@@ -37,71 +24,6 @@ MqttControler::~MqttControler()
 {
     LOG_DEBUG("MqttControler::~MqttControler");
     this->disconnect();
-    if (this->mqttClient != nullptr)
-    {
-        delete this->mqttClient;
-        this->mqttClient = nullptr;
-    }
-    MqttControler_self = nullptr;
-}
-
-bool MqttControler::connect(uint16_t maxTries)
-{
-    if (this->mqttconfig == nullptr
-        || this->mqttconfig->ready == false
-        || this->mqttconfig->server[0] == '\0')
-    {
-        LOG_DEBUG("MqttControler::connect : mqtt not ready");
-        return false;
-    }
-
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        LOG_DEBUG("MqttControler::connect : wifi not connected");
-        return false;
-    }
-
-    LOG_DEBUG("MqttControler::connect : mqtt ready");
-
-    this->mqttClient->setServer(this->mqttconfig->server, MQTT_DEFAULT_PORT);
-    this->mqttClient->setBufferSize(512);
-
-    for (uint16_t i = 0; i < maxTries; i++)
-    {
-        try
-        {
-            LOG_DEBUG("MqttControler : Attempting to connect to server: %s", this->mqttconfig->server);
-            bool connected = false;
-            if (this->mqttconfig->username[0] != '\0')
-            {
-                connected = this->mqttClient->connect("energy-board", this->mqttconfig->username,
-                                                     this->mqttconfig->password);
-            }
-            else
-            {
-                connected = this->mqttClient->connect("energy-board");
-            }
-
-            if (connected)
-            {
-                LOG_INFO("MqttControler : connected to %s", this->mqttconfig->server);
-                this->resubscribe();
-                return true;
-            }
-
-            LOG_ERROR("MqttControler : connect failed, state=%d", this->mqttClient->state());
-            this->sleep(200);
-        }
-        catch (const std::exception& e)
-        {
-            LOG_ERROR("MqttControler::connect : Exception standard capturee : %s", e.what());
-        }
-        catch (...)
-        {
-            LOG_ERROR("MqttControler::connect : Une exception inconnue s'est produite.");
-        }
-    }
-    return false;
 }
 
 void MqttControler::resubscribe()
@@ -110,7 +32,8 @@ void MqttControler::resubscribe()
     {
         if (this->subscriptions[i] != nullptr)
         {
-            if (this->mqttClient->subscribe(this->subscriptions[i]))
+            int msgId = esp_mqtt_client_subscribe(this->mqttClient, this->subscriptions[i], 0);
+            if (msgId >= 0)
             {
                 LOG_INFO("MqttControler : subscribed to %s", this->subscriptions[i]);
             }
@@ -139,9 +62,10 @@ bool MqttControler::subscribe(const char* topic)
     this->subscriptions[this->subscriptionCount] = topic;
     this->subscriptionCount++;
 
-    if (this->mqttClient->connected())
+    if (this->mqttClient != nullptr)
     {
-        if (this->mqttClient->subscribe(topic))
+        int msgId = esp_mqtt_client_subscribe(this->mqttClient, topic, 0);
+        if (msgId >= 0)
         {
             LOG_INFO("MqttControler : subscribed to %s", topic);
             return true;
@@ -149,75 +73,126 @@ bool MqttControler::subscribe(const char* topic)
         LOG_ERROR("MqttControler : subscribe failed for %s", topic);
         return false;
     }
-    LOG_DEBUG("MqttControler::subscribe : deferred (not connected) %s", topic);
+    LOG_DEBUG("MqttControler::subscribe : deferred (not started) %s", topic);
     return true;
 }
 
-void MqttControler::onMqttCallback(char* topic, byte* payload, unsigned int length)
+void MqttControler::onMqttEvent(void* handler_arg, esp_event_base_t base, int32_t event_id,
+                                 void* event_data)
 {
-    if (MqttControler_self == nullptr)
+    MqttControler* self = static_cast<MqttControler*>(handler_arg);
+    if (self == nullptr || event_data == nullptr)
     {
         return;
     }
 
-    MqttControler_self->mqttData.mqttTopic = String(topic);
+    esp_mqtt_event_handle_t event = static_cast<esp_mqtt_event_handle_t>(event_data);
 
-    char buffer[512];
-    unsigned int copyLen = (length < sizeof(buffer) - 1) ? length : sizeof(buffer) - 1;
-    memcpy(buffer, payload, copyLen);
-    buffer[copyLen] = '\0';
-    MqttControler_self->mqttData.mqttPayload = String(buffer);
+    switch (event->event_id)
+    {
+    case MQTT_EVENT_CONNECTED:
+        LOG_INFO("MqttControler : MQTT_EVENT_CONNECTED");
+        self->resubscribe();
+        self->sendEvent(self->connectEvent);
+        break;
+    case MQTT_EVENT_DISCONNECTED:
+        LOG_INFO("MqttControler : MQTT_EVENT_DISCONNECTED");
+        self->sendEvent(self->discEvent);
+        break;
+    case MQTT_EVENT_SUBSCRIBED:
+        LOG_DEBUG("MqttControler : MQTT_EVENT_SUBSCRIBED msg_id=%d", event->msg_id);
+        break;
+    case MQTT_EVENT_DATA:
+        {
+            if (event->topic != nullptr && event->data != nullptr)
+            {
+                self->mqttData.mqttTopic = String(event->topic, event->topic_len);
+                self->mqttData.mqttPayload = String(event->data, event->data_len);
 
-    LOG_DEBUG("MqttControler::onMqttCallback : %s = %s",
-              MqttControler_self->mqttData.mqttTopic.c_str(),
-              MqttControler_self->mqttData.mqttPayload.c_str());
+                LOG_DEBUG("MqttControler::MQTT_EVENT_DATA : %s = %s",
+                          self->mqttData.mqttTopic.c_str(),
+                          self->mqttData.mqttPayload.c_str());
 
-    MqttControler_self->sendEvent(MqttControler_self->messageEvent);
+                self->sendEvent(self->messageEvent);
+            }
+        }
+        break;
+    case MQTT_EVENT_ERROR:
+        LOG_ERROR("MqttControler : MQTT_EVENT_ERROR type=%d", event->error_handle->error_type);
+        break;
+    default:
+        break;
+    }
 }
 
 void MqttControler::disconnect()
 {
-    if (this->mqttClient->connected())
+    if (this->mqttClient != nullptr)
     {
-        this->mqttClient->disconnect();
+        esp_mqtt_client_stop(this->mqttClient);
+        esp_mqtt_client_destroy(this->mqttClient);
+        this->mqttClient = nullptr;
     }
-    this->status = MQTT_DO_NOTHING_STATE;
 }
 
 void MqttControler::run()
 {
     while (true)
     {
-        bool connected = this->mqttClient->connected();
-
-        if (connected != (this->status == 1))
+        if (this->mqttClient == nullptr
+            && WiFi.status() == WL_CONNECTED
+            && this->mqttconfig != nullptr
+            && this->mqttconfig->ready
+            && this->mqttconfig->server[0] != '\0')
         {
-            LOG_INFO("MqttControler : status change connected=%d", connected);
-            this->status = connected ? 1 : 0;
+            esp_mqtt_client_config_t config = {};
+            config.host = this->mqttconfig->server;
+            config.port = MQTT_DEFAULT_PORT;
+            config.client_id = "energy-board";
 
-            if (connected)
+            if (this->mqttconfig->username[0] != '\0')
             {
-                this->sendEvent(this->connectEvent);
+                config.username = this->mqttconfig->username;
+                config.password = this->mqttconfig->password;
+            }
+
+            config.disable_auto_reconnect = false;
+            config.network_timeout_ms = 10000;
+
+            this->mqttClient = esp_mqtt_client_init(&config);
+            if (this->mqttClient == nullptr)
+            {
+                LOG_ERROR("MqttControler : esp_mqtt_client_init failed");
             }
             else
             {
-                this->sendEvent(this->discEvent);
+                esp_err_t reg = esp_mqtt_client_register_event(this->mqttClient,
+                                                               MQTT_EVENT_ANY,
+                                                               MqttControler::onMqttEvent,
+                                                               this);
+                if (reg != ESP_OK)
+                {
+                    LOG_ERROR("MqttControler : register_event failed %d", reg);
+                    esp_mqtt_client_destroy(this->mqttClient);
+                    this->mqttClient = nullptr;
+                }
+                else
+                {
+                    esp_err_t start = esp_mqtt_client_start(this->mqttClient);
+                    if (start != ESP_OK)
+                    {
+                        LOG_ERROR("MqttControler : client_start failed %d", start);
+                        esp_mqtt_client_destroy(this->mqttClient);
+                        this->mqttClient = nullptr;
+                    }
+                    else
+                    {
+                        LOG_INFO("MqttControler : client started on %s", this->mqttconfig->server);
+                    }
+                }
             }
         }
 
-        if (connected)
-        {
-            this->mqttClient->loop();
-        }
-        else if (WiFi.status() == WL_CONNECTED)
-        {
-            LOG_DEBUG("MqttControler : trying to connect");
-            if (!this->connect(1))
-            {
-                LOG_ERROR("MqttControler : unable to connect");
-            }
-        }
-
-        this->sleep(100);
+        this->sleep(2000);
     }
 }
