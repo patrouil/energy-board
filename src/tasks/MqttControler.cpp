@@ -135,11 +135,9 @@ void MqttControler::disconnect()
     }
 }
 
-void MqttControler::run()
+void MqttControler::connect()
 {
-    while (true)
-    {
-        if (this->mqttClient == nullptr
+         if (this->mqttClient == nullptr
             && WiFi.status() == WL_CONNECTED
             && this->mqttconfig != nullptr
             && this->mqttconfig->ready
@@ -192,7 +190,26 @@ void MqttControler::run()
                 }
             }
         }
+}
 
+void MqttControler::setup()
+{
+    // subscribe services.
+}
+
+/*
+ * This is a fake Task without start.
+ * mqtt api creates it's own task.
+ */
+void MqttControler::run()
+{
+    while (true)
+    {
+
+        if ( this->mqttClient != nullptr)
+        {
+            this->connect();
+        }
         this->sleep(2000);
     }
 }

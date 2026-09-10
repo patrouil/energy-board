@@ -15,6 +15,7 @@
 
 #include <unPhone.h>
 
+#include <mqtt_client.h>
 
 //#include <Adafruit_SPIFlash.h> // for LDF
 #include <Log.h>
@@ -117,6 +118,7 @@ void panic_handler(void* arg)
     printf("PANIC: %s\n", (char*)arg);
     // Logs ou actions avant redémarrage
     delay(100000);
+
 }
 
 void launch_tasks()
