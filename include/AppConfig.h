@@ -53,6 +53,7 @@ public:
     bool saveConfig() const;
 
     void defaultWifi();
+    void defaultMqtt();
 
 };
 #endif /* CONFIG_H_ */

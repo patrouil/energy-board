@@ -70,3 +70,12 @@ void AppConfig::defaultWifi()
     wifi.ready = true;
     this->saveConfig();
 }
+
+void AppConfig::defaultMqtt()
+{
+    strcpy(mqtt.server, "broker.hivemq.com");
+    mqtt.username[0] = '\0';
+    mqtt.password[0] = '\0';
+    mqtt.ready = true;
+    this->saveConfig();
+}

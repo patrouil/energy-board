@@ -6,6 +6,7 @@
 #define UPHONE1_MAINCONTROLER_H
 #include "AppTask.h"
 #include "AppWifiControler.h"
+#include "MqttControler.h"
 #include "UnphoneControler.h"
 
 class AppMainControler : public AppTask
@@ -20,6 +21,11 @@ private:
     //
     void manage_wifi_event();
     void manage_unphone_event();
+    void manage_mqtt_event();
+
+    // MQTT section
+    AppEventQueue* mqttOutQueue = nullptr;
+    MqttControler* mqttManager = nullptr;
 
     // unphone section
     AppEventQueue* unphoneOutQueue = nullptr;
@@ -33,10 +39,16 @@ public:
     }
 
     void setup();
+    void subscribeMqtt(const char* topic);
 
     AppWifiControler* get_wifi_controler() const
     {
         return wifiManager;
+    }
+
+    MqttControler* get_mqtt_controler() const
+    {
+        return mqttManager;
     }
 
     UnphoneControler* get_unphone_controler() const

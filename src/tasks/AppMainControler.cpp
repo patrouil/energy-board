@@ -17,6 +17,11 @@ AppMainControler::~AppMainControler()
 {
     LOG_DEBUG("AppMainControler::delete AppMainControler");
 
+    if (mqttManager) delete this->mqttManager;
+    if (mqttOutQueue) delete this->mqttOutQueue;
+    this->mqttManager = nullptr;
+    this->mqttOutQueue = nullptr;
+
     if (wifiManager) delete this->wifiManager;
     if (wifiOutQueue) delete this->wifiOutQueue;
     this->wifiManager = nullptr;
@@ -112,6 +117,53 @@ void AppMainControler::manage_unphone_event()
     }
 }
 
+void AppMainControler::manage_mqtt_event()
+{
+    if (this->mqttOutQueue == nullptr || this->mqttOutQueue->isEmpty())
+        return;
+
+    PageRouter& router = PageRouter::getInstance();
+
+    AppEvent ev(AppEventType::NONE);
+
+    if (!this->mqttOutQueue->pop(&ev))
+    {
+        LOG_ERROR("AppMainControler::manage_mqtt_event : unable to get event");
+        return;
+    }
+    LOG_DEBUG("AppMainControler::manage_mqtt_event :%d", ev.getId());
+
+    switch (ev.getId())
+    {
+    case AppEventType::MQTT_IDLE:
+        LOG_DEBUG("AppMainControler::MQTT_IDLE :%d", ev.getId());
+        router.getWelcomePage()->setMQTTStatus("idle");
+        break;
+    case AppEventType::MQTT_CONNECTED:
+        {
+            LOG_DEBUG("AppMainControler::MQTT_CONNECTED :%d", ev.getId());
+            router.getWelcomePage()->setMQTTStatus("connected");
+        }
+        break;
+    case AppEventType::MQTT_DISCONNECTED:
+        {
+            LOG_DEBUG("AppMainControler::MQTT_DISCONNECTED :%d", ev.getId());
+            router.getWelcomePage()->setMQTTStatus("disconnected");
+        }
+        break;
+    case AppEventType::MQTT_MESSAGE_RECEIVED:
+        {
+            LOG_DEBUG("AppMainControler::MQTT_MESSAGE_RECEIVED :%d %s", ev.getId(),
+                      ev.getData().mqttTopic.c_str());
+            String msg = ev.getData().mqttTopic + " : " + ev.getData().mqttPayload;
+            router.getWelcomePage()->setMessage(msg.c_str());
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 void AppMainControler::setup()
 {
     LOG_DEBUG("AppMainControler::setup :");
@@ -131,6 +183,20 @@ void AppMainControler::setup()
     APP_ASSERT(this->unphoneManager != nullptr);
     LOG_DEBUG("AppMainControler::setup unphone %x:", this->unphoneManager);
     this->unphoneManager->setup();
+
+    this->mqttOutQueue = new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE);
+    APP_ASSERT(this->mqttOutQueue != nullptr);
+    this->mqttManager = new MqttControler(&(config.mqtt), this->mqttOutQueue);
+    APP_ASSERT(this->mqttManager != nullptr);
+    LOG_DEBUG("AppMainControler::setup mqtt %x:", this->mqttManager);
+}
+
+void AppMainControler::subscribeMqtt(const char* topic)
+{
+    if (this->mqttManager != nullptr)
+    {
+        this->mqttManager->subscribe(topic);
+    }
 }
 
 
@@ -141,6 +207,7 @@ void AppMainControler::run()
         // checkStack();
         manage_wifi_event();
         manage_unphone_event();
+        manage_mqtt_event();
 
         this->sleep(1000);
     }
