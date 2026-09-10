@@ -2,6 +2,13 @@
 // Created by Patrick Rouillon on 04/02/2026.
 //
 
+#include <PubSubClient.h>
+
+#undef MQTT_CONNECTED
+#undef MQTT_DISCONNECTED
+
+#include <WiFi.h>
+
 #include "MqttControler.h"
 
 #include "Log.h"
@@ -9,8 +16,7 @@
 MqttControler* MqttControler_self = nullptr;
 
 MqttControler::MqttControler(AppConfigMqtt* mqttconfig, AppEventQueue* outQueue) :
-    AppTask("MqttControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue),
-    mqttClient(wifiClient)
+    AppTask("MqttControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
     this->mqttconfig = mqttconfig;
     for (uint8_t i = 0; i < MQTT_MAX_SUBSCRIPTIONS; i++)
@@ -18,8 +24,11 @@ MqttControler::MqttControler(AppConfigMqtt* mqttconfig, AppEventQueue* outQueue)
         this->subscriptions[i] = nullptr;
     }
 
+    this->mqttClient = new PubSubClient(wifiClient);
+    APP_ASSERT(this->mqttClient != nullptr);
+
     MqttControler_self = this;
-    this->mqttClient.setCallback(MqttControler::onMqttCallback);
+    this->mqttClient->setCallback(MqttControler::onMqttCallback);
 
     LOG_DEBUG("MqttControler::MqttControler");
 }
@@ -28,6 +37,11 @@ MqttControler::~MqttControler()
 {
     LOG_DEBUG("MqttControler::~MqttControler");
     this->disconnect();
+    if (this->mqttClient != nullptr)
+    {
+        delete this->mqttClient;
+        this->mqttClient = nullptr;
+    }
     MqttControler_self = nullptr;
 }
 
@@ -49,8 +63,8 @@ bool MqttControler::connect(uint16_t maxTries)
 
     LOG_DEBUG("MqttControler::connect : mqtt ready");
 
-    this->mqttClient.setServer(this->mqttconfig->server, MQTT_DEFAULT_PORT);
-    this->mqttClient.setBufferSize(512);
+    this->mqttClient->setServer(this->mqttconfig->server, MQTT_DEFAULT_PORT);
+    this->mqttClient->setBufferSize(512);
 
     for (uint16_t i = 0; i < maxTries; i++)
     {
@@ -60,12 +74,12 @@ bool MqttControler::connect(uint16_t maxTries)
             bool connected = false;
             if (this->mqttconfig->username[0] != '\0')
             {
-                connected = this->mqttClient.connect("energy-board", this->mqttconfig->username,
+                connected = this->mqttClient->connect("energy-board", this->mqttconfig->username,
                                                      this->mqttconfig->password);
             }
             else
             {
-                connected = this->mqttClient.connect("energy-board");
+                connected = this->mqttClient->connect("energy-board");
             }
 
             if (connected)
@@ -75,7 +89,7 @@ bool MqttControler::connect(uint16_t maxTries)
                 return true;
             }
 
-            LOG_ERROR("MqttControler : connect failed, state=%d", this->mqttClient.state());
+            LOG_ERROR("MqttControler : connect failed, state=%d", this->mqttClient->state());
             this->sleep(200);
         }
         catch (const std::exception& e)
@@ -96,7 +110,7 @@ void MqttControler::resubscribe()
     {
         if (this->subscriptions[i] != nullptr)
         {
-            if (this->mqttClient.subscribe(this->subscriptions[i]))
+            if (this->mqttClient->subscribe(this->subscriptions[i]))
             {
                 LOG_INFO("MqttControler : subscribed to %s", this->subscriptions[i]);
             }
@@ -125,9 +139,9 @@ bool MqttControler::subscribe(const char* topic)
     this->subscriptions[this->subscriptionCount] = topic;
     this->subscriptionCount++;
 
-    if (this->mqttClient.connected())
+    if (this->mqttClient->connected())
     {
-        if (this->mqttClient.subscribe(topic))
+        if (this->mqttClient->subscribe(topic))
         {
             LOG_INFO("MqttControler : subscribed to %s", topic);
             return true;
@@ -163,9 +177,9 @@ void MqttControler::onMqttCallback(char* topic, byte* payload, unsigned int leng
 
 void MqttControler::disconnect()
 {
-    if (this->mqttClient.connected())
+    if (this->mqttClient->connected())
     {
-        this->mqttClient.disconnect();
+        this->mqttClient->disconnect();
     }
     this->status = MQTT_DO_NOTHING_STATE;
 }
@@ -174,7 +188,7 @@ void MqttControler::run()
 {
     while (true)
     {
-        bool connected = this->mqttClient.connected();
+        bool connected = this->mqttClient->connected();
 
         if (connected != (this->status == 1))
         {
@@ -193,7 +207,7 @@ void MqttControler::run()
 
         if (connected)
         {
-            this->mqttClient.loop();
+            this->mqttClient->loop();
         }
         else if (WiFi.status() == WL_CONNECTED)
         {

@@ -8,11 +8,12 @@
 #define UPHONE1_MQTTCONTROLER_H
 
 #include <WiFiClient.h>
-#include <PubSubClient.h>
 
 #include "AppConfig.h"
 #include "AppTask.h"
 #include "EventData.h"
+
+class PubSubClient;
 
 #define MQTT_DEFAULT_PORT 1883
 #define MQTT_DEFAULT_RETRY 5
@@ -25,7 +26,7 @@ class MqttControler : public AppTask
     int8_t status = MQTT_DO_NOTHING_STATE;
 
     WiFiClient wifiClient;
-    PubSubClient mqttClient;
+    PubSubClient* mqttClient = nullptr;
 
     const char* subscriptions[MQTT_MAX_SUBSCRIPTIONS];
     uint8_t subscriptionCount = 0;
