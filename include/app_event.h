@@ -23,6 +23,7 @@ enum class AppEventType : uint8_t
     MQTT_CONNECTED = 31,
     MQTT_DISCONNECTED = 32,
     MQTT_MESSAGE_RECEIVED = 33,
+    SIMULATED_PRODUCTION = 40,
     LAST_EVENT_TYPE,
 };
 

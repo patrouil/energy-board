@@ -17,6 +17,11 @@ AppMainControler::~AppMainControler()
 {
     LOG_DEBUG("AppMainControler::delete AppMainControler");
 
+    if (simulationManager) delete this->simulationManager;
+    if (simulationOutQueue) delete this->simulationOutQueue;
+    this->simulationManager = nullptr;
+    this->simulationOutQueue = nullptr;
+
     if (mqttManager) delete this->mqttManager;
     if (mqttOutQueue) delete this->mqttOutQueue;
     this->mqttManager = nullptr;
@@ -164,6 +169,34 @@ void AppMainControler::manage_mqtt_event()
     }
 }
 
+void AppMainControler::manage_simulation_event()
+{
+    if (this->simulationOutQueue == nullptr || this->simulationOutQueue->isEmpty())
+        return;
+
+    AppEvent ev(AppEventType::NONE);
+
+    if (!this->simulationOutQueue->pop(&ev))
+    {
+        LOG_ERROR("AppMainControler::manage_simulation_event : unable to get event");
+        return;
+    }
+    LOG_DEBUG("AppMainControler::manage_simulation_event :%d", ev.getId());
+
+    switch (ev.getId())
+    {
+    case AppEventType::SIMULATED_PRODUCTION:
+        {
+            const EventData& d = ev.getData();
+            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION production=%d consumption=%d max=%d available=%d",
+                      d.currentProduction, d.currentConsuption, d.maxConsuption, d.powerAvailable);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 void AppMainControler::setup()
 {
     LOG_DEBUG("AppMainControler::setup :");
@@ -189,6 +222,12 @@ void AppMainControler::setup()
     this->mqttManager = new MqttControler(&(config.mqtt), this->mqttOutQueue);
     APP_ASSERT(this->mqttManager != nullptr);
     LOG_DEBUG("AppMainControler::setup mqtt %x:", this->mqttManager);
+
+    this->simulationOutQueue = new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE);
+    APP_ASSERT(this->simulationOutQueue != nullptr);
+    this->simulationManager = new SimulationControler(this->simulationOutQueue);
+    APP_ASSERT(this->simulationManager != nullptr);
+    LOG_DEBUG("AppMainControler::setup simulation %x:", this->simulationManager);
     this->mqttManager->setup();
 }
 
@@ -209,6 +248,7 @@ void AppMainControler::run()
         manage_wifi_event();
         manage_unphone_event();
         manage_mqtt_event();
+        manage_simulation_event();
 
         this->sleep(1000);
     }

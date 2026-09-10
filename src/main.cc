@@ -130,6 +130,7 @@ void launch_tasks()
     this_controler.get_wifi_controler()->start();
     this_controler.get_unphone_controler()->start();
     this_controler.get_mqtt_controler()->start();
+    this_controler.get_simulation_controler()->start();
 }
 
 void setup()
