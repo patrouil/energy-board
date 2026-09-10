@@ -168,7 +168,7 @@ void AppMainControler::setup()
 {
     LOG_DEBUG("AppMainControler::setup :");
 
-    this->wifiOutQueue = new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE);
+    this->wifiOutQueue = new AppEventQueue(APP_EVENT_QUEUE_SMALL_SIZE);
     APP_ASSERT(this->wifiOutQueue != nullptr);
     AppConfig& config = AppConfig::getInstance();
     this->wifiManager = new AppWifiControler(&(config.wifi), this->wifiOutQueue);
@@ -176,7 +176,7 @@ void AppMainControler::setup()
     this->wifiManager->setup();
     LOG_DEBUG("AppMainControler::setup wifi %x:", this->wifiManager);
 
-    this->unphoneOutQueue = new AppEventQueue(APP_EVENT_QUEUE_DEFAULT_SIZE);
+    this->unphoneOutQueue = new AppEventQueue(APP_EVENT_QUEUE_SMALL_SIZE);
     APP_ASSERT(this->unphoneOutQueue != nullptr);
 
     this->unphoneManager = new UnphoneControler(this->unphoneOutQueue);
@@ -189,6 +189,7 @@ void AppMainControler::setup()
     this->mqttManager = new MqttControler(&(config.mqtt), this->mqttOutQueue);
     APP_ASSERT(this->mqttManager != nullptr);
     LOG_DEBUG("AppMainControler::setup mqtt %x:", this->mqttManager);
+    this->mqttManager->setup();
 }
 
 void AppMainControler::subscribeMqtt(const char* topic)

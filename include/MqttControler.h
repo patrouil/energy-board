@@ -31,7 +31,7 @@ class MqttControler : public AppTask
     const AppEvent messageEvent = AppEvent(AppEventType::MQTT_MESSAGE_RECEIVED, mqttData);
 
     void resubscribe();
-
+    void connect();
     static void onMqttEvent(void* handler_arg, esp_event_base_t base, int32_t event_id,
                             void* event_data);
 
@@ -51,7 +51,10 @@ public:
 
     bool subscribe(const char* topic);
     void disconnect();
-
+    void start() // fake start.
+    {
+    }
+    void setup();
     void run() override;
 };
 

@@ -30,8 +30,8 @@ public :
 
     // MQ Data
     int32_t currentProduction = 0;
-    int32_t currentConsuption = 0;
-    int32_t maxConsuption = 0;
+    int32_t currentConsumption = 0;
+    int32_t maxConsumption = 0;
     int32_t powerAvailable = 0;
 
     // unPhone date
