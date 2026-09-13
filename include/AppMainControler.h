@@ -20,10 +20,10 @@ private:
     AppEventQueue* wifiOutQueue = nullptr;
     AppWifiControler* wifiManager = nullptr;
     //
-    void manage_wifi_event();
-    void manage_unphone_event();
-    void manage_mqtt_event();
-    void manage_simulation_event();
+    bool manage_wifi_event();
+    bool manage_unphone_event();
+    bool manage_mqtt_event();
+    bool manage_simulation_event();
 
     // MQTT section
     AppEventQueue* mqttOutQueue = nullptr;

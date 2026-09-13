@@ -62,6 +62,8 @@ void Log::_print(const char* format, va_list args)
 {
     //
     // loop through format string
+    if ( ! Serial.availableForWrite())
+        return;
     for (; *format != 0; ++format)
     {
         if (*format == '%')

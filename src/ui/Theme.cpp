@@ -17,7 +17,7 @@ const lv_font_t* Theme::MEDIUM_FONT = LV_FONT_MONTSERRAT_10;
 const lv_font_t* Theme::SMALL_FONT = LV_FONT_MONTSERRAT_8;
 const lv_font_t* Theme::LARGE_FONT = LV_FONT_MONTSERRAT_16;
 
-const lv_coord_t Theme::LABEL_SPACING = 20;
+const lv_coord_t Theme::LABEL_SPACING = 40;
 
 Theme::Theme()
     : primaryColor(Theme::PRIMARY_COLOR),

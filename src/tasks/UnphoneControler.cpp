@@ -13,7 +13,7 @@
 UnphoneControler::UnphoneControler(AppEventQueue* outQueue) :
     ::AppTask("AppUnphoneControler", APP_TASK_STACK_MAX, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
-    LOG_DEBUG("UnphoneControler::UnphoneControler");
+  //  LOG_DEBUG("UnphoneControler::UnphoneControler");
 }
 
 
@@ -122,7 +122,7 @@ void UnphoneControler::touchPadRead(lv_indev_drv_t* indev_driver, lv_indev_data_
 
 void UnphoneControler::setup()
 {
-    LOG_DEBUG("UnphoneControler::setup");
+   // LOG_DEBUG("UnphoneControler::setup");
     /*Initialize the (dummy) input device driver*/
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
@@ -133,11 +133,13 @@ void UnphoneControler::setup()
 
 void UnphoneControler::run()
 {
-    sleep(1000); // at boot time
+    sleep(2000); // at boot time
     while (true)
     {
         checkStack();
         handleButtonPress();
-        this->sleep(100);
+        unPhone::me->checkPowerSwitch();
+        this->yield();
+
     }
 }

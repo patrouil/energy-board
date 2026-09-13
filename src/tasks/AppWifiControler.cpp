@@ -28,11 +28,10 @@ AppWifiControler::~AppWifiControler()
 bool AppWifiControler::connect(uint16_t maxTries)
 {
     if (this->wificonfig == nullptr
-        || this->status == WIFI_DO_NOTHING_STATE
-        || this->wificonfig->ready == false)
+        || this->status == WIFI_DO_NOTHING_STATE)
     {
-        LOG_DEBUG("AppWifiControler::connect : wifi not ready %d",
-                  (this->wificonfig == nullptr) ? 9999 : this->wificonfig->ready);
+        LOG_DEBUG("AppWifiControler::connect : wifi not ready %s",
+                  (this->wificonfig == nullptr) ? "???" : this->wificonfig->sid);
         return false;
     }
     LOG_DEBUG("AppWifiControler::connect : wifi  ready");

@@ -24,16 +24,14 @@ AppEventQueue::~AppEventQueue()
 bool AppEventQueue::push(const AppEvent& event) const
 {
     if ( queueHandle == NULL ) return false;
-    LOG_DEBUG("AppEventQueue::push: %x ", &event);
-
+    //LOG_DEBUG("AppEventQueue::push: %x ", &event);
     return xQueueSend(queueHandle, (void *)&event, this->ticksToWait) == pdPASS;
 }
 
 bool AppEventQueue::pop(AppEvent * event) const
 {
     if ( queueHandle == NULL ) return false;
-    LOG_DEBUG("AppEventQueue::pop: %x", event);
-
+    //LOG_DEBUG("AppEventQueue::pop: %x", event);
     return xQueueReceive(queueHandle, event, this->ticksToWait) == pdPASS;
 }
 
@@ -45,7 +43,6 @@ bool AppEventQueue::isEmpty() const
 bool AppEventQueue::isFull() const
 {
     if ( queueHandle == NULL ) return true;
-
     return uxQueueSpacesAvailable(queueHandle) == 0;
 }
 

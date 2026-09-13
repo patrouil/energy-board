@@ -6,22 +6,20 @@
  */
 #pragma once
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
 
 #include <Preferences.h>
 
 #include <unPhone.h>
 
+#include "ArduinoYaml.hpp"
+
 typedef struct {
-    bool ready = false;
     char sid[64];
     char password[64];
     char hostname[64];
 } AppConfigWifi;
 
 typedef struct {
-    bool ready = false;
     char server[64];
     char username[32];
     char password[64];
@@ -32,6 +30,8 @@ typedef struct {
 
 class AppConfig
 {
+    bool bindYaml(::YAMLNode &rootNode);
+
 protected :
     AppConfig() = default;
     ~AppConfig() = default;
@@ -49,11 +49,11 @@ public:
     AppConfigWifi wifi;
     AppConfigMqtt mqtt;
 
-    bool loadConfig();
+    bool loadDefaults();
+    bool loadConfigPerf();
     bool saveConfig() const;
 
-    void defaultWifi();
-    void defaultMqtt();
+    bool loadConfigSD();
+
 
 };
-#endif /* CONFIG_H_ */

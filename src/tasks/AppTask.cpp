@@ -26,7 +26,7 @@ void AppTask::start()
             try
             {
                 AppTask* task = static_cast<AppTask*>(parameter);
-                LOG_DEBUG("AppTask::taskWrapper :run %s", task->taskName);
+               // LOG_DEBUG("AppTask::taskWrapper :run %s", task->taskName);
                 task->run();
                 // no exit.
                 APP_ASSERT(false);
@@ -66,7 +66,7 @@ void AppTask::stop() const
 
 void AppTask::yield()
 {
-    LOG_DEBUG("AppTask::yield %s", this->taskName);
+  //  LOG_DEBUG("AppTask::yield %s", this->taskName);
 
     taskYIELD();
 }
@@ -80,7 +80,7 @@ void AppTask::sleep(int milli)
 
 bool AppTask::sendEvent(const AppEvent& event) const
 {
-    LOG_DEBUG("AppTask::sendEvent %x to %x", event.getId(), this->outgoingQueue);
+ //   LOG_DEBUG("AppTask::sendEvent %x to %x", event.getId(), this->outgoingQueue);
     return this->outgoingQueue->push(event);
 }
 

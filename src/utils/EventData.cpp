@@ -17,10 +17,3 @@ void EventData::release()
     xSemaphoreGive(logMutex);
 
 }
-
-void EventData::atomic(void(*func)() )
-{
-    lock();
-    func();
-    release();
-}

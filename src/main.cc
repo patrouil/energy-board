@@ -34,14 +34,6 @@
 // create an unPhone; add a custom version of Arduino's map command for
 // translating from touchscreen coordinates to LCD coordinates
 
-
-// GLOBAL VARIABLES.
-
-
-static uint8_t currentButton = 0xFF;
-
-// END OF GLOBALS
-
 //long my_mapper(long, long, long, long, long);
 void my_print(const char* buf)
 {
@@ -129,7 +121,7 @@ void launch_tasks()
     this_controler.start();
     this_controler.get_wifi_controler()->start();
     this_controler.get_unphone_controler()->start();
-    this_controler.get_mqtt_controler()->start();
+    // this_controler.get_mqtt_controler()->start();
     this_controler.get_simulation_controler()->start();
 }
 
@@ -172,68 +164,39 @@ void setup()
     lv_log_register_print_cb(my_print); /* register print function for debugging */
 #endif
 
-#if 0
-    /* Simple boot screen */
-    String LVGL_Arduino = "Loading Energy Monitor! ";
-    String v = "Hardware version " + String(this_phone_u.version());
-    LVGL_Arduino.concat(v);
-    lv_obj_t* boot_page = lv_obj_create(dsp.getActiveScreen());
-    lv_coord_t width = lv_disp_get_hor_res(dsp.lvgl_display());
-    lv_coord_t height = lv_disp_get_ver_res(dsp.lvgl_display());
-    lv_obj_set_size(boot_page, width, height);
-    lv_obj_t* label = lv_label_create(boot_page);
-    lv_label_set_text(label, LVGL_Arduino.c_str());
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-    lv_scr_load(boot_page);
-    // should do some refresh here.
-    lv_timer_handler();
-#else
      BootPage *boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
     boot_page->set_version(ph.version());
     boot_page->show();
     lv_timer_handler();
     sleep(3);
-#endif
-    LOG_DEBUG("let start config");
+    //LOG_DEBUG("let start config");
     // first of all load config
     AppConfig &this_config = AppConfig::getInstance();
-    this_config.loadConfig();
-    if (!this_config.wifi.ready)
-    {
-        LOG_DEBUG("setup : default wifi");
-        this_config.defaultWifi();  // never saved wet
-    }
-    if (!this_config.mqtt.ready)
-    {
-        LOG_DEBUG("setup : default mqtt");
-        this_config.defaultMqtt();
-    }
+    this_config.loadDefaults(); // start by defaults values
+    this_config.loadConfigPerf(); // then override
 
-    LOG_DEBUG("setup : create tasks");
+    //LOG_DEBUG("setup : create tasks");
 
     AppMainControler& this_controler = AppMainControler::getInstance();
 
-    LOG_DEBUG("setup : controler adr %x", &this_controler);
+    //LOG_DEBUG("setup : controler adr %x", &this_controler);
 
     this_controler.setup();
-    LOG_DEBUG("setup : wifi adr %x", this_controler.get_wifi_controler());
-    LOG_DEBUG("setup : unphone adr %x", this_controler.get_unphone_controler());
-    LOG_DEBUG("setup : mqtt adr %x", this_controler.get_mqtt_controler());
-
-    this_controler.subscribeMqtt("energy/board/production");
-    this_controler.subscribeMqtt("energy/board/consumption");
+    //LOG_DEBUG("setup : wifi adr %x", this_controler.get_wifi_controler());
+    //LOG_DEBUG("setup : unphone adr %x", this_controler.get_unphone_controler());
+    //LOG_DEBUG("setup : mqtt adr %x", this_controler.get_mqtt_controler());
+     //LOG_DEBUG("setup : sim adr %x", this_controler.get_simulation_controler());
 
     launch_tasks();
-    LOG_DEBUG("setup : done");
+    //LOG_DEBUG("setup : done");
 }
 
 
 void loop()
 {
     // LOG_DEBUG("main : loop");
-    lv_timer_handler();
+    //lv_timer_handler();
 
-    delay(3000);
+    delay(10000);
     // sleep on power off
-    unPhone::me->checkPowerSwitch();
 }

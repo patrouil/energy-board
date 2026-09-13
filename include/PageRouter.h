@@ -8,6 +8,7 @@
 #define ENERGY_BOARD_PAGEROUTER_H
 
 #include "BootPage.h"
+#include "DashboardPage.h"
 #include "Display.h"
 #include "Screen.h"
 #include "WelcomePage.h"
@@ -21,6 +22,7 @@ enum class ScreenId : uint8_t
 {
     WELCOME_PAGE = 0,  ///< Page d'accueil.
     BOOT_PAGE = 1,     ///< Page "À propos".
+    DASHBOARD_PAGE = 2,
     SCREEN_COUNT        ///< Nombre total d'écrans.
 };
 
@@ -48,6 +50,11 @@ public:
     BootPage * getBootPage()
     {
         return static_cast<BootPage*>(this->get_screen(ScreenId::BOOT_PAGE));
+    }
+
+    DashboardPage* getDashboardPage()
+    {
+        return static_cast<DashboardPage*>(this->get_screen(ScreenId::DASHBOARD_PAGE));
     }
 
     /**

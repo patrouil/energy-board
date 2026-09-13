@@ -20,7 +20,6 @@ public :
     void lock();
     void release();
 
-    void atomic(void (*func)());
     // WIFI Task Data
     String ipAddress;
 
@@ -32,6 +31,7 @@ public :
     int32_t currentProduction = 0;
     int32_t currentConsumption = 0;
     int32_t maxConsumption = 0;
+    int32_t maxProduction = 0;
     int32_t powerAvailable = 0;
 
     // unPhone date

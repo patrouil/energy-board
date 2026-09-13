@@ -26,7 +26,7 @@ void Screen::create()
     Display & display = Display::getInstance();
     lv_coord_t width = lv_disp_get_hor_res(display.lvgl_display());
     lv_coord_t height = lv_disp_get_ver_res(display.lvgl_display());
-    LOG_DEBUG("Page::Page : resolution %d x %d", width, height);
+  //  LOG_DEBUG("Page::Page : resolution %d x %d", width, height);
 
     lv_obj_set_size(this->page, width , height );
     // lv_obj_align(this->page, LV_ALIGN_CENTER, 0, 0);
@@ -34,12 +34,12 @@ void Screen::create()
     //lv_obj_set_style_bg_color(page, lv_palette_main(LV_PALETTE_BLUE), LV_PART_MAIN); // Bleu (palette)
 
     APP_ASSERT(lv_obj_is_valid(this->page));
-    LOG_DEBUG("Page::Page : construction");
+ //   LOG_DEBUG("Page::Page : construction");
 }
 
 void Screen::show()
 {
-    LOG_DEBUG("Screen::show : ");
+ //   LOG_DEBUG("Screen::show : ");
 
     //lv_scr_load(this->page);
     //lv_obj_set_style_bg_opa(page, LV_OPA_100, LV_PART_MAIN);

@@ -27,11 +27,11 @@ public:
     PowerBar() = default;
     ~PowerBar();
 
-    void create(lv_obj_t* parent);
+    lv_obj_t* create(lv_obj_t* parent);
 
     void setRange(int32_t min, int32_t max);
-    void setValue(int32_t value);
-    void setRatio(uint8_t percent);
+    void setCheapValue(int32_t value);
+    void setProductionValue(int32_t value);
 
     lv_obj_t* getContainer() const { return container; }
     lv_obj_t* getBackground() const { return background; }
@@ -41,9 +41,15 @@ private:
     lv_obj_t* container = nullptr;
     lv_obj_t* background = nullptr;
     lv_obj_t* indicator = nullptr;
-    uint8_t ratioPercent = 70;
+    uint32_t ratioPercent = 70;
 
     void updateIndicatorWidth();
+
+    int32_t minPower = 0;
+    int32_t maxPower = 100;
+    int32_t productionPower = 0;
+    int32_t cheapPower = 0;
+
 };
 
 #endif // ENERGY_BOARD_POWERBAR_H

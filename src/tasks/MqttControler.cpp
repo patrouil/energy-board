@@ -140,7 +140,6 @@ void MqttControler::connect()
          if (this->mqttClient == nullptr
             && WiFi.status() == WL_CONNECTED
             && this->mqttconfig != nullptr
-            && this->mqttconfig->ready
             && this->mqttconfig->server[0] != '\0')
         {
             esp_mqtt_client_config_t config = {};
