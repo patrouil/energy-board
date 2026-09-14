@@ -15,6 +15,7 @@ static const lv_coord_t POWER_BAR_HEIGHT = 30;
 #define BLANC_EDF 0xFFFFFF
 #define VERT_EDF 0x57BF79
 
+#define POWER_BAR_MIN_POWER 0
 
 PowerBar::~PowerBar()
 {
@@ -38,11 +39,13 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
     lv_obj_clear_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_coord_t parentWidth = lv_obj_get_content_width(parent);
-    if (parentWidth <= 0) {
+    if (parentWidth <= 0)
+    {
         parentWidth = lv_obj_get_width(parent);
     }
-    if (parentWidth <= 0) {
-        parentWidth = Display::displayWidth ;
+    if (parentWidth <= 0)
+    {
+        parentWidth = Display::displayWidth;
     }
     lv_obj_set_size(container, parentWidth, POWER_BAR_HEIGHT);
 
@@ -67,14 +70,15 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
     lv_obj_set_style_border_width(indicator, 0, LV_PART_MAIN);
     lv_obj_set_style_radius(indicator, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(indicator, 0, LV_PART_MAIN);
-    lv_bar_set_range(indicator, minPower, cheapPower);
-    lv_bar_set_value(indicator, productionPower, LV_ANIM_OFF);
+   lv_bar_set_range(indicator, POWER_BAR_MIN_POWER, lowRatePower);
+    lv_bar_set_value(indicator, solarPower, LV_ANIM_OFF);
 
-    updateIndicatorWidth();
+    updateBarSize();
 
     return container;
 }
 
+/*
 void PowerBar::setRange(int32_t min, int32_t max)
 {
     this->minPower = min;
@@ -82,48 +86,70 @@ void PowerBar::setRange(int32_t min, int32_t max)
     if (!indicator) return;
     LOG_DEBUG("PowerBar::setRange min=%d max=%d", min, max);
     lv_bar_set_range(indicator, min, max);
+}*/
+
+void PowerBar::setLowRatePower(int32_t value)
+{
+
+    this->lowRatePower = value;
+    if (!indicator) return;
+    LOG_DEBUG("PowerBar::setLowRatePower value=%d", value);
+
+    if ( lowRatePower  <= solarPower )
+        lv_obj_add_flag(indicator, LV_OBJ_FLAG_HIDDEN); // masquer
+    else
+    {
+        lv_obj_clear_flag(indicator, LV_OBJ_FLAG_HIDDEN); // afficher
+        lv_bar_set_range(indicator, POWER_BAR_MIN_POWER, lowRatePower);
+        this->updateBarSize();
+    }
 }
 
-void PowerBar::setCheapValue(int32_t value)
+void PowerBar::setSolarPower(int32_t value)
 {
-    this->cheapPower = value;
+    LOG_DEBUG("PowerBar::setSolarPower value=%d", value);
+
+    if ( solarPower > 0 ) this->solarPower = value;
+    calculatePowerUsage();
     if (!indicator) return;
-    // lv_bar_set_value(indicator, value, LV_ANIM_OFF);
-    LOG_DEBUG("PowerBar::setCheapValue value=%d", value);
-    this->updateIndicatorWidth();
+    lv_bar_set_value(indicator, this->solarPower, LV_ANIM_OFF);
 }
 
-void PowerBar::setProductionValue(int32_t value)
+void PowerBar::setGridPower(int32_t value)
 {
-    this->productionPower = value;
-    if (!indicator) return;
-    LOG_DEBUG("PowerBar::setProductionValue value=%d", value);
-    lv_bar_set_value(indicator, value, LV_ANIM_OFF);
+    LOG_DEBUG("PowerBar::setGridPower value=%d", value);
+
+    this->gridPower = value;
+    calculatePowerUsage();
+}
+
+void PowerBar::setMaxPower(int32_t value)
+{
+    if ( maxPower > 0 ) this->maxPower = value;
+    this->updateBarSize();
+}
+
+void PowerBar::calculatePowerUsage()
+{
+    this->powerUsage = gridPower - solarPower;
 }
 
 /*
  *adjust width with power values and parent repaint
  */
-void PowerBar::updateIndicatorWidth()
+void PowerBar::updateBarSize()
 {
     if (!container || !indicator) return;
-    lv_coord_t parentWidth = lv_obj_get_width(lv_obj_get_parent(this->container));
     lv_coord_t containerWidth = lv_obj_get_width(container);
-    if ( parentWidth >= containerWidth-1)
-    {
-        LOG_DEBUG("PowerBar::updateIndicatorWidth parentWidth=%d containerWidth=%d", parentWidth, containerWidth);
-        lv_obj_set_width(container, parentWidth-1);
-         containerWidth = lv_obj_get_width(container);
-        lv_obj_update_layout(container);
-        lv_obj_invalidate(container);
-    }
-
-    if (containerWidth <= 0) return;
-
-    ratioPercent = ( + cheapPower - minPower) * 100 / (maxPower - minPower) ;
+    if (containerWidth <= 0) return;  // savefy at startup.
+    // loaw rate bar size is a pencentage of lowRatePower vs maxPower
+    ratioPercent = lowRatePower * 100 / maxPower;
     lv_coord_t indicatorWidth = (containerWidth) * ratioPercent / 100;
-    LOG_DEBUG("PowerBar::updateIndicatorWidth min %d max %d cheap %d", minPower, maxPower, cheapPower);
-    LOG_DEBUG("PowerBar::updateIndicatorWidth indicatorWidth=%d  ratio=%d", indicatorWidth, ratioPercent);
-    if (indicatorWidth < 1) indicatorWidth = 1;
+    LOG_DEBUG("PowerBar::updateBarSize low rate %d max power %d", lowRatePower, maxPower);
+    LOG_DEBUG("PowerBar::updateBarSize indicatorWidth=%d  ratio=%d", indicatorWidth, ratioPercent);
+
     lv_obj_set_width(indicator, indicatorWidth);
+    //lv_bar_set_value(indicator, this->lowRatePower/2, LV_ANIM_OFF);
+    lv_obj_invalidate(container);
+
 }
