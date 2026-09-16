@@ -36,11 +36,11 @@ public:
 
     lv_obj_t* create(lv_obj_t* parent);
 
-  //   void setRange(int32_t min, int32_t max);
     void setLowRatePower(int32_t value);
     void setSolarPower(int32_t value);
     void setGridPower(int32_t value);
     void setMaxPower(int32_t value);
+    void setHomePowerUsage(int32_t value);
 
     lv_obj_t* getContainer() const { return container; }
 
@@ -59,9 +59,9 @@ private:
 
     int32_t gridPower = 0;
     int32_t maxPower = 100;
-    int32_t solarPower = 0;
-    int32_t lowRatePower = 0;
-    int32_t powerUsage = 0;
+    int32_t solarPower = 10;
+    int32_t lowRatePower = 20;
+    int32_t homePowerUsage = 0;
 
 
 };

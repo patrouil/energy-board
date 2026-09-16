@@ -28,14 +28,14 @@ public:
 
     void setPowerRange(int32_t min, int32_t max)
     {
-        powerBar.setRange(min, max);
-        powerScale.setRange(min, max);
+        powerBar.setMaxPower(max);
     }
 
-    void setProductionValue(int32_t production, int32_t powerAvailable)
+    void setProductionValue(int32_t solarProd, int32_t lowRatePower, int gridPower)
     {
-        powerBar.setProductionValue(production);
-        powerBar.setCheapValue(powerAvailable);
+        powerBar.setGridPower(gridPower);
+        powerBar.setLowRatePower(lowRatePower);
+        powerBar.setSolarPower(solarProd);
     }
 
 };

@@ -61,16 +61,19 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
 
     indicator = lv_bar_create(container);
     APP_ASSERT(indicator != nullptr);
-    lv_obj_set_height(indicator, POWER_BAR_HEIGHT);
+    lv_obj_set_size(indicator, ratioPercent * parentWidth / 100, POWER_BAR_HEIGHT);  // initial value
     lv_obj_align(indicator, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_set_style_bg_color(indicator, lv_color_hex(BLEU_EDF), LV_PART_MAIN);
     lv_obj_set_style_bg_opa(indicator, LV_OPA_COVER, LV_PART_MAIN);
+
     lv_obj_set_style_bg_color(indicator, lv_color_hex(VERT_EDF), LV_PART_INDICATOR);
     lv_obj_set_style_bg_opa(indicator, LV_OPA_COVER, LV_PART_INDICATOR);
-    lv_obj_set_style_border_width(indicator, 0, LV_PART_MAIN);
+
+    lv_obj_set_style_border_width(indicator, 2, LV_PART_MAIN);
     lv_obj_set_style_radius(indicator, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(indicator, 0, LV_PART_MAIN);
-   lv_bar_set_range(indicator, POWER_BAR_MIN_POWER, lowRatePower);
+
+    lv_bar_set_range(indicator, POWER_BAR_MIN_POWER, lowRatePower);
     lv_bar_set_value(indicator, solarPower, LV_ANIM_OFF);
 
     updateBarSize();
@@ -78,19 +81,8 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
     return container;
 }
 
-/*
-void PowerBar::setRange(int32_t min, int32_t max)
-{
-    this->minPower = min;
-    this->maxPower = max;
-    if (!indicator) return;
-    LOG_DEBUG("PowerBar::setRange min=%d max=%d", min, max);
-    lv_bar_set_range(indicator, min, max);
-}*/
-
 void PowerBar::setLowRatePower(int32_t value)
 {
-
     this->lowRatePower = value;
     if (!indicator) return;
     LOG_DEBUG("PowerBar::setLowRatePower value=%d", value);
@@ -120,7 +112,6 @@ void PowerBar::setGridPower(int32_t value)
     LOG_DEBUG("PowerBar::setGridPower value=%d", value);
 
     this->gridPower = value;
-    calculatePowerUsage();
 }
 
 void PowerBar::setMaxPower(int32_t value)
@@ -129,9 +120,9 @@ void PowerBar::setMaxPower(int32_t value)
     this->updateBarSize();
 }
 
-void PowerBar::calculatePowerUsage()
+void PowerBar::setHomePowerUsage(int32_t value)
 {
-    this->powerUsage = gridPower - solarPower;
+    this->homePowerUsage = value;
 }
 
 /*
@@ -150,6 +141,6 @@ void PowerBar::updateBarSize()
 
     lv_obj_set_width(indicator, indicatorWidth);
     //lv_bar_set_value(indicator, this->lowRatePower/2, LV_ANIM_OFF);
-    lv_obj_invalidate(container);
+   //  lv_obj_invalidate(container);
 
 }
