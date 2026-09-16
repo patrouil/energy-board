@@ -9,7 +9,7 @@
 #include "Theme.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
 DashboardPage::~DashboardPage()
 {
@@ -85,11 +85,17 @@ void DashboardPage::create()
                        LV_GRID_ALIGN_START, 0, 1,
                        LV_GRID_ALIGN_START, 0, 1);
 
+    lv_obj_t * s = powerScale.create(this->page);
+    APP_ASSERT(s != nullptr);
+    lv_obj_set_grid_cell(s,
+                         LV_GRID_ALIGN_START, 0, 1,
+                         LV_GRID_ALIGN_START, 1, 1);
+
     bottomMessage = create_ticker(this->page);
     APP_ASSERT(bottomMessage != nullptr);
     lv_obj_set_grid_cell(bottomMessage,
                          LV_GRID_ALIGN_START, 0, 1,
-                         LV_GRID_ALIGN_START, 2, 1);
+                         LV_GRID_ALIGN_START, 3, 1);
 
     LOG_DEBUG("DashboardPage::create done");
 }

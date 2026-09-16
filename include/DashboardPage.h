@@ -5,12 +5,14 @@
 #pragma once
 
 #include "PowerBar.h"
+#include "PowerScale.h"
 #include "Screen.h"
 
 class DashboardPage : public Screen
 {
     lv_obj_t* oneLabel = nullptr;
     PowerBar powerBar;
+    PowerScale powerScale;
 
     lv_obj_t* bottomMessage = nullptr;
 
