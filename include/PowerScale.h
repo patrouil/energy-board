@@ -31,6 +31,8 @@ public:
     void setTickInterval(int32_t intervalWatts);
     void setMajorTickEvery(uint16_t tickCount);
     void setLabelShow(bool show);
+    void setHomeConsumption(int32_t homeConsumption);
+    void setHomeConsumptionColor(lv_color_t color);
 
     lv_obj_t* getContainer() const { return container; }
 
@@ -42,6 +44,10 @@ private:
 
     lv_obj_t* container = nullptr;
     lv_obj_t* axisLine = nullptr;
+    lv_obj_t* homeConsumptionLabel = nullptr;
+
+    int32_t homeConsumption = 0;
+    bool homeConsumptionSet = false;
 
     int32_t minPower = 0;
     int32_t maxPower = 100;
@@ -62,4 +68,5 @@ private:
     void rebuild();
     lv_coord_t valueToX(int32_t value, lv_coord_t width) const;
     void destroyTicks();
+    void updateHomeConsumptionPos();
 };
