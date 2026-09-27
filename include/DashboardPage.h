@@ -42,6 +42,7 @@ public:
     void setHomeConsumption(int32_t homeConsumption)
     {
         // powerBar.setHomeConsumption(homeConsumption);
+        powerScale.setHomeConsumption(homeConsumption);
     }
 
 };
