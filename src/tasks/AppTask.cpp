@@ -12,13 +12,10 @@ AppTask::AppTask(const char* taskName, uint16_t stackSize, UBaseType_t priority,
 {
 }
 
-AppTask::~AppTask()
-{
-}
 
 void AppTask::start()
 {
-    LOG_DEBUG("AppTask::start : %s ", taskName);
+    //LOG_DEBUG("AppTask::start : %s ", taskName);
 
     xTaskCreate(
         [](void* parameter)

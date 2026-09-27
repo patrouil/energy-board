@@ -1,5 +1,5 @@
 #include "Log.h"
-#include <lvgl.h>
+
 
 
 Log Log::appLogger;

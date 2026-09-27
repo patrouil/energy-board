@@ -9,7 +9,14 @@
 #include "Theme.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
-static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
+static const lv_coord_t row_dsc[] = {
+    LV_GRID_CONTENT,  // bar indicators
+    LV_GRID_CONTENT,  // scale
+    //LV_GRID_CONTENT,  // labels
+    LV_GRID_FR(1), // free
+    LV_GRID_CONTENT, // message
+    LV_GRID_TEMPLATE_LAST
+};
 
 DashboardPage::~DashboardPage()
 {
@@ -37,22 +44,10 @@ lv_obj_t* DashboardPage::create_ticker(lv_obj_t* parent)
         LV_LABEL_LONG_SCROLL_CIRCULAR
     );
     /* Optional appearance */
-    lv_obj_set_style_text_color(
-        ticker,
-        lv_color_hex(0xFFFFFF),
-        LV_PART_MAIN
-    );
-    lv_obj_set_style_bg_color(
-        ticker,
-        lv_color_hex(0x202020),
-        LV_PART_MAIN
-    );
+    lv_obj_set_style_text_color(ticker, Theme::TEXT_COLOR, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(ticker, Theme::BACKGROUND_COLOR, LV_PART_MAIN);
 
-    lv_obj_set_style_bg_opa(
-        ticker,
-        LV_OPA_COVER,
-        LV_PART_MAIN
-    );
+    lv_obj_set_style_bg_opa(ticker, LV_OPA_80, LV_PART_MAIN); // no background
     lv_obj_set_style_pad_all(ticker, 8, LV_PART_MAIN);
 
     lv_obj_center(ticker);
@@ -69,23 +64,20 @@ void DashboardPage::create()
     lv_obj_set_style_pad_all(this->page, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(this->page, 0, LV_PART_MAIN);
     lv_obj_set_scrollbar_mode(this->page, LV_SCROLLBAR_MODE_OFF);
-/*
-    oneLabel = lv_label_create(this->page);
-    APP_ASSERT(oneLabel != nullptr);
-    lv_label_set_text(oneLabel, "One");
-    lv_obj_set_style_text_color(oneLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_obj_set_grid_cell(oneLabel,
-                         LV_GRID_ALIGN_START, 0, 1,
-                         LV_GRID_ALIGN_START, 0, 1);
-*/
-    lv_obj_t * b = powerBar.create(this->page);
+
+    lv_obj_t* b = powerBar.create(this->page);
     APP_ASSERT(b != nullptr);
 
     lv_obj_set_grid_cell(b,
-                       LV_GRID_ALIGN_START, 0, 1,
-                       LV_GRID_ALIGN_START, 0, 1);
+                         LV_GRID_ALIGN_START, 0, 1,
+                         LV_GRID_ALIGN_START, 0, 1);
 
-    lv_obj_t * s = powerScale.create(this->page);
+    lv_obj_t* s = powerScale.create(this->page);
+    powerScale.setMajorTickEvery(2);
+    powerScale.setTickInterval(500);
+    powerScale.setRange(0, 5000);
+    powerScale.setLabelShow(false);
+
     APP_ASSERT(s != nullptr);
     lv_obj_set_grid_cell(s,
                          LV_GRID_ALIGN_START, 0, 1,

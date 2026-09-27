@@ -24,8 +24,8 @@ class SimulationControler : public AppTask
     const AppEvent simulationEvent = AppEvent(AppEventType::SIMULATED_PRODUCTION, simulationData);
 
     int32_t variation(int32_t value, int32_t from, int32_t to);
-    int32_t available();
-    int32_t rand(int32_t maxVar);
+    int32_t lowRatePower();
+    int32_t rand(int32_t upperBound);
     void computeRandomValues();
 
 public:

@@ -15,13 +15,13 @@ class Screen
 {
 public:
     Screen() = default;
-    ~Screen();
+    virtual ~Screen();
     virtual void create() ;
     virtual void show();
     virtual void hide();
 
 protected:
-    lv_obj_t* page;  // each page is a LVGL Screen.
+    lv_obj_t* page = nullptr;  // each page is a LVGL Screen.
 };
 
 

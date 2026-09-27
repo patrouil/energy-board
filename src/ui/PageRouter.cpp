@@ -37,30 +37,40 @@ Screen* PageRouter::get_screen(ScreenId id)
         LOG_ERROR("PageRouter::get_screen: Invalid screen id %d", index);
         return nullptr;
     }
-
-    if (screens[index] == nullptr)
+    try
     {
-        switch (id)
+        if (screens[index] == nullptr)
         {
-        case ScreenId::WELCOME_PAGE:
-            screens[index] = new WelcomePage();
-            screens[index]->create();
-            LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
-            break;
-        case ScreenId::BOOT_PAGE:
-            screens[index] = new BootPage();
-            screens[index]->create();
-            LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
-            break;
-        case ScreenId::DASHBOARD_PAGE:
-            screens[index] = new DashboardPage();
-            screens[index]->create();
-            LOG_DEBUG("PageRouter::get_screen: Created DASHBOARD_PAGE");
-            break;
-        default:
-            LOG_ERROR("PageRouter::get_screen: Unknown screen id %d", index);
-            return nullptr;
+            switch (id)
+            {
+            case ScreenId::WELCOME_PAGE:
+                screens[index] = new WelcomePage();
+                if (!screens[index]) break;
+                screens[index]->create();
+                LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
+                break;
+            case ScreenId::BOOT_PAGE:
+                screens[index] = new BootPage();
+                if (!screens[index]) break;
+                screens[index]->create();
+                LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
+                break;
+            case ScreenId::DASHBOARD_PAGE:
+                screens[index] = new DashboardPage();
+                if (!screens[index]) break;
+                screens[index]->create();
+                LOG_DEBUG("PageRouter::get_screen: Created DASHBOARD_PAGE");
+                break;
+            default:
+                LOG_ERROR("PageRouter::get_screen: Unknown screen id %d", index);
+                return nullptr;
+            }
         }
+    }
+    catch (...)
+    {
+        LOG_ERROR("PageRouter::get_screen: Failed to create screen %d", index);
+        return nullptr;
     }
     return screens[index];
 }

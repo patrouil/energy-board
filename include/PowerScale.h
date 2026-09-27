@@ -3,6 +3,8 @@
 //
 #pragma once
 
+#include <freertos/FreeRTOS.h>
+#include <semphr.h>
 #include <lvgl.h>
 
 /*
@@ -33,7 +35,10 @@ public:
     lv_obj_t* getContainer() const { return container; }
 
 private:
-    static const uint16_t MAX_TICKS = 64;
+    static const uint16_t MAX_TICKS = 36;
+    static const uint16_t MAX_LABEL = 8;
+
+    SemaphoreHandle_t logMutex = xSemaphoreCreateMutex();
 
     lv_obj_t* container = nullptr;
     lv_obj_t* axisLine = nullptr;
@@ -42,14 +47,16 @@ private:
     int32_t maxPower = 100;
     int32_t tickInterval = 500;
     uint16_t majorTickEvery = 2;
-    bool labelShow = true;
+    bool labelShow = false;
 
     lv_obj_t* tickLines[MAX_TICKS] = {nullptr};
     lv_obj_t* tickLabels[MAX_TICKS] = {nullptr};
+    char tickLabelsValues[MAX_TICKS][MAX_LABEL]; // statically allocated labeld.
     int32_t tickValues[MAX_TICKS] = {0};
     uint16_t tickCount = 0;
 
     lv_point_t axisPoints[2];
+    // 2 points per line.
     lv_point_t tickPoints[MAX_TICKS * 2];
 
     void rebuild();

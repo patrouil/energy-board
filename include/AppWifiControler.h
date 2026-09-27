@@ -43,6 +43,7 @@ public:
     }
 
     void disconnect();
+    void setup();
 
     void run() override;
 };

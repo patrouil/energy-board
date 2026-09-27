@@ -60,9 +60,10 @@ class AppTask
 public:
     AppTask(const char* taskName, uint16_t stackSize, UBaseType_t priority = APP_TASKS_PRIORITY_DEFAULT,
             AppEventQueue* incomingQueue = nullptr, AppEventQueue* outgoingQueue = nullptr);
-    virtual ~AppTask();
+    virtual ~AppTask() = default;
     void start();
-    void setup() {}
+    virtual void setup() = 0;
+    virtual void run() = 0;
 
     void suspend() const;
     void resume() const;
@@ -107,7 +108,6 @@ public:
         return priority;
     }
 
-    virtual void run() = 0;
 
 protected:
     bool sendEvent(const AppEvent& event) const;

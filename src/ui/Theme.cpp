@@ -12,6 +12,11 @@ const lv_color_t Theme::BUTTON_COLOR = lv_color_hex(0x555555);
 const lv_color_t Theme::PRIMARY_COLOR = lv_color_hex(0x003B77);
 const lv_color_t Theme::SECONDARY_COLOR = lv_color_hex(0x0077B6);
 
+const lv_color_t Theme::BLEU_EDF = lv_color_hex(0x2855C1);
+const lv_color_t Theme::ROUGE_EDF = lv_color_hex(0xEB6332);
+const lv_color_t Theme::BLANC_EDF = lv_color_hex(0xFFFFFF);
+const lv_color_t Theme::VERT_EDF = lv_color_hex(0x57BF79);
+
 const lv_font_t* Theme::DEFAULT_FONT = LV_FONT_MONTSERRAT_12;
 const lv_font_t* Theme::MEDIUM_FONT = LV_FONT_MONTSERRAT_10;
 const lv_font_t* Theme::SMALL_FONT = LV_FONT_MONTSERRAT_8;

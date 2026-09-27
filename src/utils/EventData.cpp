@@ -7,12 +7,12 @@
 
 
 // locked only for 1sec max (this is long)
-void EventData::lock()
+void EventData::lock() const
 {
     xSemaphoreTake(logMutex, portTICK_PERIOD_MS * 1000 );
 }
 
-void EventData::release()
+void EventData::release() const
 {
     xSemaphoreGive(logMutex);
 

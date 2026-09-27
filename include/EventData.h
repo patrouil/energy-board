@@ -17,22 +17,39 @@
 class EventData
 {
 public :
-    void lock();
-    void release();
+
+    EventData()
+    {
+        memset(ipAddress, 0, sizeof(ipAddress));
+    }
+
+    void lock() const;
+    void release() const;
 
     // WIFI Task Data
-    String ipAddress;
+    char ipAddress[24];
+
+    void setIp(const char* ip)
+    {
+        strncpy(ipAddress, ip, sizeof(ipAddress));
+    }
+
+    void setIp(const String& ip)
+    {
+        strncpy(ipAddress, ip.c_str(), sizeof(ipAddress));
+    }
 
     // MQTT Task Data
     String mqttTopic;
     String mqttPayload;
 
     // MQ Data
-    int32_t currentProduction = 0;
-    int32_t currentConsumption = 0;
-    int32_t maxConsumption = 0;
-    int32_t maxProduction = 0;
-    int32_t powerAvailable = 0;
+    int32_t solarPower = 0;
+    int32_t gridPower = 0;
+    int32_t maxGridConsuption = 0;
+    int32_t lowRateMaxPower = 0;
+    int32_t homeConsumption = 0;
+
 
     // unPhone date
     static const uint16_t BUTTON_1 = 0x01;

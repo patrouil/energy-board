@@ -50,13 +50,13 @@ bool AppWifiControler::connect(uint16_t maxTries)
                 this->sleep(100);
                 if (WiFi.status() == WL_CONNECTED && WiFi.localIP() != INADDR_NONE)
                 {
-                    wifiData.ipAddress = WiFi.localIP().toString();
-                    LOG_INFO("WiFi connected! IP: %s", wifiData.ipAddress.c_str());
+                    wifiData.setIp(WiFi.localIP().toString());
+                    LOG_INFO("WiFi connected! IP: %s", wifiData.ipAddress);
                     return true;
                 }
             }
             WiFi.disconnect();
-            wifiData.ipAddress = "";
+            wifiData.ipAddress[0] = '\0';
 
             LOG_ERROR("AppWifiControler : login error");
             this->sleep(100);
@@ -76,8 +76,12 @@ bool AppWifiControler::connect(uint16_t maxTries)
 void AppWifiControler::disconnect()
 {
     WiFi.disconnect();
-    wifiData.ipAddress = "";
+    wifiData.ipAddress[0] = '\0';
     this->status = WL_DISCONNECTED;
+}
+
+void AppWifiControler::setup()
+{
 }
 
 void AppWifiControler::run()

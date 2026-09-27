@@ -29,6 +29,7 @@ public:
     void setPowerRange(int32_t min, int32_t max)
     {
         powerBar.setMaxPower(max);
+        powerScale.setRange(0, max);
     }
 
     void setProductionValue(int32_t solarProd, int32_t lowRatePower, int gridPower)
@@ -36,6 +37,11 @@ public:
         powerBar.setGridPower(gridPower);
         powerBar.setLowRatePower(lowRatePower);
         powerBar.setSolarPower(solarProd);
+    }
+
+    void setHomeConsumption(int32_t homeConsumption)
+    {
+        // powerBar.setHomeConsumption(homeConsumption);
     }
 
 };

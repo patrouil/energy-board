@@ -9,20 +9,23 @@
 
 #include "Log.h"
 
-//  currentProduction , currentConsumption
+//  solarPower, gridPower
 static constexpr int32_t testPatterns[3][2] = {
     {0, 160}, // sleepy night
     {3000, -2000}, // over prod
     {1500, 500}, // normal context.
 };
 
+#define MAX_SOLAR_POWER 3000
+
+#define MAX( a, b) (a > b ? a : b)
+
+
 SimulationControler::SimulationControler(AppEventQueue* outQueue) :
     AppTask("SimulationControler", APP_TASK_STACK_MIN, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
     LOG_DEBUG("SimulationControler::SimulationControler");
-    this->simulationData.maxConsumption = MAX_CONSUMPTION;
-    this->simulationData.maxProduction =  MAX_PRODUCTION;  // warning prod is positive but have a negative impact on balance.
-
+    this->simulationData.maxGridConsuption = MAX_CONSUMPTION;
 }
 
 SimulationControler::~SimulationControler()
@@ -42,18 +45,17 @@ int32_t SimulationControler::variation(int32_t value, int32_t from, int32_t to)
     return v;
 }
 
-int32_t SimulationControler::available()
+int32_t SimulationControler::lowRatePower()
 {
-    return (this->simulationData.currentProduction * CONVERTION_FACTOR) - this->simulationData.currentConsumption;
+    return (this->simulationData.solarPower * CONVERTION_FACTOR);
 }
 
 // range is - UINT32_MAX/2 and +UINT32_MAX/2
 // result value is between -100 and +100
 // but bounded to maxval so -maxvar to *maxvar.
-int32_t SimulationControler::rand(int32_t maxVar)
+int32_t SimulationControler::rand(int32_t upperBound)
 {
-    int32_t v = static_cast<int32_t>(esp_random() % (2 * maxVar)) - maxVar;
-
+    int32_t v = static_cast<int32_t>(esp_random() % (2 * upperBound)) - upperBound;
     return v;
 }
 
@@ -61,19 +63,21 @@ void SimulationControler::computeRandomValues()
 {
     EventData &sim = this->simulationData;
     sim.lock();
-    int32_t newProd = variation(sim.currentProduction, 0,  sim.maxProduction);
-    sim.currentConsumption += (sim.currentProduction - newProd); // add prod variation
-    sim.currentConsumption = variation(sim.currentConsumption,
-                                                        - sim.currentProduction,
-                                                        sim.maxConsumption); // then varry
-    sim.currentProduction = newProd;
+    int32_t newProd = variation(sim.solarPower, 0,  MAX_SOLAR_POWER);
+    sim.gridPower += (sim.solarPower - newProd); // add to grid the solar variation
+    sim.gridPower = variation(sim.gridPower,
+                                                        - sim.solarPower,
+                                                        sim.maxGridConsuption); // then varry
+    sim.solarPower = newProd;
 
-    sim.powerAvailable = this->available();
+    sim.lowRateMaxPower = this->lowRatePower();
+    sim.homeConsumption = sim.gridPower + sim.solarPower;
+    sim.maxGridConsuption = 2* MAX ( sim.lowRateMaxPower, sim.homeConsumption);
     sim.release();
 
-    LOG_DEBUG("SimulationControler : production=%d available=%d consumption=%d max=%d ",
-              sim.currentProduction, sim.powerAvailable,
-              sim.currentConsumption, sim.maxConsumption);
+    LOG_DEBUG("SimulationControler : solar=%d lowrate=%d grid=%d maxGrid=%d ",
+              sim.solarPower, sim.lowRateMaxPower,
+              sim.gridPower, sim.maxGridConsuption);
 }
 
 void SimulationControler::setup()
@@ -81,10 +85,12 @@ void SimulationControler::setup()
     EventData &sim = this->simulationData;
 
     sim.lock();
-    sim.currentProduction = MAX_PRODUCTION / 2;
-    sim.currentConsumption = 0;
-    sim.maxConsumption = MAX_CONSUMPTION;
-    sim.powerAvailable = available();
+    sim.solarPower = MAX_PRODUCTION / 2;
+    sim.gridPower = 0;
+    sim.maxGridConsuption = MAX_CONSUMPTION;
+    sim.lowRateMaxPower = lowRatePower();
+    sim.homeConsumption = sim.gridPower + sim.solarPower;
+
     sim.release();
 }
 
@@ -94,9 +100,9 @@ int SimulationControler::switchPattern()
 
     this->currentPattern = (this->currentPattern + 1) % (sizeof(testPatterns) / sizeof(testPatterns[0]));
     sim.lock();
-    sim.currentProduction = testPatterns[this->currentPattern][0];
-    sim.currentConsumption = testPatterns[this->currentPattern][1];
-    sim.powerAvailable = available();
+    sim.solarPower = testPatterns[this->currentPattern][0];
+    sim.gridPower = testPatterns[this->currentPattern][1];
+    sim.lowRateMaxPower = lowRatePower();
     sim.release();
 
     return this->currentPattern;

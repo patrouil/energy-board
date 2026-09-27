@@ -17,20 +17,41 @@ AppMainControler::~AppMainControler()
 {
     //LOG_DEBUG("AppMainControler::delete AppMainControler");
 
-    if (simulationManager) delete this->simulationManager;
+    if (simulationManager)
+    {
+        this->simulationManager->stop();
+        delete this->simulationManager;
+    }
     if (simulationOutQueue) delete this->simulationOutQueue;
     this->simulationManager = nullptr;
     this->simulationOutQueue = nullptr;
 
-    if (mqttManager) delete this->mqttManager;
+    if (mqttManager)
+    {
+        this->mqttManager->stop();
+        delete this->mqttManager;
+    }
     if (mqttOutQueue) delete this->mqttOutQueue;
     this->mqttManager = nullptr;
     this->mqttOutQueue = nullptr;
 
-    if (wifiManager) delete this->wifiManager;
+    if (wifiManager)
+    {
+        this->wifiManager->stop();
+        delete this->wifiManager;
+    }
     if (wifiOutQueue) delete this->wifiOutQueue;
     this->wifiManager = nullptr;
     this->wifiOutQueue = nullptr;
+
+    if (this->unphoneManager)
+    {
+        this->unphoneManager->stop();
+        delete this->unphoneManager;
+    }
+    if (this->unphoneOutQueue) delete this->unphoneOutQueue;
+    this->unphoneManager = nullptr;
+    this->unphoneOutQueue = nullptr;
 }
 
 bool AppMainControler::manage_wifi_event()
@@ -121,8 +142,6 @@ bool AppMainControler::manage_unphone_event()
         }
     case AppEventType::UNPHONE_BUTTON_RELEASED:
         {
-            //            LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_RELEASE :%d", ev.getId());
-
             router.getWelcomePage()->setMessage("button release");
             break;
         }
@@ -200,15 +219,21 @@ bool AppMainControler::manage_simulation_event()
     case AppEventType::SIMULATED_PRODUCTION:
         {
             const EventData& d = ev.getData();
-             char message [512];
-            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION production=%d available=%d  consumption=%d max=%d ",
-                      d.currentProduction, d.powerAvailable, d.currentConsumption, d.maxConsumption);
-            sprintf(message, "production=%d available=%d  consumption=%d max=%d ",
-                      d.currentProduction, d.powerAvailable, d.currentConsumption, d.maxConsumption);
-            DashboardPage *p = router.getDashboardPage();
+            d.lock();
+            char message[256];
+            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION solar=%d lowrate=%d  grid=%d home=%d ",
+                      d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
+            sniprintf(message, sizeof(message), "solar=%d lowrate=%d  grid=%d home=%d ",
+                      d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
+            DashboardPage* p = router.getDashboardPage();
             p->setBottomMessage(message);
-            p->setPowerRange(0, 2* ( d.powerAvailable > 0 ? d.powerAvailable : d.currentProduction));
-            p->setProductionValue(d.currentProduction, d.powerAvailable < 0 ? 0 : d.powerAvailable);
+
+            int32_t maxGrid = 2 * (d.gridPower > d.lowRateMaxPower ? d.gridPower : d.lowRateMaxPower);
+            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION maxGrid=%d  home=%d", maxGrid, d.homeConsumption);
+
+            p->setPowerRange(0, maxGrid);
+            p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
+            d.release();
         }
         break;
     default:
@@ -268,13 +293,19 @@ void AppMainControler::run()
     {
         // checkStack();
         // if an event is received do not sleep go fot the next one
-        if (manage_wifi_event()) continue;
-        if (manage_unphone_event()) continue;
-        if (manage_mqtt_event()) continue;
-        if (manage_simulation_event()) continue;
+        if (manage_wifi_event() ||
+            (manage_unphone_event()) ||
+            (manage_mqtt_event()) ||
+            manage_simulation_event())
+        {
+            yield();
+        }
+        else
+        {
+            this->sleep(100);
+        }
 
-        lv_timer_handler();
 
-        this->sleep(500);
+        //lv_timer_handler();
     }
 }

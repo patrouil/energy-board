@@ -26,6 +26,10 @@ public:
 
     static const lv_coord_t LABEL_SPACING;
 
+    static const lv_color_t BLEU_EDF;
+    static const lv_color_t ROUGE_EDF;
+    static const lv_color_t BLANC_EDF;
+    static const lv_color_t VERT_EDF;
     Theme();
     ~Theme();
     void init(lv_disp_t *);

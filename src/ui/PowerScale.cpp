@@ -7,7 +7,7 @@
 #include "Log.h"
 #include "Theme.h"
 
-static const lv_coord_t POWER_SCALE_HEIGHT = 40;
+static const lv_coord_t POWER_SCALE_HEIGHT = 60;
 static const lv_coord_t POWER_SCALE_MAJOR_LEN = 18;
 static const lv_coord_t POWER_SCALE_MINOR_LEN = 10;
 static const lv_coord_t POWER_SCALE_LABEL_Y = 22;
@@ -56,7 +56,42 @@ lv_obj_t* PowerScale::create(lv_obj_t* parent)
     lv_obj_set_style_line_color(axisLine, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_obj_set_style_line_rounded(axisLine, false, LV_PART_MAIN);
 
-    rebuild();
+    // lines and labels are statically allocated. Just hiden or shown
+    for (int32_t tickIndex = 0; tickIndex < MAX_TICKS; ++tickIndex)
+    {
+        lv_coord_t x = tickIndex;
+
+        uint16_t idx = tickIndex;
+        tickPoints[idx * 2].x = x;
+        tickPoints[idx * 2].y = 0;
+        tickPoints[idx * 2 + 1].x = x;
+        tickPoints[idx * 2 + 1].y = POWER_SCALE_MINOR_LEN;
+
+        lv_obj_t* line = lv_line_create(container);
+        APP_ASSERT(line != nullptr);
+        lv_line_set_points(line, &tickPoints[idx * 2], 2);
+        lv_obj_set_style_line_width(line, 1, LV_PART_MAIN);
+        lv_obj_set_style_line_color(line, Theme::TEXT_COLOR, LV_PART_MAIN);
+        lv_obj_set_style_line_rounded(line, false, LV_PART_MAIN);
+        lv_obj_add_flag(line, LV_OBJ_FLAG_HIDDEN); // hidden by default
+        tickLines[idx] = line;
+        tickValues[idx] = tickIndex;
+
+
+        lv_obj_t* label = lv_label_create(container);
+        APP_ASSERT(label != nullptr);
+        char* lblptr = tickLabelsValues[idx];
+        snprintf(lblptr, sizeof(lblptr), "%d", idx);
+        lv_label_set_text_static(label, lblptr);
+        lv_obj_set_style_text_color(label, Theme::TEXT_COLOR, LV_PART_MAIN);
+        // lv_obj_set_style_text_font(label, Theme::SMALL_FONT, LV_PART_MAIN);
+        // lv_obj_set_style_bg_opa(label, LV_OPA_90, LV_PART_MAIN); // no background
+        lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN); // hidden by default
+
+        lv_obj_align(label, LV_ALIGN_TOP_LEFT, x, POWER_SCALE_LABEL_Y);
+        tickLabels[idx] = label;
+    }
+    tickCount = 0; // all hidden
     return container;
 }
 
@@ -82,7 +117,6 @@ void PowerScale::setTickInterval(int32_t intervalWatts)
     }
     this->tickInterval = intervalWatts;
     LOG_DEBUG("PowerScale::setTickInterval interval=%d", intervalWatts);
-    rebuild();
 }
 
 void PowerScale::setMajorTickEvery(uint16_t tickCount)
@@ -93,13 +127,11 @@ void PowerScale::setMajorTickEvery(uint16_t tickCount)
         return;
     }
     this->majorTickEvery = tickCount;
-    rebuild();
 }
 
 void PowerScale::setLabelShow(bool show)
 {
     this->labelShow = show;
-    rebuild();
 }
 
 lv_coord_t PowerScale::valueToX(int32_t value, lv_coord_t width) const
@@ -114,20 +146,36 @@ lv_coord_t PowerScale::valueToX(int32_t value, lv_coord_t width) const
 
 void PowerScale::destroyTicks()
 {
-    for (uint16_t i = 0; i < tickCount; ++i)
+    LOG_DEBUG("PowerScale::destroyTicks cout=%d ", tickCount);
+    uint16_t i;
+    xSemaphoreTake(logMutex, portMAX_DELAY);
+
+    try
     {
-        if (tickLines[i] != nullptr && lv_obj_is_valid(tickLines[i]))
+        for (i = 0; i < tickCount; ++i)
         {
-            lv_obj_del(tickLines[i]);
+            if (tickLines[i] != nullptr && lv_obj_is_valid(tickLines[i]))
+            {
+                lv_obj_add_flag(tickLines[i], LV_OBJ_FLAG_HIDDEN);
+            }
+            if (tickLabels[i] != nullptr && lv_obj_is_valid(tickLabels[i]))
+            {
+                lv_obj_add_flag(tickLabels[i], LV_OBJ_FLAG_HIDDEN);
+                tickLabelsValues[i][0] = '\0';
+            }
         }
-        tickLines[i] = nullptr;
-        if (tickLabels[i] != nullptr && lv_obj_is_valid(tickLabels[i]))
-        {
-            lv_obj_del(tickLabels[i]);
-        }
-        tickLabels[i] = nullptr;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR("EPowerScale::destroyTicks exception standard %d : %s", i, e.what());
+    }
+
+    catch (...)
+    {
+        LOG_ERROR("PowerScale::destroyTicks exception %d ", i);
     }
     tickCount = 0;
+    xSemaphoreGive(logMutex);
 }
 
 void PowerScale::rebuild()
@@ -136,6 +184,7 @@ void PowerScale::rebuild()
     destroyTicks();
 
     if (tickInterval <= 0 || maxPower <= minPower) return;
+    LOG_DEBUG("PowerScale::rebuild ");
 
     lv_coord_t width = lv_obj_get_width(container);
     if (width <= 0)
@@ -150,6 +199,10 @@ void PowerScale::rebuild()
         lv_line_set_points(axisLine, axisPoints, 2);
     }
 
+    LOG_DEBUG("PowerScale::rebuild width %d", width);
+    xSemaphoreTake(logMutex, portMAX_DELAY);
+
+    tickCount = 0;
     int32_t tickIndex = 0;
     for (int32_t v = minPower; v <= maxPower && tickCount < MAX_TICKS; v += tickInterval, ++tickIndex)
     {
@@ -162,40 +215,41 @@ void PowerScale::rebuild()
         tickPoints[idx * 2 + 1].x = x;
         tickPoints[idx * 2 + 1].y = isMajor ? POWER_SCALE_MAJOR_LEN : POWER_SCALE_MINOR_LEN;
 
-        lv_obj_t* line = lv_line_create(container);
+        lv_obj_t* line = tickLines[idx];
         APP_ASSERT(line != nullptr);
         lv_line_set_points(line, &tickPoints[idx * 2], 2);
         lv_obj_set_style_line_width(line, isMajor ? 2 : 1, LV_PART_MAIN);
         lv_obj_set_style_line_color(line, Theme::TEXT_COLOR, LV_PART_MAIN);
         lv_obj_set_style_line_rounded(line, false, LV_PART_MAIN);
-        tickLines[idx] = line;
+        lv_obj_clear_flag(line, LV_OBJ_FLAG_HIDDEN);
         tickValues[idx] = v;
 
         if (isMajor && labelShow)
         {
-            lv_obj_t* label = lv_label_create(container);
+            lv_obj_t* label = tickLabels[idx];
             APP_ASSERT(label != nullptr);
-            char text[12];
-            snprintf(text, sizeof(text), "%d", v);
-            lv_label_set_text(label, text);
-            lv_obj_set_style_text_color(label, Theme::TEXT_COLOR, LV_PART_MAIN);
-            lv_obj_set_style_text_font(label, Theme::SMALL_FONT, LV_PART_MAIN);
+            char* text = tickLabelsValues[idx];
+            snprintf(text, MAX_LABEL, "%d", v / 1000L);
+            // lv_label_set_text_static(label, text); already done at init.
             lv_obj_align(label, LV_ALIGN_TOP_LEFT, x, POWER_SCALE_LABEL_Y);
-            tickLabels[idx] = label;
+            lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
         }
-
         tickCount++;
     }
 
     lv_obj_update_layout(container);
-
+    // update layout to have labels width.
     for (uint16_t i = 0; i < tickCount; ++i)
     {
-        if (tickLabels[i] == nullptr) continue;
+        lv_obj_t* label = tickLabels[i];
+        if (label == nullptr) continue;
         lv_coord_t x = valueToX(tickValues[i], width);
-        lv_coord_t labelW = lv_obj_get_width(tickLabels[i]);
-        lv_obj_set_pos(tickLabels[i], x - labelW / 2, POWER_SCALE_LABEL_Y);
+        lv_coord_t labelW = lv_obj_get_width(label);
+        //LOG_DEBUG("PowerScale::rebuild : label width  %d", labelW);
+        if (x - labelW / 2 > 0)
+            lv_obj_set_pos(label, x - labelW / 2, POWER_SCALE_LABEL_Y);
     }
+    xSemaphoreGive(logMutex);
 
     lv_obj_invalidate(container);
     LOG_DEBUG("PowerScale::rebuild ticks=%d width=%d", tickCount, width);

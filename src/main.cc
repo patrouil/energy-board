@@ -15,7 +15,6 @@
 
 #include <unPhone.h>
 
-#include <mqtt_client.h>
 
 //#include <Adafruit_SPIFlash.h> // for LDF
 #include <Log.h>
@@ -168,35 +167,27 @@ void setup()
     boot_page->set_version(ph.version());
     boot_page->show();
     lv_timer_handler();
-    sleep(3);
-    //LOG_DEBUG("let start config");
-    // first of all load config
+    // sleep(3);
+
     AppConfig &this_config = AppConfig::getInstance();
     this_config.loadDefaults(); // start by defaults values
     this_config.loadConfigPerf(); // then override
 
-    //LOG_DEBUG("setup : create tasks");
-
     AppMainControler& this_controler = AppMainControler::getInstance();
 
-    //LOG_DEBUG("setup : controler adr %x", &this_controler);
-
     this_controler.setup();
-    //LOG_DEBUG("setup : wifi adr %x", this_controler.get_wifi_controler());
-    //LOG_DEBUG("setup : unphone adr %x", this_controler.get_unphone_controler());
-    //LOG_DEBUG("setup : mqtt adr %x", this_controler.get_mqtt_controler());
-     //LOG_DEBUG("setup : sim adr %x", this_controler.get_simulation_controler());
 
     launch_tasks();
-    //LOG_DEBUG("setup : done");
 }
 
 
 void loop()
 {
+    //lv_mem_monitor_t  mon;
     // LOG_DEBUG("main : loop");
-    //lv_timer_handler();
-
-    delay(10000);
+    lv_timer_handler();
+    //lv_mem_monitor(&mon);
+    //LOG_DEBUG("LVGL: %d KB free, %d KB total %d frag", mon.free_size / 1024, mon.total_size / 1024, mon.frag_pct);
+    delay(100);
     // sleep on power off
 }
