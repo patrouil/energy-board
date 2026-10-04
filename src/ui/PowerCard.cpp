@@ -1,5 +1,7 @@
 //
-// Created by Vibe Code on 16/09/2026.
+// Created by Vibe Code on 03/10/2026.
+// // with the assistance of Mistral Vibe Code.
+
 //
 
 #include "Display.h"
@@ -10,6 +12,9 @@
 
 static const lv_coord_t POWER_CARD_VALUE_OFFSET_X = -2;
 static const lv_coord_t POWER_CARD_VALUE_OFFSET_Y = -10;
+
+static const char * WATT_UNIT = "Wh";
+static const char * KILOWATT_UNIT = "kWh";
 
 PowerCard::~PowerCard()
 {
@@ -39,23 +44,23 @@ lv_obj_t* PowerCard::create(lv_obj_t* parent)
 
     valueLabel = lv_label_create(container);
     APP_ASSERT(valueLabel != nullptr);
-    lv_obj_set_style_text_font(valueLabel, &lv_font_montserrat_20, LV_PART_MAIN);
+    lv_obj_set_style_text_font(valueLabel, Theme::EXTRA_LARGE_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_label_set_text(valueLabel, "0");
+    lv_label_set_text_static(valueLabel, this->valueBuffer);
     lv_obj_align(valueLabel, LV_ALIGN_TOP_MID, POWER_CARD_VALUE_OFFSET_X, POWER_CARD_VALUE_OFFSET_Y);
 
     unitLabel = lv_label_create(container);
     APP_ASSERT(unitLabel != nullptr);
     lv_obj_set_style_text_font(unitLabel, Theme::MEDIUM_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(unitLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_label_set_text(unitLabel, "Wh");
+    lv_label_set_text_static(unitLabel, WATT_UNIT);
     lv_obj_align_to(unitLabel, valueLabel, LV_ALIGN_OUT_RIGHT_BOTTOM, 0, 0);
 
     titleLabel = lv_label_create(container);
     APP_ASSERT(titleLabel != nullptr);
     lv_obj_set_style_text_font(titleLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(titleLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_label_set_text(titleLabel, "");
+    lv_label_set_text_static(titleLabel, titleBuffer);
     lv_obj_align(titleLabel, LV_ALIGN_BOTTOM_MID, 0, 0);
 
     updateValue();
@@ -75,7 +80,7 @@ void PowerCard::setTitle(const char* title)
     if (titleLabel == nullptr) return;
     if (title == nullptr) return;
     snprintf(titleBuffer, sizeof(titleBuffer), "%s", title);
-    lv_label_set_text(titleLabel, titleBuffer);
+    //lv_label_set_text(titleLabel, titleBuffer);
 }
 
 void PowerCard::setBorderColor(lv_color_t color)
@@ -96,13 +101,13 @@ void PowerCard::updateValue()
 {
     if ((valueLabel == nullptr) || (unitLabel == nullptr)) return;
 
-    const char* unit = "Wh";
+    const char* unit = WATT_UNIT;
     int64_t absWatts = (watts < 0) ? -(int64_t)watts : watts;
 
     if (absWatts < 1000)
     {
         snprintf(valueBuffer, sizeof(valueBuffer), "%d", (int)watts);
-        unit = "Wh";
+        unit = WATT_UNIT;
     }
     else if (absWatts < 10000)
     {
@@ -110,7 +115,7 @@ void PowerCard::updateValue()
         int64_t centi = (absWatts % 1000) / 10;
         snprintf(valueBuffer, sizeof(valueBuffer), "%s%lld.%02lld",
                  (watts < 0) ? "-" : "", (long long)kilo, (long long)centi);
-        unit = "kWh";
+        unit = KILOWATT_UNIT;
     }
     else
     {
@@ -118,10 +123,10 @@ void PowerCard::updateValue()
         int64_t deci = (absWatts % 1000) / 100;
         snprintf(valueBuffer, sizeof(valueBuffer), "%s%lld.%lld",
                  (watts < 0) ? "-" : "", (long long)kilo, (long long)deci);
-        unit = "kWh";
+        unit = KILOWATT_UNIT;
     }
 
-    lv_label_set_text(valueLabel, valueBuffer);
-    lv_label_set_text(unitLabel, unit);
+    //lv_label_set_text(valueLabel, valueBuffer);
+    lv_label_set_text_static(unitLabel, unit);
     lv_obj_align_to(unitLabel, valueLabel, LV_ALIGN_OUT_RIGHT_BOTTOM, 0, 0);
 }

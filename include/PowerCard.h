@@ -1,5 +1,6 @@
 //
-// Created by Vibe Code on 16/09/2026.
+// Created by Vibe Code on 03/10/2026.
+// with the assistance of Mistral Vibe Code.
 //
 
 #pragma once
@@ -41,6 +42,7 @@ public:
     lv_obj_t* getContainer() const { return container; }
 
 private:
+
     static const lv_coord_t CARD_WIDTH = 125;
     static const lv_coord_t CARD_HEIGHT = 100;
     static const lv_coord_t CARD_BORDER_WIDTH = 2;
