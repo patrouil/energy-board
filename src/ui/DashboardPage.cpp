@@ -5,6 +5,7 @@
 #include "DashboardPage.h"
 
 #include "AppTask.h"
+#include "Display.h"
 #include "Log.h"
 #include "Theme.h"
 
@@ -13,7 +14,7 @@ static const lv_coord_t row_dsc[] = {
     LV_GRID_CONTENT,  // bar indicators
     LV_GRID_CONTENT,  // scale
     //LV_GRID_CONTENT,  // labels
-    LV_GRID_FR(1), // free
+    LV_GRID_FR(1), // free (power cards)
     LV_GRID_CONTENT, // message
     LV_GRID_TEMPLATE_LAST
 };
@@ -54,6 +55,37 @@ lv_obj_t* DashboardPage::create_ticker(lv_obj_t* parent)
     return ticker;
 }
 
+lv_obj_t* DashboardPage::create_power_cards(lv_obj_t* parent)
+{
+    lv_coord_t width = Display::displayWidth;
+    lv_coord_t cardWidth =
+        (width - 2 * CARDS_SIDE_MARGIN - 2 * CARDS_GAP) / 3;
+
+    lv_obj_t* row = lv_obj_create(parent);
+    APP_ASSERT(row != nullptr);
+    lv_obj_remove_style_all(row);
+    lv_obj_set_size(row, width - 2 * CARDS_SIDE_MARGIN, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(row, LV_FLEX_ALIGN_SPACE_BETWEEN,
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(row, 0, LV_PART_MAIN);
+    lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
+
+    PowerCard* cards[] = {&solarCard, &ecoCard, &homeCard};
+    for (PowerCard* card : cards)
+    {
+        lv_obj_t* c = card->create(row);
+        APP_ASSERT(c != nullptr);
+        lv_obj_set_width(c, cardWidth);
+    }
+
+    solarCard.setTitle("Solaire");
+    ecoCard.setTitle("Eco");
+    homeCard.setTitle("Maison");
+
+    return row;
+}
+
 void DashboardPage::create()
 {
     LOG_DEBUG("DashboardPage::create");
@@ -82,6 +114,12 @@ void DashboardPage::create()
     lv_obj_set_grid_cell(s,
                          LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_START, 1, 1);
+
+    lv_obj_t* cards = create_power_cards(this->page);
+    APP_ASSERT(cards != nullptr);
+    lv_obj_set_grid_cell(cards,
+                         LV_GRID_ALIGN_CENTER, 0, 1,
+                         LV_GRID_ALIGN_CENTER, 2, 1);
 
     bottomMessage = create_ticker(this->page);
     APP_ASSERT(bottomMessage != nullptr);

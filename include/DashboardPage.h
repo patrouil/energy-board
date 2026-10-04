@@ -5,6 +5,7 @@
 #pragma once
 
 #include "PowerBar.h"
+#include "PowerCard.h"
 #include "PowerScale.h"
 #include "Screen.h"
 #include "Theme.h"
@@ -14,8 +15,16 @@ class DashboardPage : public Screen
     lv_obj_t* oneLabel = nullptr;
     PowerBar powerBar;
     PowerScale powerScale;
+    PowerCard solarCard;
+    PowerCard ecoCard;
+    PowerCard homeCard;
 
     lv_obj_t* bottomMessage = nullptr;
+
+    static const lv_coord_t CARDS_SIDE_MARGIN = 10;
+    static const lv_coord_t CARDS_GAP = 4;
+
+    lv_obj_t* create_power_cards(lv_obj_t *parent);
 
     lv_obj_t* create_ticker(lv_obj_t *parent);
 
