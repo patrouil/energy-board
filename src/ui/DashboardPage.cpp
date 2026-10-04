@@ -57,8 +57,7 @@ lv_obj_t* DashboardPage::create_ticker(lv_obj_t* parent)
 
 lv_obj_t* DashboardPage::create_power_cards(lv_obj_t* parent)
 {
-    lv_coord_t width =
-        lv_disp_get_hor_res(Display::getInstance().lvgl_display());
+    lv_coord_t width = Display::displayWidth;
     lv_coord_t cardWidth =
         (width - 2 * CARDS_SIDE_MARGIN - 2 * CARDS_GAP) / 3;
 
