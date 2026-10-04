@@ -229,10 +229,12 @@ bool AppMainControler::manage_simulation_event()
             p->setBottomMessage(message);
 
             int32_t maxGrid = 2 * (d.gridPower > d.lowRateMaxPower ? d.gridPower : d.lowRateMaxPower);
+            maxGrid = (maxGrid > 6000    ? maxGrid : 6000);
             LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION maxGrid=%d  home=%d", maxGrid, d.homeConsumption);
 
             p->setPowerRange(0, maxGrid);
             p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
+            p->setHomeConsumption(d.homeConsumption);
             d.release();
         }
         break;

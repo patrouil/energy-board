@@ -10,10 +10,11 @@
 #include "Log.h"
 
 //  solarPower, gridPower
-static constexpr int32_t testPatterns[3][2] = {
+static constexpr int32_t testPatterns[][2] = {
     {0, 160}, // sleepy night
     {3000, -2000}, // over prod
     {1500, 500}, // normal context.
+    {0, 3000}
 };
 
 #define MAX_SOLAR_POWER 3000
@@ -38,7 +39,7 @@ int32_t SimulationControler::variation(int32_t value, int32_t from, int32_t to)
     int32_t r = rand(STEP_VARIATION);
 
     int32_t v = (value >= -100 && value <= 100) ? (value + r) : value + ((value * r) / 100L);
-    LOG_DEBUG("random is %d value %d v %d", r, value, v);
+    //LOG_DEBUG("random is %d value %d v %d", r, value, v);
 
     v = (v > to) ? to : v;
     v = (v < from) ? from : v;
@@ -75,9 +76,9 @@ void SimulationControler::computeRandomValues()
     sim.maxGridConsuption = 2* MAX ( sim.lowRateMaxPower, sim.homeConsumption);
     sim.release();
 
-    LOG_DEBUG("SimulationControler : solar=%d lowrate=%d grid=%d maxGrid=%d ",
-              sim.solarPower, sim.lowRateMaxPower,
-              sim.gridPower, sim.maxGridConsuption);
+  //  LOG_DEBUG("SimulationControler : solar=%d lowrate=%d grid=%d maxGrid=%d ",
+    //          sim.solarPower, sim.lowRateMaxPower,
+      //        sim.gridPower, sim.maxGridConsuption);
 }
 
 void SimulationControler::setup()
@@ -121,7 +122,6 @@ void SimulationControler::run()
         {
             LOG_DEBUG("SimulationControler : wifi not connected, skipping");
         }
-
         this->sleep(5000);
     }
 }

@@ -7,10 +7,10 @@
 #include "Log.h"
 #include "Theme.h"
 
-static const lv_coord_t POWER_SCALE_HEIGHT = 60;
 static const lv_coord_t POWER_SCALE_MAJOR_LEN = 18;
 static const lv_coord_t POWER_SCALE_MINOR_LEN = 10;
 static const lv_coord_t POWER_SCALE_LABEL_Y = 22;
+static const lv_coord_t POWER_SCALE_HEIGHT = (POWER_SCALE_MAJOR_LEN+10);
 static const lv_opa_t POWER_SCALE_HOME_BG_OPA = LV_OPA_60;
 static const lv_coord_t POWER_SCALE_HOME_PAD = 4;
 
@@ -99,18 +99,14 @@ lv_obj_t* PowerScale::create(lv_obj_t* parent)
     homeConsumptionLabel = lv_label_create(container);
     APP_ASSERT(homeConsumptionLabel != nullptr);
     lv_obj_set_style_text_color(homeConsumptionLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_obj_set_style_text_font(homeConsumptionLabel, Theme::SMALL_FONT, LV_PART_MAIN);
+   // lv_obj_set_style_text_font(homeConsumptionLabel, Theme::SMALL_FONT, LV_PART_MAIN);
     lv_obj_set_style_bg_opa(homeConsumptionLabel, POWER_SCALE_HOME_BG_OPA, LV_PART_MAIN);
     lv_obj_set_style_bg_color(homeConsumptionLabel, Theme::PRIMARY_COLOR, LV_PART_MAIN);
     lv_obj_set_style_pad_all(homeConsumptionLabel, POWER_SCALE_HOME_PAD, LV_PART_MAIN);
     lv_obj_set_style_radius(homeConsumptionLabel, 4, LV_PART_MAIN);
     lv_obj_add_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN); // hidden until a value is set
-
-    if (homeConsumptionSet)
-    {
-        lv_label_set_text_fmt(homeConsumptionLabel, "%ld W", static_cast<long>(homeConsumption));
-        lv_obj_clear_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
-    }
+    lv_label_set_text_static(homeConsumptionLabel, homeConsumptionLabelValue);
+    lv_obj_add_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
 
     return container;
 }
@@ -159,13 +155,17 @@ void PowerScale::setHomeConsumption(int32_t homeConsumption)
     if (homeConsumption < 0)
     {
         LOG_WARN("PowerScale::setHomeConsumption invalid value=%d", homeConsumption);
+        lv_obj_add_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
         return;
     }
     this->homeConsumption = homeConsumption;
-    homeConsumptionSet = true;
     if (homeConsumptionLabel == nullptr) return;
 
-    lv_label_set_text_fmt(homeConsumptionLabel, "%ld W", static_cast<long>(homeConsumption));
+    if ( homeConsumption >= 1000 )
+        snprintf(homeConsumptionLabelValue, MAX_LABEL, "%d.%d k", homeConsumption / 1000L, (homeConsumption%1000)/100);
+    else
+        snprintf(homeConsumptionLabelValue, MAX_LABEL, "%d", homeConsumption );
+
     lv_obj_clear_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
     updateHomeConsumptionPos();
     lv_obj_invalidate(homeConsumptionLabel);
@@ -193,13 +193,16 @@ void PowerScale::updateHomeConsumptionPos()
     lv_coord_t labelW = lv_obj_get_width(homeConsumptionLabel);
     lv_coord_t labelH = lv_obj_get_height(homeConsumptionLabel);
     lv_coord_t parentH = lv_obj_get_height(container);
+    LOG_DEBUG("PowerScale::updateHomeConsumptionPos parentH %d labelH %d ", parentH, labelH);
 
     lv_coord_t y = parentH - labelH - POWER_SCALE_HOME_PAD;
+
     if (y < 0) y = 0;
 
     lv_coord_t posX = x - labelW / 2;
     if (posX < 0) posX = 0;
     if (posX + labelW > width) posX = width - labelW;
+    LOG_DEBUG("PowerScale::updateHomeConsumptionPos home %d x %d, y %d ", homeConsumption, posX, y);
 
     lv_obj_set_pos(homeConsumptionLabel, posX, y);
 }
@@ -216,7 +219,7 @@ lv_coord_t PowerScale::valueToX(int32_t value, lv_coord_t width) const
 
 void PowerScale::destroyTicks()
 {
-    LOG_DEBUG("PowerScale::destroyTicks cout=%d ", tickCount);
+    LOG_DEBUG("PowerScale::destroyTicks count=%d ", tickCount);
     uint16_t i;
     xSemaphoreTake(logMutex, portMAX_DELAY);
 

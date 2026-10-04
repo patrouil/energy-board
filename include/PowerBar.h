@@ -61,6 +61,24 @@ private:
     int32_t maxPower = 100;
     int32_t solarPower = 10;
     int32_t lowRatePower = 20;
+
+public:
+    int32_t solar_power() const
+    {
+        return solarPower;
+    }
+
+    int32_t low_rate_power() const
+    {
+        return lowRatePower;
+    }
+
+    int32_t home_power_usage() const
+    {
+        return homePowerUsage;
+    }
+
+private:
     int32_t homePowerUsage = 0;
 
 

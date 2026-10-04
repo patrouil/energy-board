@@ -1,5 +1,6 @@
 //
 // Created by Patrick Rouillon on 09/09/2026.
+// with the assistance of Mistral Vibe Code.
 //
 
 #include "unPhone.h"
@@ -138,6 +139,8 @@ void UnphoneControler::run()
     {
         checkStack();
         handleButtonPress();
+
+        // float v = unPhone::me->batteryVoltage();
         unPhone::me->checkPowerSwitch();
         this->yield();
 

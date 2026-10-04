@@ -1,5 +1,6 @@
 //
 // Created by Vibe Code on 16/09/2026.
+// with the assistance of Mistral Vibe Code.
 //
 #pragma once
 
@@ -44,15 +45,16 @@ private:
 
     lv_obj_t* container = nullptr;
     lv_obj_t* axisLine = nullptr;
-    lv_obj_t* homeConsumptionLabel = nullptr;
 
-    int32_t homeConsumption = 0;
-    bool homeConsumptionSet = false;
+    int32_t homeConsumption = -1;
+    lv_obj_t* homeConsumptionLabel = nullptr;
+    char homeConsumptionLabelValue[MAX_LABEL] = {'\0'};
+
 
     int32_t minPower = 0;
-    int32_t maxPower = 100;
-    int32_t tickInterval = 500;
-    uint16_t majorTickEvery = 2;
+    int32_t maxPower = 1000;
+    int32_t tickInterval = 500; // Wh
+    uint16_t majorTickEvery = 2;  // 1000 Wh
     bool labelShow = false;
 
     lv_obj_t* tickLines[MAX_TICKS] = {nullptr};

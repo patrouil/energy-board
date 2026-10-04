@@ -85,10 +85,11 @@ void PowerBar::setLowRatePower(int32_t value)
     if (!indicator) return;
     LOG_DEBUG("PowerBar::setLowRatePower value=%d", value);
 
-    if (lowRatePower <= solarPower)
+    if (lowRatePower <= solarPower || lowRatePower <= 0)
         lv_obj_add_flag(indicator, LV_OBJ_FLAG_HIDDEN); // masquer
     else
     {
+        lv_bar_set_value(indicator, 0, LV_ANIM_OFF);
         lv_obj_clear_flag(indicator, LV_OBJ_FLAG_HIDDEN); // afficher
         lv_bar_set_range(indicator, POWER_BAR_MIN_POWER, lowRatePower);
         this->updateBarSize();

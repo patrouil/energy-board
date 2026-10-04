@@ -7,6 +7,7 @@
 #include "PowerBar.h"
 #include "PowerScale.h"
 #include "Screen.h"
+#include "Theme.h"
 
 class DashboardPage : public Screen
 {
@@ -39,10 +40,6 @@ public:
         powerBar.setSolarPower(solarProd);
     }
 
-    void setHomeConsumption(int32_t homeConsumption)
-    {
-        // powerBar.setHomeConsumption(homeConsumption);
-        powerScale.setHomeConsumption(homeConsumption);
-    }
+    void setHomeConsumption(int32_t homeConsumption);
 
 };

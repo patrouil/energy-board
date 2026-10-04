@@ -96,3 +96,16 @@ void DashboardPage::setBottomMessage(const char* message)
 {
     lv_label_set_text(bottomMessage, message);
 }
+
+
+void DashboardPage::setHomeConsumption(int32_t homeConsumption)
+{
+    // powerBar.setHomeConsumption(homeConsumption);
+    powerScale.setHomeConsumption(homeConsumption);
+    if ( homeConsumption <= powerBar.solar_power())
+        powerScale.setHomeConsumptionColor(Theme::VERT_EDF);
+    else if ( homeConsumption <= powerBar.low_rate_power())
+        powerScale.setHomeConsumptionColor(Theme::BLEU_EDF);
+    else
+        powerScale.setHomeConsumptionColor(Theme::PRIMARY_COLOR);
+}
