@@ -80,7 +80,7 @@ void PowerCard::setTitle(const char* title)
     if (titleLabel == nullptr) return;
     if (title == nullptr) return;
     snprintf(titleBuffer, sizeof(titleBuffer), "%s", title);
-    //lv_label_set_text(titleLabel, titleBuffer);
+    lv_label_set_text(titleLabel, titleBuffer);
 }
 
 void PowerCard::setBorderColor(lv_color_t color)

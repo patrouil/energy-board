@@ -71,12 +71,17 @@ lv_obj_t* DashboardPage::create_power_cards(lv_obj_t* parent)
     lv_obj_set_style_pad_all(row, 0, LV_PART_MAIN);
     lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
-    for (int i = 0; i < 3; i++)
+    PowerCard* cards[] = {&solarCard, &ecoCard, &homeCard};
+    for (PowerCard* card : cards)
     {
-        lv_obj_t* c = powerCards[i].create(row);
+        lv_obj_t* c = card->create(row);
         APP_ASSERT(c != nullptr);
         lv_obj_set_width(c, cardWidth);
     }
+
+    solarCard.setTitle("Solaire");
+    ecoCard.setTitle("Eco");
+    homeCard.setTitle("Maison");
 
     return row;
 }

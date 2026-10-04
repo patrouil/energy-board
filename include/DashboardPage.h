@@ -15,7 +15,9 @@ class DashboardPage : public Screen
     lv_obj_t* oneLabel = nullptr;
     PowerBar powerBar;
     PowerScale powerScale;
-    PowerCard powerCards[3];
+    PowerCard solarCard;
+    PowerCard ecoCard;
+    PowerCard homeCard;
 
     lv_obj_t* bottomMessage = nullptr;
 
