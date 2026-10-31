@@ -8,6 +8,7 @@
 #include <esp_system.h>
 
 #include "Log.h"
+#include "utils/wattHelper.h"
 
 //  solarPower, gridPower
 static constexpr int32_t testPatterns[][2] = {
@@ -19,14 +20,11 @@ static constexpr int32_t testPatterns[][2] = {
 
 #define MAX_SOLAR_POWER 3000
 
-#define MAX( a, b) (a > b ? a : b)
-
-
 SimulationControler::SimulationControler(AppEventQueue* outQueue) :
     AppTask("SimulationControler", APP_TASK_STACK_MIN, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
     LOG_DEBUG("SimulationControler::SimulationControler");
-    this->simulationData.maxGridConsuption = MAX_CONSUMPTION;
+    this->simulationData.maxGridPower = MAX_GRID_POWER;
 }
 
 SimulationControler::~SimulationControler()
@@ -68,12 +66,12 @@ void SimulationControler::computeRandomValues()
     sim.gridPower += (sim.solarPower - newProd); // add to grid the solar variation
     sim.gridPower = variation(sim.gridPower,
                                                         - sim.solarPower,
-                                                        sim.maxGridConsuption); // then varry
+                                                        sim.maxGridPower); // then varry
     sim.solarPower = newProd;
 
     sim.lowRateMaxPower = this->lowRatePower();
     sim.homeConsumption = sim.gridPower + sim.solarPower;
-    sim.maxGridConsuption = 2* MAX ( sim.lowRateMaxPower, sim.homeConsumption);
+    sim.maxGridPower = 2* wattHelper::MAX ( sim.lowRateMaxPower, sim.homeConsumption);
     sim.release();
 
   //  LOG_DEBUG("SimulationControler : solar=%d lowrate=%d grid=%d maxGrid=%d ",
@@ -86,9 +84,9 @@ void SimulationControler::setup()
     EventData &sim = this->simulationData;
 
     sim.lock();
-    sim.solarPower = MAX_PRODUCTION / 2;
+    sim.solarPower = MAX_GRID_POWER / 2;
     sim.gridPower = 0;
-    sim.maxGridConsuption = MAX_CONSUMPTION;
+    sim.maxGridPower = MAX_GRID_POWER;
     sim.lowRateMaxPower = lowRatePower();
     sim.homeConsumption = sim.gridPower + sim.solarPower;
 

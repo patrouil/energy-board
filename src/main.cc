@@ -36,6 +36,8 @@
 //long my_mapper(long, long, long, long, long);
 void my_print(const char* buf)
 {
+    if ( ! Serial ||  ! Serial.availableForWrite()  )
+        return;
     Serial.printf(buf);
     Serial.flush();
 }
@@ -171,7 +173,8 @@ void setup()
 
     AppConfig &this_config = AppConfig::getInstance();
     this_config.loadDefaults(); // start by defaults values
-    this_config.loadConfigPerf(); // then override
+    // this_config.loadConfigPref(); // then override
+    this_config.loadConfigSD();
 
     AppMainControler& this_controler = AppMainControler::getInstance();
 
@@ -184,10 +187,11 @@ void setup()
 void loop()
 {
     //lv_mem_monitor_t  mon;
-    // LOG_DEBUG("main : loop");
-    lv_timer_handler();
+    //LOG_DEBUG("main : loop");
+    //lv_timer_handler();
     //lv_mem_monitor(&mon);
     //LOG_DEBUG("LVGL: %d KB free, %d KB total %d frag", mon.free_size / 1024, mon.total_size / 1024, mon.frag_pct);
-    delay(100);
+    yield();
+    sleep(100);
     // sleep on power off
 }

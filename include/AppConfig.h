@@ -25,6 +25,13 @@ typedef struct {
     char password[64];
 } AppConfigMqtt;
 
+typedef struct {
+    char production[64];
+    char lowRateMaxPower[64];
+    char maxsolar[64];
+    char maxgrid[64];
+} AppConfigMqttEntries;
+
 
 /* extern func */
 
@@ -50,7 +57,7 @@ public:
     AppConfigMqtt mqtt;
 
     bool loadDefaults();
-    bool loadConfigPerf();
+    bool loadConfigPref();
     bool saveConfig() const;
 
     bool loadConfigSD();

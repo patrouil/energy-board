@@ -19,6 +19,7 @@ public:
     static const lv_font_t* MEDIUM_FONT;
     static const lv_font_t* SMALL_FONT;
     static const lv_font_t* LARGE_FONT;
+    static const lv_font_t* HUGE_FONT;
 
     static const lv_color_t PRIMARY_COLOR;
     static const lv_color_t PAGE_BACKGROUND_COLOR;
@@ -30,7 +31,7 @@ public:
     static const lv_color_t ROUGE_EDF;
     static const lv_color_t BLANC_EDF;
     static const lv_color_t VERT_EDF;
-    static const lv_font_t* EXTRA_LARGE_FONT;
+
     Theme();
     ~Theme();
     void init(lv_disp_t *);

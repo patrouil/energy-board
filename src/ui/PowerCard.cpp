@@ -9,12 +9,10 @@
 #include "AppTask.h"
 #include "Log.h"
 #include "Theme.h"
+#include "utils/wattHelper.h"
 
-static const lv_coord_t POWER_CARD_VALUE_OFFSET_X = -2;
-static const lv_coord_t POWER_CARD_VALUE_OFFSET_Y = -10;
-
-static const char * WATT_UNIT = "Wh";
-static const char * KILOWATT_UNIT = "kWh";
+static const lv_coord_t POWER_CARD_VALUE_OFFSET_X = 0 ; // -2;
+static const lv_coord_t POWER_CARD_VALUE_OFFSET_Y = 0; //-10;
 
 PowerCard::~PowerCard()
 {
@@ -44,21 +42,23 @@ lv_obj_t* PowerCard::create(lv_obj_t* parent)
 
     valueLabel = lv_label_create(container);
     APP_ASSERT(valueLabel != nullptr);
-    lv_obj_set_style_text_font(valueLabel, Theme::EXTRA_LARGE_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_font(valueLabel, Theme::HUGE_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_label_set_text_static(valueLabel, this->valueBuffer);
-    lv_obj_align(valueLabel, LV_ALIGN_TOP_MID, POWER_CARD_VALUE_OFFSET_X, POWER_CARD_VALUE_OFFSET_Y);
+    lv_obj_align(valueLabel, LV_ALIGN_CENTER, 0, 0);
 
     unitLabel = lv_label_create(container);
     APP_ASSERT(unitLabel != nullptr);
-    lv_obj_set_style_text_font(unitLabel, Theme::MEDIUM_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_font(unitLabel, Theme::SMALL_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(unitLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
-    lv_label_set_text_static(unitLabel, WATT_UNIT);
-    lv_obj_align_to(unitLabel, valueLabel, LV_ALIGN_OUT_RIGHT_BOTTOM, 0, 0);
+    lv_label_set_text_static(unitLabel, wattHelper::WATT_UNIT);
+    lv_obj_align(unitLabel, LV_ALIGN_TOP_RIGHT, 0, 0);
+
+    //lv_obj_align_to(unitLabel, valueLabel, LV_ALIGN_OUT_RIGHT_TOP, 0, 0);
 
     titleLabel = lv_label_create(container);
     APP_ASSERT(titleLabel != nullptr);
-    lv_obj_set_style_text_font(titleLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
+    lv_obj_set_style_text_font(titleLabel, Theme::LARGE_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(titleLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_label_set_text_static(titleLabel, titleBuffer);
     lv_obj_align(titleLabel, LV_ALIGN_BOTTOM_MID, 0, 0);
@@ -80,7 +80,7 @@ void PowerCard::setTitle(const char* title)
     if (titleLabel == nullptr) return;
     if (title == nullptr) return;
     snprintf(titleBuffer, sizeof(titleBuffer), "%s", title);
-    lv_label_set_text(titleLabel, titleBuffer);
+    lv_label_set_text_static(titleLabel, titleBuffer);
 }
 
 void PowerCard::setBorderColor(lv_color_t color)
@@ -99,34 +99,14 @@ void PowerCard::setBackgroundColor(lv_color_t color)
 
 void PowerCard::updateValue()
 {
+    LOG_DEBUG("PowerCard::updateValue");
+
     if ((valueLabel == nullptr) || (unitLabel == nullptr)) return;
 
-    const char* unit = WATT_UNIT;
-    int64_t absWatts = (watts < 0) ? -(int64_t)watts : watts;
+    const char* unit ;
 
-    if (absWatts < 1000)
-    {
-        snprintf(valueBuffer, sizeof(valueBuffer), "%d", (int)watts);
-        unit = WATT_UNIT;
-    }
-    else if (absWatts < 10000)
-    {
-        int64_t kilo = absWatts / 1000;
-        int64_t centi = (absWatts % 1000) / 10;
-        snprintf(valueBuffer, sizeof(valueBuffer), "%s%lld.%02lld",
-                 (watts < 0) ? "-" : "", (long long)kilo, (long long)centi);
-        unit = KILOWATT_UNIT;
-    }
-    else
-    {
-        int64_t kilo = absWatts / 1000;
-        int64_t deci = (absWatts % 1000) / 100;
-        snprintf(valueBuffer, sizeof(valueBuffer), "%s%lld.%lld",
-                 (watts < 0) ? "-" : "", (long long)kilo, (long long)deci);
-        unit = KILOWATT_UNIT;
-    }
+    unit = wattHelper::labelOf(watts, valueBuffer, sizeof(valueBuffer));
 
-    //lv_label_set_text(valueLabel, valueBuffer);
+    lv_label_set_text_static(valueLabel, valueBuffer);
     lv_label_set_text_static(unitLabel, unit);
-    lv_obj_align_to(unitLabel, valueLabel, LV_ALIGN_OUT_RIGHT_BOTTOM, 0, 0);
 }

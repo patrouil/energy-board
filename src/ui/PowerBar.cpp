@@ -83,7 +83,7 @@ void PowerBar::setLowRatePower(int32_t value)
 {
     this->lowRatePower = value;
     if (!indicator) return;
-    LOG_DEBUG("PowerBar::setLowRatePower value=%d", value);
+   // LOG_DEBUG("PowerBar::setLowRatePower value=%d", value);
 
     if (lowRatePower <= solarPower || lowRatePower <= 0)
         lv_obj_add_flag(indicator, LV_OBJ_FLAG_HIDDEN); // masquer
@@ -98,16 +98,16 @@ void PowerBar::setLowRatePower(int32_t value)
 
 void PowerBar::setSolarPower(int32_t value)
 {
-    LOG_DEBUG("PowerBar::setSolarPower value=%d", value);
+//    LOG_DEBUG("PowerBar::setSolarPower value=%d", value);
 
-    if (solarPower > 0) this->solarPower = value;
+    if (value >= 0) this->solarPower = value;
     if (!indicator) return;
     lv_bar_set_value(indicator, this->solarPower, LV_ANIM_OFF);
 }
 
 void PowerBar::setGridPower(int32_t value)
 {
-    LOG_DEBUG("PowerBar::setGridPower value=%d", value);
+   // LOG_DEBUG("PowerBar::setGridPower value=%d", value);
 
     this->gridPower = value;
 }

@@ -19,9 +19,9 @@ const lv_color_t Theme::VERT_EDF = lv_color_hex(0x57BF79);
 
 const lv_font_t* Theme::DEFAULT_FONT = &lv_font_montserrat_12;
 const lv_font_t* Theme::MEDIUM_FONT = &lv_font_montserrat_12;
-const lv_font_t* Theme::SMALL_FONT = &lv_font_montserrat_8;
+const lv_font_t* Theme::SMALL_FONT = &lv_font_montserrat_10;
 const lv_font_t* Theme::LARGE_FONT = &lv_font_montserrat_16;
-const lv_font_t* Theme::EXTRA_LARGE_FONT = &lv_font_montserrat_20;
+const lv_font_t* Theme::HUGE_FONT = &lv_font_montserrat_38;
 
 const lv_coord_t Theme::LABEL_SPACING = 40;
 

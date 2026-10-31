@@ -46,9 +46,10 @@ public :
     // MQ Data
     int32_t solarPower = 0;
     int32_t gridPower = 0;
-    int32_t maxGridConsuption = 0;
+    int32_t maxGridPower = 0;
+    int32_t maxSolarPower = 0;
     int32_t lowRateMaxPower = 0;
-    int32_t homeConsumption = 0;
+    int32_t homeConsumption = 0;  // grid + solar
 
 
     // unPhone date

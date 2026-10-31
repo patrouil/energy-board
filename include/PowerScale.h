@@ -48,8 +48,7 @@ private:
 
     int32_t homeConsumption = -1;
     lv_obj_t* homeConsumptionLabel = nullptr;
-    char homeConsumptionLabelValue[MAX_LABEL] = {'\0'};
-
+    char homeConsumptionLabelValue[MAX_LABEL] = {'I', '\0'};
 
     int32_t minPower = 0;
     int32_t maxPower = 1000;

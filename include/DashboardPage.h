@@ -12,7 +12,9 @@
 
 class DashboardPage : public Screen
 {
-    lv_obj_t* oneLabel = nullptr;
+    // lv_obj_t* oneLabel = nullptr;
+    char bottomMessageBuffer[96] = {0};
+
     PowerBar powerBar;
     PowerScale powerScale;
     PowerCard solarCard;
@@ -25,7 +27,6 @@ class DashboardPage : public Screen
     static const lv_coord_t CARDS_GAP = 4;
 
     lv_obj_t* create_power_cards(lv_obj_t *parent);
-
     lv_obj_t* create_ticker(lv_obj_t *parent);
 
 public:
@@ -45,8 +46,11 @@ public:
     void setProductionValue(int32_t solarProd, int32_t lowRatePower, int gridPower)
     {
         powerBar.setGridPower(gridPower);
+        powerBar.setSolarPower(0);
         powerBar.setLowRatePower(lowRatePower);
         powerBar.setSolarPower(solarProd);
+        ecoCard.setPower(lowRatePower);
+        solarCard.setPower(solarProd);
     }
 
     void setHomeConsumption(int32_t homeConsumption);

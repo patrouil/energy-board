@@ -6,11 +6,12 @@
 #include "AppTask.h"
 #include "Log.h"
 #include "Theme.h"
+#include "utils/wattHelper.h"
 
 static const lv_coord_t POWER_SCALE_MAJOR_LEN = 18;
 static const lv_coord_t POWER_SCALE_MINOR_LEN = 10;
 static const lv_coord_t POWER_SCALE_LABEL_Y = 22;
-static const lv_coord_t POWER_SCALE_HEIGHT = (POWER_SCALE_MAJOR_LEN+10);
+static const lv_coord_t POWER_SCALE_HEIGHT = (POWER_SCALE_MAJOR_LEN+20);
 static const lv_opa_t POWER_SCALE_HOME_BG_OPA = LV_OPA_60;
 static const lv_coord_t POWER_SCALE_HOME_PAD = 4;
 
@@ -79,7 +80,6 @@ lv_obj_t* PowerScale::create(lv_obj_t* parent)
         lv_obj_add_flag(line, LV_OBJ_FLAG_HIDDEN); // hidden by default
         tickLines[idx] = line;
         tickValues[idx] = tickIndex;
-
 
         lv_obj_t* label = lv_label_create(container);
         APP_ASSERT(label != nullptr);
@@ -152,6 +152,7 @@ void PowerScale::setLabelShow(bool show)
 
 void PowerScale::setHomeConsumption(int32_t homeConsumption)
 {
+    const char* units;
     if (homeConsumption < 0)
     {
         LOG_WARN("PowerScale::setHomeConsumption invalid value=%d", homeConsumption);
@@ -161,10 +162,7 @@ void PowerScale::setHomeConsumption(int32_t homeConsumption)
     this->homeConsumption = homeConsumption;
     if (homeConsumptionLabel == nullptr) return;
 
-    if ( homeConsumption >= 1000 )
-        snprintf(homeConsumptionLabelValue, MAX_LABEL, "%d.%d k", homeConsumption / 1000L, (homeConsumption%1000)/100);
-    else
-        snprintf(homeConsumptionLabelValue, MAX_LABEL, "%d", homeConsumption );
+  //  units = wattHelper::labelOf(homeConsumption, homeConsumptionLabelValue, sizeof(homeConsumptionLabelValue));
 
     lv_obj_clear_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
     updateHomeConsumptionPos();
@@ -310,7 +308,7 @@ void PowerScale::rebuild()
         tickCount++;
     }
 
-    lv_obj_update_layout(container);
+   // lv_obj_update_layout(container);
     // update layout to have labels width.
     for (uint16_t i = 0; i < tickCount; ++i)
     {

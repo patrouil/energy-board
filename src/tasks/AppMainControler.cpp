@@ -6,6 +6,7 @@
 
 #include "Log.h"
 #include "PageRouter.h"
+#include "utils/wattHelper.h"
 
 
 AppMainControler::AppMainControler() : AppTask("mainControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BUSINESS,
@@ -201,6 +202,7 @@ bool AppMainControler::manage_mqtt_event()
 
 bool AppMainControler::manage_simulation_event()
 {
+    static bool first = true;
     if (this->simulationOutQueue == nullptr || this->simulationOutQueue->isEmpty())
         return false;
 
@@ -228,14 +230,19 @@ bool AppMainControler::manage_simulation_event()
             DashboardPage* p = router.getDashboardPage();
             p->setBottomMessage(message);
 
-            int32_t maxGrid = 2 * (d.gridPower > d.lowRateMaxPower ? d.gridPower : d.lowRateMaxPower);
-            maxGrid = (maxGrid > 6000    ? maxGrid : 6000);
+            int32_t maxGrid = 2 * wattHelper::MAX(d.gridPower , d.lowRateMaxPower);
+            maxGrid = wattHelper::MAX(maxGrid , 6000);
             LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION maxGrid=%d  home=%d", maxGrid, d.homeConsumption);
 
             p->setPowerRange(0, maxGrid);
             p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
             p->setHomeConsumption(d.homeConsumption);
             d.release();
+            if ( first)
+            {
+                p->show();
+                first = false;
+            }
         }
         break;
     default:
@@ -294,20 +301,19 @@ void AppMainControler::run()
     while (true)
     {
         // checkStack();
-        // if an event is received do not sleep go fot the next one
+        // if an event is received do not sleep go for the next one
         if (manage_wifi_event() ||
             (manage_unphone_event()) ||
             (manage_mqtt_event()) ||
             manage_simulation_event())
         {
+            lv_timer_handler();
             yield();
         }
         else
         {
+            lv_timer_handler();
             this->sleep(100);
         }
-
-
-        //lv_timer_handler();
     }
 }

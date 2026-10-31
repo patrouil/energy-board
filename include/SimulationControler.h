@@ -12,9 +12,9 @@
 
 class SimulationControler : public AppTask
 {
-    static const int32_t CONVERTION_FACTOR = 2;
-    static const int32_t MAX_PRODUCTION = 4000;
-    static const int32_t MAX_CONSUMPTION = 12000;
+    static const int32_t CONVERTION_FACTOR = 2; // for the low rate calculation
+    static const int32_t MAX_GRID_POWER = 12000;
+    static const int32_t MAX_SOLAR_POWER = 4000;
     static const int32_t STEP_VARIATION = 15;
 
     uint16_t currentPattern = 0;

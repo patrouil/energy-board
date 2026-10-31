@@ -20,6 +20,8 @@ void Log::init(Level level, Stream* stream)
 void Log::_detectSerial(long baud)
 {
     Serial.begin(_baud);
+    Serial.setTxBufferSize(512);
+    Serial.setTxTimeoutMs(0);
     //SerialUSB.begin(_baud);
     int const interval = 5000;
     unsigned long initialMillis = millis();
@@ -45,6 +47,10 @@ void Log::log(Level level, char const* const msg, ...)
 {
     if (level <= _level)
     {
+        // loop through format string
+        if ( ! Serial ||  ! Serial.availableForWrite()  )
+            return;
+
         xSemaphoreTake(logMutex, portMAX_DELAY);
 
         char loglevel[8];
@@ -61,9 +67,6 @@ void Log::log(Level level, char const* const msg, ...)
 void Log::_print(const char* format, va_list args)
 {
     //
-    // loop through format string
-    if ( ! Serial.availableForWrite())
-        return;
     for (; *format != 0; ++format)
     {
         if (*format == '%')

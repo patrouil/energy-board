@@ -22,9 +22,9 @@ static const lv_coord_t row_dsc[] = {
 DashboardPage::~DashboardPage()
 {
     LOG_DEBUG("DashboardPage destruction");
-    if (oneLabel) lv_obj_del(oneLabel);
+    //if (oneLabel) lv_obj_del(oneLabel);
     if (bottomMessage) lv_obj_del(bottomMessage);
-    oneLabel = nullptr;
+   //  oneLabel = nullptr;
     bottomMessage = nullptr;
 }
 
@@ -32,14 +32,8 @@ lv_obj_t* DashboardPage::create_ticker(lv_obj_t* parent)
 {
     lv_obj_t* ticker = lv_label_create(parent);
 
-    /* The label must be narrower than the text */
-    //lv_obj_set_width(ticker, 220);
-    // lv_obj_set_height(ticker, LV_SIZE_CONTENT);
-    lv_label_set_text(
-        ticker,
-        "  Welcome to my device  •  Temperature: 24°C  •  System ready  "
-    );
     /* Continuous horizontal scrolling */
+    lv_label_set_text_static(ticker, bottomMessageBuffer);
     lv_label_set_long_mode(
         ticker,
         LV_LABEL_LONG_SCROLL_CIRCULAR
@@ -47,6 +41,7 @@ lv_obj_t* DashboardPage::create_ticker(lv_obj_t* parent)
     /* Optional appearance */
     lv_obj_set_style_text_color(ticker, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_obj_set_style_bg_color(ticker, Theme::BACKGROUND_COLOR, LV_PART_MAIN);
+    lv_obj_set_style_text_font(ticker, Theme::DEFAULT_FONT, LV_PART_MAIN);
 
     lv_obj_set_style_bg_opa(ticker, LV_OPA_80, LV_PART_MAIN); // no background
     lv_obj_set_style_pad_all(ticker, 8, LV_PART_MAIN);
@@ -71,16 +66,21 @@ lv_obj_t* DashboardPage::create_power_cards(lv_obj_t* parent)
     lv_obj_set_style_pad_all(row, 0, LV_PART_MAIN);
     lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
-    PowerCard* cards[] = {&solarCard, &ecoCard, &homeCard};
+    PowerCard* cards[] = {&solarCard, &homeCard, &ecoCard };
     for (PowerCard* card : cards)
     {
         lv_obj_t* c = card->create(row);
+        if ( card == &homeCard)
+            lv_obj_align(c, LV_ALIGN_TOP_MID, 0, 0);
         APP_ASSERT(c != nullptr);
         lv_obj_set_width(c, cardWidth);
     }
 
+    solarCard.setBackgroundColor(Theme::VERT_EDF);
     solarCard.setTitle("Solaire");
+    ecoCard.setBackgroundColor(Theme::BLEU_EDF);
     ecoCard.setTitle("Eco");
+    homeCard.setBackgroundColor(Theme::BACKGROUND_COLOR);
     homeCard.setTitle("Maison");
 
     return row;
@@ -132,18 +132,29 @@ void DashboardPage::create()
 
 void DashboardPage::setBottomMessage(const char* message)
 {
-    lv_label_set_text(bottomMessage, message);
+    strncpy(bottomMessageBuffer, message, sizeof(bottomMessageBuffer));
+    lv_label_set_text_static(bottomMessage, bottomMessageBuffer);
 }
-
 
 void DashboardPage::setHomeConsumption(int32_t homeConsumption)
 {
-    // powerBar.setHomeConsumption(homeConsumption);
     powerScale.setHomeConsumption(homeConsumption);
+    homeCard.setPower(homeConsumption);
+
     if ( homeConsumption <= powerBar.solar_power())
+    {
         powerScale.setHomeConsumptionColor(Theme::VERT_EDF);
+        homeCard.setBackgroundColor(Theme::VERT_EDF);
+    }
     else if ( homeConsumption <= powerBar.low_rate_power())
+    {
         powerScale.setHomeConsumptionColor(Theme::BLEU_EDF);
+        homeCard.setBackgroundColor(Theme::BLEU_EDF);
+    }
     else
-        powerScale.setHomeConsumptionColor(Theme::PRIMARY_COLOR);
+    {
+        powerScale.setHomeConsumptionColor(Theme::BACKGROUND_COLOR);
+        homeCard.setBackgroundColor(Theme::BACKGROUND_COLOR);
+    }
+  //  lv_timer_handler();
 }
