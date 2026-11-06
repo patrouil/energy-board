@@ -127,7 +127,7 @@ void DashboardPage::create()
                          LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_START, 3, 1);
 
-    LOG_DEBUG("DashboardPage::create done");
+    // LOG_DEBUG("DashboardPage::create done");
 }
 
 void DashboardPage::setBottomMessage(const char* message)

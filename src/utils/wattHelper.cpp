@@ -12,7 +12,7 @@ const char* wattHelper::KILOWATT_UNIT = "kWh";
 
 const char* wattHelper::labelOf(int32_t watts, char* valueBuffer, int32_t valueBufferSize)
 {
-    LOG_DEBUG("wattHelper::labelOf");
+    //LOG_DEBUG("wattHelper::labelOf");
 
     const char* unit;
     int32_t absWatts = (watts < 0) ? -watts : watts;

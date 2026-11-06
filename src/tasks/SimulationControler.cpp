@@ -55,6 +55,7 @@ int32_t SimulationControler::lowRatePower()
 int32_t SimulationControler::rand(int32_t upperBound)
 {
     int32_t v = static_cast<int32_t>(esp_random() % (2 * upperBound)) - upperBound;
+
     return v;
 }
 
@@ -74,9 +75,6 @@ void SimulationControler::computeRandomValues()
     sim.maxGridPower = 2* wattHelper::MAX ( sim.lowRateMaxPower, sim.homeConsumption);
     sim.release();
 
-  //  LOG_DEBUG("SimulationControler : solar=%d lowrate=%d grid=%d maxGrid=%d ",
-    //          sim.solarPower, sim.lowRateMaxPower,
-      //        sim.gridPower, sim.maxGridConsuption);
 }
 
 void SimulationControler::setup()

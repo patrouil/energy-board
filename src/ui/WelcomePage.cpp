@@ -11,7 +11,7 @@
 
 WelcomePage::~WelcomePage()
 {
-    LOG_DEBUG("WelcomePage::~WelcomePage");
+    //LOG_DEBUG("WelcomePage::~WelcomePage");
     if (titleLabel) lv_obj_del(titleLabel);
     if (ipLabel) lv_obj_del(ipLabel);
     if (mqttLabel) lv_obj_del(mqttLabel);
@@ -42,7 +42,7 @@ void WelcomePage::create()
     lv_obj_set_style_text_color(ipLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
 
     lv_obj_align_to(ipLabel, titleLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
-    LOG_DEBUG("WelcomePage::create ip");
+    //LOG_DEBUG("WelcomePage::create ip");
 
     // Ligne pour le statut MQTT
     mqttLabel = lv_label_create(this->page);
@@ -51,7 +51,7 @@ void WelcomePage::create()
     lv_obj_set_style_text_color(mqttLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
     lv_obj_align_to(mqttLabel, ipLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
 
-    LOG_DEBUG("WelcomePage::create mqtt");
+    //LOG_DEBUG("WelcomePage::create mqtt");
 
     // Ligne pour les messages
     messageLabel = lv_label_create(this->page);
@@ -61,7 +61,7 @@ void WelcomePage::create()
 
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
 
-    LOG_DEBUG("WelcomePage::create done");
+    //LOG_DEBUG("WelcomePage::create done");
 }
 
 void WelcomePage::setIPAddress(const char* ip)

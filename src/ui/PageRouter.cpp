@@ -47,19 +47,19 @@ Screen* PageRouter::get_screen(ScreenId id)
                 screens[index] = new WelcomePage();
                 if (!screens[index]) break;
                 screens[index]->create();
-                LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
+                //LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
                 break;
             case ScreenId::BOOT_PAGE:
                 screens[index] = new BootPage();
                 if (!screens[index]) break;
                 screens[index]->create();
-                LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
+                //LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
                 break;
             case ScreenId::DASHBOARD_PAGE:
                 screens[index] = new DashboardPage();
                 if (!screens[index]) break;
                 screens[index]->create();
-                LOG_DEBUG("PageRouter::get_screen: Created DASHBOARD_PAGE");
+                //LOG_DEBUG("PageRouter::get_screen: Created DASHBOARD_PAGE");
                 break;
             default:
                 LOG_ERROR("PageRouter::get_screen: Unknown screen id %d", index);

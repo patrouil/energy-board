@@ -130,15 +130,14 @@ void setup()
 {
     Display& dsp = Display::getInstance();
     PageRouter &router = PageRouter::getInstance();
-    unPhone ph = unPhone(); // create then access over global.
+    unPhone ph = unPhone("energy"); // create then access over global.
 
     LOG_INIT(Log::DEBUG, 115200);
     LOG_DEBUG("unphone  init");
 
     ph.begin();
+    ph.expanderPower(true); // to enable sd card.
 
-    ph.expanderPower(false);
-    ph.backlight(true);
     // after unPhone init
     LOG_DEBUG("display  init");
 

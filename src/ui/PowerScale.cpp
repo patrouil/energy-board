@@ -17,7 +17,7 @@ static const lv_coord_t POWER_SCALE_HOME_PAD = 4;
 
 PowerScale::~PowerScale()
 {
-    LOG_DEBUG("PowerScale destruction");
+    //LOG_DEBUG("PowerScale destruction");
     if (container) lv_obj_del(container);
     container = nullptr;
     axisLine = nullptr;
@@ -119,8 +119,9 @@ void PowerScale::setRange(int32_t min, int32_t max)
         return;
     }
     this->minPower = min;
+    if ( max == this->maxPower ) return;
     this->maxPower = max;
-    LOG_DEBUG("PowerScale::setRange min=%d max=%d", min, max);
+    //LOG_DEBUG("PowerScale::setRange min=%d max=%d", min, max);
     rebuild();
 }
 
@@ -132,7 +133,7 @@ void PowerScale::setTickInterval(int32_t intervalWatts)
         return;
     }
     this->tickInterval = intervalWatts;
-    LOG_DEBUG("PowerScale::setTickInterval interval=%d", intervalWatts);
+    //LOG_DEBUG("PowerScale::setTickInterval interval=%d", intervalWatts);
 }
 
 void PowerScale::setMajorTickEvery(uint16_t tickCount)
@@ -167,7 +168,7 @@ void PowerScale::setHomeConsumption(int32_t homeConsumption)
     lv_obj_clear_flag(homeConsumptionLabel, LV_OBJ_FLAG_HIDDEN);
     updateHomeConsumptionPos();
     lv_obj_invalidate(homeConsumptionLabel);
-    LOG_DEBUG("PowerScale::setHomeConsumption %d", homeConsumption);
+    //LOG_DEBUG("PowerScale::setHomeConsumption %d", homeConsumption);
 }
 
 void PowerScale::setHomeConsumptionColor(lv_color_t color)
@@ -191,16 +192,15 @@ void PowerScale::updateHomeConsumptionPos()
     lv_coord_t labelW = lv_obj_get_width(homeConsumptionLabel);
     lv_coord_t labelH = lv_obj_get_height(homeConsumptionLabel);
     lv_coord_t parentH = lv_obj_get_height(container);
-    LOG_DEBUG("PowerScale::updateHomeConsumptionPos parentH %d labelH %d ", parentH, labelH);
+    //LOG_DEBUG("PowerScale::updateHomeConsumptionPos parentH %d labelH %d ", parentH, labelH);
 
     lv_coord_t y = parentH - labelH - POWER_SCALE_HOME_PAD;
-
     if (y < 0) y = 0;
 
     lv_coord_t posX = x - labelW / 2;
     if (posX < 0) posX = 0;
     if (posX + labelW > width) posX = width - labelW;
-    LOG_DEBUG("PowerScale::updateHomeConsumptionPos home %d x %d, y %d ", homeConsumption, posX, y);
+    //LOG_DEBUG("PowerScale::updateHomeConsumptionPos home %d x %d, y %d ", homeConsumption, posX, y);
 
     lv_obj_set_pos(homeConsumptionLabel, posX, y);
 }
@@ -217,7 +217,7 @@ lv_coord_t PowerScale::valueToX(int32_t value, lv_coord_t width) const
 
 void PowerScale::destroyTicks()
 {
-    LOG_DEBUG("PowerScale::destroyTicks count=%d ", tickCount);
+    //LOG_DEBUG("PowerScale::destroyTicks count=%d ", tickCount);
     uint16_t i;
     xSemaphoreTake(logMutex, portMAX_DELAY);
 
@@ -255,7 +255,7 @@ void PowerScale::rebuild()
     destroyTicks();
 
     if (tickInterval <= 0 || maxPower <= minPower) return;
-    LOG_DEBUG("PowerScale::rebuild ");
+    //LOG_DEBUG("PowerScale::rebuild ");
 
     lv_coord_t width = lv_obj_get_width(container);
     if (width <= 0)
@@ -270,7 +270,7 @@ void PowerScale::rebuild()
         lv_line_set_points(axisLine, axisPoints, 2);
     }
 
-    LOG_DEBUG("PowerScale::rebuild width %d", width);
+    //LOG_DEBUG("PowerScale::rebuild width %d", width);
     xSemaphoreTake(logMutex, portMAX_DELAY);
 
     tickCount = 0;
@@ -324,5 +324,5 @@ void PowerScale::rebuild()
     xSemaphoreGive(logMutex);
 
     lv_obj_invalidate(container);
-    LOG_DEBUG("PowerScale::rebuild ticks=%d width=%d", tickCount, width);
+    //LOG_DEBUG("PowerScale::rebuild ticks=%d width=%d", tickCount, width);
 }

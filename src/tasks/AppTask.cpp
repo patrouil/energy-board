@@ -91,12 +91,12 @@ UBaseType_t AppTask::checkStack()
 {
     UBaseType_t ret = uxTaskGetStackHighWaterMark(this->taskHandle);
 
-    if (100 * ret >= 80 * this->stackSize)
-        LOG_WARN("AppTask::checkStack HIGH : %s %d / %d", this->taskName, ret, this->stackSize);
-    else if (100 * ret < 50 * this->stackSize)
-        LOG_WARN("AppTask::checkStack LOW : %s %d / %d", this->taskName, ret, this->stackSize);
-
+    if ( 100 * ret < 10 * this->stackSize)          // ex. 256 octets : danger reel
+        LOG_ERROR("AppTask::checkStack CRITICAL : %s %d / %d", this->taskName, ret, this->stackSize);
+    else if (100 * ret >= 80 * this->stackSize) // pile surdimensionnee : RAM gaspillee
+        LOG_INFO("AppTask::checkStack OVERSIZED : %s %d / %d", this->taskName, ret, this->stackSize);
     return ret;
+
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName)

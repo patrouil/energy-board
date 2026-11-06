@@ -121,24 +121,31 @@ bool AppConfig::loadConfigSD()
     LOG_DEBUG("AppConfig::loadConfigSD : ");
 
     unPhone* ph = unPhone::me;
-    SdFat* sdc = ph->sdp;
     YAMLNode rootNode;
+    // DEBUG
+    ph->expanderPower(true);
 
-    APP_ASSERT(sdc != nullptr);
-    if (sdc == nullptr)
-    {
-        LOG_ERROR("AppConfig::loadConfigSD : SDCard is null");
+    // pinMode(43, OUTPUT);
+    digitalWrite(unPhone::SD_CS, LOW);
+    // SPI.begin();                        // bus par défaut du variant
+    LOG_DEBUG("AppConfig::loadConfigSD %d", ph->sdp->card()->type()); // 0 = carte non détectée
+    digitalWrite(unPhone::SD_CS, HIGH);
+
+    if (!ph->sdp->begin(unPhone::SD_CS, SD_SCK_MHZ(4))) {
+        ph->sdp->errorPrint(&Serial);                     // ex: "SD errorCode: 0x2, 0x6" + texte
+        LOG_ERROR("SD error=0x%X data=0x%X",
+            ph->sdp->card()->errorCode(),
+            ph->sdp->card()->errorData());
         return false;
     }
+    ph->sdp->ls();
 
-    sdc->ls();
-
-    if (!sdc->exists(CONFIG_FILE_NAME))
+    if (!ph->sdp->exists(CONFIG_FILE_NAME))
     {
         LOG_ERROR("AppConfig::loadConfigSD : no config file");
         return false;
     }
-    File32 fd = sdc->open(CONFIG_FILE_NAME, O_READ);
+    File32 fd = ph->sdp->open(CONFIG_FILE_NAME, O_READ);
 
     // convert to stream.
     int r = deserializeYml(rootNode, fd);

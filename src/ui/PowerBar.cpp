@@ -15,7 +15,7 @@ static const lv_coord_t POWER_BAR_HEIGHT = 30;
 
 PowerBar::~PowerBar()
 {
-    LOG_DEBUG("PowerBar destruction");
+    //LOG_DEBUG("PowerBar destruction");
     if (container) lv_obj_del(container);
     container = nullptr;
     background = nullptr;
@@ -66,7 +66,6 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
     lv_obj_set_style_bg_opa(indicator, LV_OPA_COVER, LV_PART_INDICATOR);
     lv_obj_set_style_radius(indicator, 0, LV_PART_INDICATOR);
 
-
     lv_obj_set_style_border_width(indicator, 0, LV_PART_MAIN);
     lv_obj_set_style_radius(indicator, 0, LV_PART_MAIN);
     lv_obj_set_style_pad_all(indicator, 0, LV_PART_MAIN);
@@ -75,7 +74,6 @@ lv_obj_t* PowerBar::create(lv_obj_t* parent)
     lv_bar_set_value(indicator, solarPower, LV_ANIM_OFF);
 
     updateBarSize();
-
     return container;
 }
 
@@ -99,7 +97,6 @@ void PowerBar::setLowRatePower(int32_t value)
 void PowerBar::setSolarPower(int32_t value)
 {
 //    LOG_DEBUG("PowerBar::setSolarPower value=%d", value);
-
     if (value >= 0) this->solarPower = value;
     if (!indicator) return;
     lv_bar_set_value(indicator, this->solarPower, LV_ANIM_OFF);
@@ -108,13 +105,13 @@ void PowerBar::setSolarPower(int32_t value)
 void PowerBar::setGridPower(int32_t value)
 {
    // LOG_DEBUG("PowerBar::setGridPower value=%d", value);
-
     this->gridPower = value;
 }
 
 void PowerBar::setMaxPower(int32_t value)
 {
-    if (maxPower > 0) this->maxPower = value;
+    if ( value == this->maxPower) return;
+    if (value > 0) this->maxPower = value;
     this->updateBarSize();
 }
 
@@ -134,8 +131,8 @@ void PowerBar::updateBarSize()
     // loaw rate bar size is a pencentage of lowRatePower vs maxPower
     ratioPercent = lowRatePower * 100 / maxPower;
     lv_coord_t indicatorWidth = (containerWidth) * ratioPercent / 100;
-    LOG_DEBUG("PowerBar::updateBarSize low rate %d max power %d", lowRatePower, maxPower);
-    LOG_DEBUG("PowerBar::updateBarSize indicatorWidth=%d  ratio=%d", indicatorWidth, ratioPercent);
+    //LOG_DEBUG("PowerBar::updateBarSize low rate %d max power %d", lowRatePower, maxPower);
+    //LOG_DEBUG("PowerBar::updateBarSize indicatorWidth=%d  ratio=%d", indicatorWidth, ratioPercent);
 
     lv_obj_set_width(indicator, indicatorWidth);
     //lv_bar_set_value(indicator, this->lowRatePower/2, LV_ANIM_OFF);

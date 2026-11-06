@@ -47,7 +47,7 @@ void BootPage::create()
  */
 void BootPage::set_version(uint8_t  vers)
 {
-    LOG_DEBUG("Boot Page creation");
+    //LOG_DEBUG("Boot Page creation");
     String LVGL_Arduino = "Loading Energy Monitor! ";
 
     this->create();

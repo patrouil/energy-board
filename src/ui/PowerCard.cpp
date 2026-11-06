@@ -16,7 +16,7 @@ static const lv_coord_t POWER_CARD_VALUE_OFFSET_Y = 0; //-10;
 
 PowerCard::~PowerCard()
 {
-    LOG_DEBUG("PowerCard destruction");
+    //LOG_DEBUG("PowerCard destruction");
     if (container) lv_obj_del(container);
     container = nullptr;
     valueLabel = nullptr;
@@ -69,14 +69,14 @@ lv_obj_t* PowerCard::create(lv_obj_t* parent)
 
 void PowerCard::setPower(int32_t watts)
 {
-    LOG_DEBUG("PowerCard::setPower value=%d", watts);
+    //LOG_DEBUG("PowerCard::setPower value=%d", watts);
     this->watts = watts;
     updateValue();
 }
 
 void PowerCard::setTitle(const char* title)
 {
-    LOG_DEBUG("PowerCard::setTitle title=%s", title ? title : "(null)");
+   // LOG_DEBUG("PowerCard::setTitle title=%s", title ? title : "(null)");
     if (titleLabel == nullptr) return;
     if (title == nullptr) return;
     snprintf(titleBuffer, sizeof(titleBuffer), "%s", title);
@@ -85,21 +85,21 @@ void PowerCard::setTitle(const char* title)
 
 void PowerCard::setBorderColor(lv_color_t color)
 {
-    LOG_DEBUG("PowerCard::setBorderColor");
+   // LOG_DEBUG("PowerCard::setBorderColor");
     if (container == nullptr) return;
     lv_obj_set_style_border_color(container, color, LV_PART_MAIN);
 }
 
 void PowerCard::setBackgroundColor(lv_color_t color)
 {
-    LOG_DEBUG("PowerCard::setBackgroundColor");
+   // LOG_DEBUG("PowerCard::setBackgroundColor");
     if (container == nullptr) return;
     lv_obj_set_style_bg_color(container, color, LV_PART_MAIN);
 }
 
 void PowerCard::updateValue()
 {
-    LOG_DEBUG("PowerCard::updateValue");
+  //  LOG_DEBUG("PowerCard::updateValue");
 
     if ((valueLabel == nullptr) || (unitLabel == nullptr)) return;
 

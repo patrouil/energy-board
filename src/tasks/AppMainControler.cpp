@@ -73,7 +73,7 @@ bool AppMainControler::manage_wifi_event()
     switch (ev.getId())
     {
     case AppEventType::WIFI_IDLE:
-        LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
+       // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
 
         break;
     case AppEventType::WIFI_CONNECTED:
@@ -85,12 +85,12 @@ bool AppMainControler::manage_wifi_event()
             WelcomePage* p = router.getWelcomePage();
             p->setIPAddress(s.c_str());
             p->setMessage("Connected");
-            p->show();
+            //p->show();
         }
         break;
     case AppEventType::WIFI_DISCONNECTED:
         {
-            //        LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_DISCONNECTED :%d", ev.getId());
+            // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_DISCONNECTED :%d", ev.getId());
             // notidy MQTT and UI
             WelcomePage* p = router.getWelcomePage();
             p->setIPAddress("none");
@@ -121,7 +121,7 @@ bool AppMainControler::manage_unphone_event()
     {
     case AppEventType::UNPHONE_BUTTON_PRESSED:
         {
-            //        LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
+                    LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
             String b = "button";
             uint16_t v = ev.getData().currentButton;
             if (v & EventData::BUTTON_1) b.concat(" 1");
@@ -136,7 +136,7 @@ bool AppMainControler::manage_unphone_event()
             else if (v & EventData::BUTTON_2)
             {
                 int p = this->get_simulation_controler()->switchPattern();
-                LOG_DEBUG("AppMainControler::manage_incoming_event : pattern %d", p);
+                // LOG_DEBUG("AppMainControler::manage_incoming_event : pattern %d", p);
                 router.getDashboardPage()->show();
             }
             break;
@@ -166,7 +166,7 @@ bool AppMainControler::manage_mqtt_event()
         LOG_ERROR("AppMainControler::manage_mqtt_event : unable to get event");
         return false;
     }
-    LOG_DEBUG("AppMainControler::manage_mqtt_event :%d", ev.getId());
+    // LOG_DEBUG("AppMainControler::manage_mqtt_event :%d", ev.getId());
 
     switch (ev.getId())
     {
@@ -223,18 +223,14 @@ bool AppMainControler::manage_simulation_event()
             const EventData& d = ev.getData();
             d.lock();
             char message[256];
-            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION solar=%d lowrate=%d  grid=%d home=%d ",
-                      d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
+            //LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION solar=%d lowrate=%d  grid=%d home=%d ",
+            //          d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
             sniprintf(message, sizeof(message), "solar=%d lowrate=%d  grid=%d home=%d ",
                       d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
             DashboardPage* p = router.getDashboardPage();
             p->setBottomMessage(message);
 
-            int32_t maxGrid = 2 * wattHelper::MAX(d.gridPower , d.lowRateMaxPower);
-            maxGrid = wattHelper::MAX(maxGrid , 6000);
-            LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION maxGrid=%d  home=%d", maxGrid, d.homeConsumption);
-
-            p->setPowerRange(0, maxGrid);
+            p->setPowerRange(0, d.maxGridPower);
             p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
             p->setHomeConsumption(d.homeConsumption);
             d.release();
@@ -302,17 +298,16 @@ void AppMainControler::run()
     {
         // checkStack();
         // if an event is received do not sleep go for the next one
+        lv_timer_handler();
         if (manage_wifi_event() ||
             (manage_unphone_event()) ||
             (manage_mqtt_event()) ||
             manage_simulation_event())
         {
-            lv_timer_handler();
             yield();
         }
         else
         {
-            lv_timer_handler();
             this->sleep(100);
         }
     }
