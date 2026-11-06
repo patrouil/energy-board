@@ -7,6 +7,7 @@
 
 #include "WelcomePage.h"
 #include "BootPage.h"
+#include "DarkPage.h"
 
 PageRouter::PageRouter()
 
@@ -54,6 +55,12 @@ Screen* PageRouter::get_screen(ScreenId id)
                 if (!screens[index]) break;
                 screens[index]->create();
                 //LOG_DEBUG("PageRouter::get_screen: Created BOOT_PAGE");
+                break;
+            case ScreenId::DARK_PAGE:
+                screens[index] = new DarkPage();
+                if (!screens[index]) break;
+                screens[index]->create();
+                //LOG_DEBUG("PageRouter::get_screen: Created DARK_PAGE");
                 break;
             case ScreenId::DASHBOARD_PAGE:
                 screens[index] = new DashboardPage();
