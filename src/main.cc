@@ -18,7 +18,6 @@
 
 //#include <Adafruit_SPIFlash.h> // for LDF
 #include <Log.h>
-#define LV_USE_LOG 1
 #include <lvgl.h>                       // LVGL //////////////////////////////
 #define CONFIG_IDF_TARGET_ESP32S3 1
 
@@ -41,7 +40,6 @@ void my_print(const char* buf)
     Serial.printf(buf);
     Serial.flush();
 }
-
 
 // map touch coords to lcd coords
 // a version of map that never returns out of range values
@@ -111,7 +109,6 @@ void panic_handler(void* arg)
     printf("PANIC: %s\n", (char*)arg);
     // Logs ou actions avant redémarrage
     delay(100000);
-
 }
 
 void launch_tasks()
@@ -126,6 +123,8 @@ void launch_tasks()
     this_controler.get_simulation_controler()->start();
 }
 
+#include "utils/validate_spi.h"
+
 void setup()
 {
     Display& dsp = Display::getInstance();
@@ -138,9 +137,16 @@ void setup()
     ph.begin();
     ph.expanderPower(true); // to enable sd card.
 
+    // ValidateSpi::validateSpi();
+
+    // load config before anything else using the SPI bus
+    AppConfig &this_config = AppConfig::getInstance();
+    this_config.loadDefaults(); // start by defaults values
+    // this_config.loadConfigPref(); // then override
+    this_config.loadConfigSD();
+
     // after unPhone init
     LOG_DEBUG("display  init");
-
     try
     {
         dsp.init();
@@ -149,7 +155,6 @@ void setup()
 
         ph.tsp->setRotation(1);
         ph.backlight(true);
-
     }
     catch (const std::exception& e)
     {
@@ -170,15 +175,8 @@ void setup()
     lv_timer_handler();
     // sleep(3);
 
-    AppConfig &this_config = AppConfig::getInstance();
-    this_config.loadDefaults(); // start by defaults values
-    // this_config.loadConfigPref(); // then override
-    this_config.loadConfigSD();
-
     AppMainControler& this_controler = AppMainControler::getInstance();
-
     this_controler.setup();
-
     launch_tasks();
 }
 

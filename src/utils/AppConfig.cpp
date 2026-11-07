@@ -131,7 +131,7 @@ bool AppConfig::loadConfigSD()
     LOG_DEBUG("AppConfig::loadConfigSD %d", ph->sdp->card()->type()); // 0 = carte non détectée
     digitalWrite(unPhone::SD_CS, HIGH);
 
-    if (!ph->sdp->begin(unPhone::SD_CS, SD_SCK_MHZ(4))) {
+    if (!ph->sdp->begin(unPhone::SD_CS, SD_SCK_MHZ(25))) {
         ph->sdp->errorPrint(&Serial);                     // ex: "SD errorCode: 0x2, 0x6" + texte
         LOG_ERROR("SD error=0x%X data=0x%X",
             ph->sdp->card()->errorCode(),
@@ -152,5 +152,5 @@ bool AppConfig::loadConfigSD()
     LOG_DEBUG("AppConfig::loadConfigSD : loaded bytes %d", r);
     this->bindYaml(rootNode);
     fd.close();
-    return false;
+    return true;
 }
