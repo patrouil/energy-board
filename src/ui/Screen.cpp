@@ -49,5 +49,6 @@ void Screen::show()
 
 void Screen::hide()
 {
+    LOG_DEBUG("Screen::hide : ");
     lv_obj_add_flag(this->page, LV_OBJ_FLAG_HIDDEN);
 }
