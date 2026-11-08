@@ -5,7 +5,7 @@
 #include "PageRouter.h"
 #include "Log.h"
 
-#include "WelcomePage.h"
+#include "StatusPage.h"
 #include "BootPage.h"
 #include "DarkPage.h"
 
@@ -44,11 +44,11 @@ Screen* PageRouter::get_screen(ScreenId id)
         {
             switch (id)
             {
-            case ScreenId::WELCOME_PAGE:
-                screens[index] = new WelcomePage();
+            case ScreenId::STATUS_PAGE:
+                screens[index] = new StatusPage();
                 if (!screens[index]) break;
                 screens[index]->create();
-                //LOG_DEBUG("PageRouter::get_screen: Created WELCOME_PAGE");
+                //LOG_DEBUG("PageRouter::get_screen: Created STATUS_PAGE");
                 break;
             case ScreenId::BOOT_PAGE:
                 screens[index] = new BootPage();
