@@ -122,9 +122,14 @@ SdStatus AppConfig::loadConfigSD()
 
     unPhone* ph = unPhone::me;
     YAMLNode rootNode;
-    // DEBUG
-    ph->expanderPower(true); // rail SD (nécessite un I2C sain — cf. fix du double begin)
-    delay(50);
+
+    // power-cycle du rail SD : au boot l'état du rail est indéterminé
+    // (broches TCA9555 en entrée avant unPhone::begin) et la carte peut
+    // démarrer dans un état non initialisé qui ne répond pas à CMD0
+    ph->expanderPower(false);
+    delay(200);
+    ph->expanderPower(true);
+    delay(250);
 
     // Bus SPI déjà démarré (par le tactile dans unPhone::begin()) :
     // SdFat le réutilise sans le re-begin, sans jamais l'arrêter.
@@ -135,19 +140,23 @@ SdStatus AppConfig::loadConfigSD()
         &SPI // instance explicite (FSPI, pins 39/40/41 du variant)
     );
 
-    if (!sdcard.begin(cfg))
+    bool started = false;
+    for (int attempt = 0; attempt < 3 && !started; attempt++)
+    {
+        started = sdcard.begin(cfg);
+        if (!started)
+        {
+            LOG_ERROR("SD begin attempt %d failed: error=0x%X data=0x%X",
+                      attempt + 1,
+                      sdcard.card()->errorCode(),
+                      sdcard.card()->errorData());
+            delay(200);
+        }
+    }
+
+    if (!started)
     {
         sdcard.errorPrint(&Serial);
-        LOG_ERROR("SD error=0x%X data=0x%X",
-                  sdcard.card()->errorCode(), sdcard.card()->errorData());
-        // hypothèse signal : re-essai a 4 MHz
-        SdSpiConfig cfgSlow(unPhone::SD_CS, SHARED_SPI | USER_SPI_BEGIN,
-                            SD_SCK_MHZ(4), &SPI);
-        if (sdcard.begin(cfgSlow))
-        {
-            LOG_DEBUG("mount OK @ 4MHz -> probleme de vitesse, pas de format");
-        }
-
         if (sdcard.card()->errorCode() != 0)
         {
             LOG_ERROR("AppConfig::loadConfigSD : no card or bad contact");
