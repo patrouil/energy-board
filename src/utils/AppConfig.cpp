@@ -140,6 +140,15 @@ SdStatus AppConfig::loadConfigSD()
         &SPI // instance explicite (FSPI, pins 39/40/41 du variant)
     );
 
+    pinMode(unPhone::SD_CS, OUTPUT);
+    digitalWrite(unPhone::SD_CS, LOW);
+    SPI.beginTransaction(SPISettings(400000, MSBFIRST, SPI_MODE0));
+    uint8_t ready = 0;
+    for (uint32_t i = 0; i < 50000 && ready < 2; i++)
+        ready = (SPI.transfer(0xFF) == 0xFF) ? ready + 1 : 0;
+    SPI.endTransaction();
+    digitalWrite(unPhone::SD_CS, HIGH);
+
     bool started = false;
     for (int attempt = 0; attempt < 3 && !started; attempt++)
     {
