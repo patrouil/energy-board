@@ -6,6 +6,7 @@
 
 #ifndef ENERGY_BOARD_BOOTPAGE_H
 #define ENERGY_BOARD_BOOTPAGE_H
+#include "AppConfig.h"
 #include "Screen.h"
 
 class BootPage : public Screen
@@ -17,6 +18,7 @@ public:
     void create() override;
     void set_version(uint8_t  vers);
     void set_sd_status(const char* message);
+    void set_sd_status(SdStatus sd_status);
 
 private:
     lv_obj_t* obj_label = nullptr;

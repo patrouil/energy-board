@@ -35,7 +35,7 @@
 //long my_mapper(long, long, long, long, long);
 void my_print(const char* buf)
 {
-    if ( ! Serial ||  ! Serial.availableForWrite()  )
+    if (!Serial || !Serial.availableForWrite())
         return;
     Serial.printf(buf);
     Serial.flush();
@@ -56,7 +56,7 @@ long my_mapper(long x, long in_min, long in_max, long out_min, long out_max)
 void my_touchpad_read(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
 {
     uint16_t touchX, touchY;
-    unPhone * this_phone_u = unPhone::me;
+    unPhone* this_phone_u = unPhone::me;
 
     // start of changes for unPhone ////////////////////////////////////////////
     bool touched = this_phone_u->tsp->touched();
@@ -113,7 +113,6 @@ void panic_handler(void* arg)
 
 void launch_tasks()
 {
-
     AppMainControler& this_controler = AppMainControler::getInstance();
 
     this_controler.start();
@@ -123,29 +122,22 @@ void launch_tasks()
     this_controler.get_simulation_controler()->start();
 }
 
-#include "utils/validate_spi.h"
-
 void setup()
 {
     Display& dsp = Display::getInstance();
-    PageRouter &router = PageRouter::getInstance();
+    PageRouter& router = PageRouter::getInstance();
     static unPhone ph = unPhone("energy"); // create then access over global.
 
     LOG_INIT(Log::DEBUG, 115200);
     LOG_DEBUG("unphone  init");
 
     ph.begin();
-    ph.expanderPower(true); // to enable sd card.
-
-    // ValidateSpi::validateSpi();
 
     // load config before anything else using the SPI bus
-    AppConfig &this_config = AppConfig::getInstance();
+    AppConfig& this_config = AppConfig::getInstance();
     this_config.loadDefaults(); // start by defaults values
-    // this_config.loadConfigPref(); // then override
     SdStatus sd_status = this_config.loadConfigSD();
 
-    // after unPhone init
     LOG_DEBUG("display  init");
     try
     {
@@ -169,44 +161,27 @@ void setup()
     lv_log_register_print_cb(my_print); /* register print function for debugging */
 #endif
 
-     BootPage *boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
+    BootPage* boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
     boot_page->set_version(ph.version());
-    switch (sd_status)
-    {
-    case SdStatus::NO_CARD:
-        boot_page->set_sd_status("SD card missing or misinserted");
-        break;
-    case SdStatus::BAD_FORMAT:
-        boot_page->set_sd_status("SD card format error (FAT32 needed)");
-        break;
-    case SdStatus::NO_FILE:
-        boot_page->set_sd_status("energy.yaml not found on SD");
-        break;
-    case SdStatus::READ_ERROR:
-        boot_page->set_sd_status("energy.yaml invalid");
-        break;
-    case SdStatus::OK:
-    default:
-        break;
-    }
+    boot_page->set_sd_status(sd_status);
+
     boot_page->show();
     lv_timer_handler();
     // sleep(3);
 
-    AppMainControler& this_controler = AppMainControler::getInstance();
-    this_controler.setup();
-    launch_tasks();
+    // if no setting stay freezed.
+    if (sd_status == SdStatus::OK)
+    {
+        AppMainControler& this_controler = AppMainControler::getInstance();
+
+        this_controler.setup();
+        launch_tasks();
+    }
 }
 
 
 void loop()
 {
-    //lv_mem_monitor_t  mon;
-    //LOG_DEBUG("main : loop");
-    //lv_timer_handler();
-    //lv_mem_monitor(&mon);
-    //LOG_DEBUG("LVGL: %d KB free, %d KB total %d frag", mon.free_size / 1024, mon.total_size / 1024, mon.frag_pct);
     yield();
     sleep(100);
-    // sleep on power off
 }

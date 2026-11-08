@@ -4,8 +4,6 @@
 
 #pragma once
 
-#ifndef ENERGY_BOARD_DARKPAGE_H
-#define ENERGY_BOARD_DARKPAGE_H
 #include "Screen.h"
 
 class DarkPage : public Screen
@@ -19,4 +17,3 @@ public:
     void hide() override;
 };
 
-#endif //ENERGY_BOARD_DARKPAGE_H

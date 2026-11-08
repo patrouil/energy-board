@@ -123,16 +123,16 @@ SdStatus AppConfig::loadConfigSD()
     unPhone* ph = unPhone::me;
     YAMLNode rootNode;
     // DEBUG
-    ph->expanderPower(true);          // rail SD (nécessite un I2C sain — cf. fix du double begin)
+    ph->expanderPower(true); // rail SD (nécessite un I2C sain — cf. fix du double begin)
     delay(50);
 
     // Bus SPI déjà démarré (par le tactile dans unPhone::begin()) :
     // SdFat le réutilise sans le re-begin, sans jamais l'arrêter.
     SdSpiConfig cfg(
-        unPhone::SD_CS,               // CS dédié (43)
-        SHARED_SPI | USER_SPI_BEGIN,  // bus partagé, begin géré par l'utilisateur
-        SD_SCK_MHZ(25),               // 25 MHz comme la lib unPhone
-        &SPI                          // instance explicite (FSPI, pins 39/40/41 du variant)
+        unPhone::SD_CS, // CS dédié (43)
+        SHARED_SPI | USER_SPI_BEGIN, // bus partagé, begin géré par l'utilisateur
+        SD_SCK_MHZ(25), // 25 MHz comme la lib unPhone
+        &SPI // instance explicite (FSPI, pins 39/40/41 du variant)
     );
 
     if (!sdcard.begin(cfg))
@@ -140,6 +140,14 @@ SdStatus AppConfig::loadConfigSD()
         sdcard.errorPrint(&Serial);
         LOG_ERROR("SD error=0x%X data=0x%X",
                   sdcard.card()->errorCode(), sdcard.card()->errorData());
+        // hypothèse signal : re-essai a 4 MHz
+        SdSpiConfig cfgSlow(unPhone::SD_CS, SHARED_SPI | USER_SPI_BEGIN,
+                            SD_SCK_MHZ(4), &SPI);
+        if (sdcard.begin(cfgSlow))
+        {
+            LOG_DEBUG("mount OK @ 4MHz -> probleme de vitesse, pas de format");
+        }
+
         if (sdcard.card()->errorCode() != 0)
         {
             LOG_ERROR("AppConfig::loadConfigSD : no card or bad contact");
@@ -148,29 +156,35 @@ SdStatus AppConfig::loadConfigSD()
         LOG_ERROR("AppConfig::loadConfigSD : wrong format (FAT32 expected)");
         return SdStatus::BAD_FORMAT;
     }
-
+    LOG_DEBUG("AppConfig::loadConfigSD : ls");
     sdcard.ls();
 
-    if (!sdcard.exists(CONFIG_FILE_NAME))
+    try
     {
-        LOG_ERROR("AppConfig::loadConfigSD : no config file");
-        return SdStatus::NO_FILE;
-    }
-    File32 fd = sdcard.open(CONFIG_FILE_NAME, O_READ);
-    if (!fd.isOpen())
-    {
-        LOG_ERROR("AppConfig::loadConfigSD : cannot open config file");
-        return SdStatus::NO_FILE;
-    }
+        if (!sdcard.exists(CONFIG_FILE_NAME))
+        {
+            LOG_ERROR("AppConfig::loadConfigSD : no config file");
+            return SdStatus::NO_FILE;
+        }
 
-    // convert to stream.
-    int r = deserializeYml(rootNode, fd);
-    LOG_DEBUG("AppConfig::loadConfigSD : loaded bytes %d", r);
-    fd.close();
-    if (!this->bindYaml(rootNode))
+        File32 fd = sdcard.open(CONFIG_FILE_NAME, O_READ);
+        LOG_DEBUG("AppConfig::loadConfigSD fd is %d", fd.available32());
+        // convert to stream.
+        int r = deserializeYml(rootNode, fd);
+        LOG_DEBUG("AppConfig::loadConfigSD : loaded bytes %d", r);
+        this->bindYaml(rootNode);
+        fd.close();
+    }
+    catch (std::runtime_error e)
     {
-        LOG_ERROR("AppConfig::loadConfigSD : invalid yaml content");
+        LOG_ERROR("AppConfig::loadConfigSD : runtime error : %s", e.what());
         return SdStatus::READ_ERROR;
     }
+    catch (...)
+    {
+        LOG_ERROR("AppConfig::loadConfigSD : exception");
+        return SdStatus::READ_ERROR;
+    }
+
     return SdStatus::OK;
 }

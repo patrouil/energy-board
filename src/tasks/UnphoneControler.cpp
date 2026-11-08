@@ -12,7 +12,7 @@
 
 
 UnphoneControler::UnphoneControler(AppEventQueue* outQueue) :
-    ::AppTask("AppUnphoneControler", APP_TASK_STACK_MIN, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
+    ::AppTask("AppUnphoneControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BACKEND, nullptr, outQueue)
 {
   //  LOG_DEBUG("UnphoneControler::UnphoneControler");
 }

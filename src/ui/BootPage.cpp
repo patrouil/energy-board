@@ -3,6 +3,8 @@
 //
 
 #include "BootPage.h"
+
+#include "AppConfig.h"
 #include "Log.h"
 #include "Theme.h"
 
@@ -52,6 +54,28 @@ void BootPage::set_sd_status(const char* message)
     lv_label_set_text(sd_label, message);
 }
 
+
+void BootPage::set_sd_status(SdStatus sd_status)
+{
+    switch (sd_status)
+    {
+    case SdStatus::NO_CARD:
+        this->set_sd_status("SD card missing or misinserted");
+        break;
+    case SdStatus::BAD_FORMAT:
+        this->set_sd_status("SD card format error (FAT32 needed)");
+        break;
+    case SdStatus::NO_FILE:
+        this->set_sd_status("energy.yaml not found on SD");
+        break;
+    case SdStatus::READ_ERROR:
+        this->set_sd_status("energy.yaml invalid");
+        break;
+    case SdStatus::OK:
+    default:
+        break;
+    }
+}
 /*
  * Warning : there is a TOUCH_CS declaration collition.
  * unphone declares uint TOUCH_CS = 38

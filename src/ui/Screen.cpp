@@ -39,7 +39,7 @@ void Screen::create()
 
 void Screen::show()
 {
-   LOG_DEBUG("Screen::show : ");
+ //   LOG_DEBUG("Screen::show : ");
 
     //lv_scr_load(this->page);
     //lv_obj_set_style_bg_opa(page, LV_OPA_100, LV_PART_MAIN);

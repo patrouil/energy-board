@@ -21,8 +21,8 @@
  */
 enum class ScreenId : uint8_t
 {
-    WELCOME_PAGE = 0,  ///< Page d'accueil.
-    BOOT_PAGE = 1,     ///< Page "À propos".
+    BOOT_PAGE = 0,     ///< Page "À propos".
+    WELCOME_PAGE = 1,  ///< Page d'accueil.
     DASHBOARD_PAGE = 2,
     DARK_PAGE = 3,
     SCREEN_COUNT        ///< Nombre total d'écrans.
