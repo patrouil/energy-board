@@ -12,7 +12,7 @@
 #include "DashboardPage.h"
 #include "Display.h"
 #include "Screen.h"
-#include "WelcomePage.h"
+#include "StatusPage.h"
 
 
 /**
@@ -22,7 +22,7 @@
 enum class ScreenId : uint8_t
 {
     BOOT_PAGE = 0,     ///< Page "À propos".
-    WELCOME_PAGE = 1,  ///< Page d'accueil.
+    STATUS_PAGE = 1,  ///< Page de statut.
     DASHBOARD_PAGE = 2,
     DARK_PAGE = 3,
     SCREEN_COUNT        ///< Nombre total d'écrans.
@@ -44,9 +44,9 @@ public:
     }
 
 
-    WelcomePage* getWelcomePage()
+    StatusPage* getStatusPage()
     {
-        return static_cast<WelcomePage*>(this->get_screen(ScreenId::WELCOME_PAGE));
+        return static_cast<StatusPage*>(this->get_screen(ScreenId::STATUS_PAGE));
     }
 
     BootPage * getBootPage()

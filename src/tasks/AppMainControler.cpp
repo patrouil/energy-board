@@ -82,7 +82,7 @@ bool AppMainControler::manage_wifi_event()
             // notify MQTT and UI
             static String s = WiFi.localIP().toString();
             //    LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_CONNECTED :%s %s", "display IP", s.c_str());
-            WelcomePage* p = router.getWelcomePage();
+            StatusPage* p = router.getStatusPage();
             p->setIPAddress(s.c_str());
             p->setMessage("Connected");
             //p->show();
@@ -92,7 +92,7 @@ bool AppMainControler::manage_wifi_event()
         {
             // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_DISCONNECTED :%d", ev.getId());
             // notidy MQTT and UI
-            WelcomePage* p = router.getWelcomePage();
+            StatusPage* p = router.getStatusPage();
             p->setIPAddress("none");
             p->setMessage("diconnected");
         }
@@ -128,10 +128,10 @@ bool AppMainControler::manage_unphone_event()
             if (v & EventData::BUTTON_2) b.concat(" 2");
             if (v & EventData::BUTTON_3) b.concat(" 3");
 
-            router.getWelcomePage()->setMessage(b.c_str());
+            router.getStatusPage()->setMessage(b.c_str());
             if (v & EventData::BUTTON_1)
             {
-                router.getWelcomePage()->show();
+                router.getStatusPage()->show();
             }
             else if (v & EventData::BUTTON_2)
             {
@@ -143,7 +143,7 @@ bool AppMainControler::manage_unphone_event()
         }
     case AppEventType::UNPHONE_BUTTON_RELEASED:
         {
-            router.getWelcomePage()->setMessage("button release");
+            router.getStatusPage()->setMessage("button release");
             break;
         }
     default:
@@ -172,18 +172,18 @@ bool AppMainControler::manage_mqtt_event()
     {
     case AppEventType::MQTT_IDLE:
         LOG_DEBUG("AppMainControler::MQTT_IDLE :%d", ev.getId());
-        router.getWelcomePage()->setMQTTStatus("idle");
+        router.getStatusPage()->setMQTTStatus("idle");
         break;
     case AppEventType::MQTT_CONNECTED:
         {
             LOG_DEBUG("AppMainControler::MQTT_CONNECTED :%d", ev.getId());
-            router.getWelcomePage()->setMQTTStatus("connected");
+            router.getStatusPage()->setMQTTStatus("connected");
         }
         break;
     case AppEventType::MQTT_DISCONNECTED:
         {
             LOG_DEBUG("AppMainControler::MQTT_DISCONNECTED :%d", ev.getId());
-            router.getWelcomePage()->setMQTTStatus("disconnected");
+            router.getStatusPage()->setMQTTStatus("disconnected");
         }
         break;
     case AppEventType::MQTT_MESSAGE_RECEIVED:
@@ -191,7 +191,7 @@ bool AppMainControler::manage_mqtt_event()
             LOG_DEBUG("AppMainControler::MQTT_MESSAGE_RECEIVED :%d %s", ev.getId(),
                       ev.getData().mqttTopic.c_str());
             String msg = ev.getData().mqttTopic + " : " + ev.getData().mqttPayload;
-            router.getWelcomePage()->setMessage(msg.c_str());
+            router.getStatusPage()->setMessage(msg.c_str());
         }
         break;
     default:
