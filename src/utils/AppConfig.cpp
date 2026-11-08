@@ -116,7 +116,7 @@ bool AppConfig::loadDefaults()
     return true;
 }
 
-bool AppConfig::loadConfigSD()
+SdStatus AppConfig::loadConfigSD()
 {
     LOG_DEBUG("AppConfig::loadConfigSD : ");
 
@@ -140,7 +140,13 @@ bool AppConfig::loadConfigSD()
         sdcard.errorPrint(&Serial);
         LOG_ERROR("SD error=0x%X data=0x%X",
                   sdcard.card()->errorCode(), sdcard.card()->errorData());
-        return false;
+        if (sdcard.card()->errorCode() != 0)
+        {
+            LOG_ERROR("AppConfig::loadConfigSD : no card or bad contact");
+            return SdStatus::NO_CARD;
+        }
+        LOG_ERROR("AppConfig::loadConfigSD : wrong format (FAT32 expected)");
+        return SdStatus::BAD_FORMAT;
     }
 
     sdcard.ls();
@@ -148,14 +154,23 @@ bool AppConfig::loadConfigSD()
     if (!sdcard.exists(CONFIG_FILE_NAME))
     {
         LOG_ERROR("AppConfig::loadConfigSD : no config file");
-        return false;
+        return SdStatus::NO_FILE;
     }
     File32 fd = sdcard.open(CONFIG_FILE_NAME, O_READ);
+    if (!fd.isOpen())
+    {
+        LOG_ERROR("AppConfig::loadConfigSD : cannot open config file");
+        return SdStatus::NO_FILE;
+    }
 
     // convert to stream.
     int r = deserializeYml(rootNode, fd);
     LOG_DEBUG("AppConfig::loadConfigSD : loaded bytes %d", r);
-    this->bindYaml(rootNode);
     fd.close();
-    return true;
+    if (!this->bindYaml(rootNode))
+    {
+        LOG_ERROR("AppConfig::loadConfigSD : invalid yaml content");
+        return SdStatus::READ_ERROR;
+    }
+    return SdStatus::OK;
 }

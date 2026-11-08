@@ -143,7 +143,7 @@ void setup()
     AppConfig &this_config = AppConfig::getInstance();
     this_config.loadDefaults(); // start by defaults values
     // this_config.loadConfigPref(); // then override
-    this_config.loadConfigSD();
+    SdStatus sd_status = this_config.loadConfigSD();
 
     // after unPhone init
     LOG_DEBUG("display  init");
@@ -171,6 +171,24 @@ void setup()
 
      BootPage *boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
     boot_page->set_version(ph.version());
+    switch (sd_status)
+    {
+    case SdStatus::NO_CARD:
+        boot_page->set_sd_status("SD card missing or misinserted");
+        break;
+    case SdStatus::BAD_FORMAT:
+        boot_page->set_sd_status("SD card format error (FAT32 needed)");
+        break;
+    case SdStatus::NO_FILE:
+        boot_page->set_sd_status("energy.yaml not found on SD");
+        break;
+    case SdStatus::READ_ERROR:
+        boot_page->set_sd_status("energy.yaml invalid");
+        break;
+    case SdStatus::OK:
+    default:
+        break;
+    }
     boot_page->show();
     lv_timer_handler();
     // sleep(3);
