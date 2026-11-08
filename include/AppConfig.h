@@ -35,6 +35,15 @@ typedef struct {
 
 /* extern func */
 
+enum class SdStatus : uint8_t
+{
+    OK = 0,
+    NO_CARD,
+    BAD_FORMAT,
+    NO_FILE,
+    READ_ERROR,
+};
+
 class AppConfig
 {
 private :
@@ -63,7 +72,7 @@ public:
     bool loadConfigPref();
     bool saveConfig() const;
 
-    bool loadConfigSD();
+    SdStatus loadConfigSD();
 
 
 };

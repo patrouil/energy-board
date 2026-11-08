@@ -18,6 +18,8 @@ BootPage::~BootPage()
     LOG_DEBUG("Boot Page destruction");
     if ( obj_label) lv_obj_del(obj_label);
     obj_label = nullptr;
+    if ( sd_label) lv_obj_del(sd_label);
+    sd_label = nullptr;
 }
 
 
@@ -37,6 +39,17 @@ void BootPage::create()
 
     lv_obj_align(obj_label, LV_ALIGN_CENTER, 0, 0);
 
+}
+
+void BootPage::set_sd_status(const char* message)
+{
+    if (sd_label == nullptr)
+    {
+        sd_label = lv_label_create(page);
+        lv_obj_set_style_text_color(sd_label, lv_color_hex(0xFF0000), LV_PART_MAIN);
+        lv_obj_align(sd_label, LV_ALIGN_CENTER, 0, 40);
+    }
+    lv_label_set_text(sd_label, message);
 }
 
 /*

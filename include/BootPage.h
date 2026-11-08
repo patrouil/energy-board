@@ -16,9 +16,11 @@ public:
     ~BootPage() ;
     void create() override;
     void set_version(uint8_t  vers);
+    void set_sd_status(const char* message);
 
 private:
     lv_obj_t* obj_label = nullptr;
+    lv_obj_t* sd_label = nullptr;
 };
 
 #endif //ENERGY_BOARD_BOOTPAGE_H
