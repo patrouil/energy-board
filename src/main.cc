@@ -129,7 +129,7 @@ void setup()
 {
     Display& dsp = Display::getInstance();
     PageRouter &router = PageRouter::getInstance();
-    unPhone ph = unPhone("energy"); // create then access over global.
+    static unPhone ph = unPhone("energy"); // create then access over global.
 
     LOG_INIT(Log::DEBUG, 115200);
     LOG_DEBUG("unphone  init");

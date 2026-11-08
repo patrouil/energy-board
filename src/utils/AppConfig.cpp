@@ -123,29 +123,34 @@ bool AppConfig::loadConfigSD()
     unPhone* ph = unPhone::me;
     YAMLNode rootNode;
     // DEBUG
-    ph->expanderPower(true);
+    ph->expanderPower(true);          // rail SD (nécessite un I2C sain — cf. fix du double begin)
+    delay(50);
 
-    // pinMode(43, OUTPUT);
-    digitalWrite(unPhone::SD_CS, LOW);
-    // SPI.begin();                        // bus par défaut du variant
-    LOG_DEBUG("AppConfig::loadConfigSD %d", ph->sdp->card()->type()); // 0 = carte non détectée
-    digitalWrite(unPhone::SD_CS, HIGH);
+    // Bus SPI déjà démarré (par le tactile dans unPhone::begin()) :
+    // SdFat le réutilise sans le re-begin, sans jamais l'arrêter.
+    SdSpiConfig cfg(
+        unPhone::SD_CS,               // CS dédié (43)
+        SHARED_SPI | USER_SPI_BEGIN,  // bus partagé, begin géré par l'utilisateur
+        SD_SCK_MHZ(25),               // 25 MHz comme la lib unPhone
+        &SPI                          // instance explicite (FSPI, pins 39/40/41 du variant)
+    );
 
-    if (!ph->sdp->begin(unPhone::SD_CS, SD_SCK_MHZ(25))) {
-        ph->sdp->errorPrint(&Serial);                     // ex: "SD errorCode: 0x2, 0x6" + texte
+    if (!sdcard.begin(cfg))
+    {
+        sdcard.errorPrint(&Serial);
         LOG_ERROR("SD error=0x%X data=0x%X",
-            ph->sdp->card()->errorCode(),
-            ph->sdp->card()->errorData());
+                  sdcard.card()->errorCode(), sdcard.card()->errorData());
         return false;
     }
-    ph->sdp->ls();
 
-    if (!ph->sdp->exists(CONFIG_FILE_NAME))
+    sdcard.ls();
+
+    if (!sdcard.exists(CONFIG_FILE_NAME))
     {
         LOG_ERROR("AppConfig::loadConfigSD : no config file");
         return false;
     }
-    File32 fd = ph->sdp->open(CONFIG_FILE_NAME, O_READ);
+    File32 fd = sdcard.open(CONFIG_FILE_NAME, O_READ);
 
     // convert to stream.
     int r = deserializeYml(rootNode, fd);

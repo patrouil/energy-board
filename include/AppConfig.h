@@ -37,6 +37,9 @@ typedef struct {
 
 class AppConfig
 {
+private :
+    SdFat sdcard;
+
     bool bindYaml(::YAMLNode &rootNode);
 
 protected :
