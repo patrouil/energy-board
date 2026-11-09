@@ -157,9 +157,15 @@ void UnphoneControler::run()
             digitalWrite(39, LOW);
             pinMode(40, OUTPUT); // MOSI
             digitalWrite(40, LOW);
+            pinMode(48, OUTPUT); // LCD_CS haut : sinon le HX8357 flottant
+            digitalWrite(48, HIGH);   // peut piloter SDO (= MISO partage)
+            pinMode(38, OUTPUT); // TOUCH_CS haut
+            digitalWrite(38, HIGH);
             gpio_hold_en(GPIO_NUM_43);
             gpio_hold_en(GPIO_NUM_39);
             gpio_hold_en(GPIO_NUM_40);
+            gpio_hold_en(GPIO_NUM_48);
+            gpio_hold_en(GPIO_NUM_38);
             gpio_deep_sleep_hold_en();
         }
 

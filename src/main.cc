@@ -129,6 +129,8 @@ void setup()
     gpio_hold_dis(GPIO_NUM_43);
     gpio_hold_dis(GPIO_NUM_39);
     gpio_hold_dis(GPIO_NUM_40);
+    gpio_hold_dis(GPIO_NUM_48);
+    gpio_hold_dis(GPIO_NUM_38);
     // ... et on les reconfigure immédiatement en sorties sûres : après un
     // réveil la carte est toujours alimentée (3V3 non coupé en deep sleep)
     // et une fenêtre de lignes flottantes pendant le boot peut la verrouiller
@@ -138,6 +140,10 @@ void setup()
     digitalWrite(GPIO_NUM_39, LOW);
     pinMode(GPIO_NUM_40, OUTPUT); // MOSI
     digitalWrite(GPIO_NUM_40, LOW);
+    pinMode(GPIO_NUM_48, OUTPUT); // LCD_CS haut
+    digitalWrite(GPIO_NUM_48, HIGH);
+    pinMode(GPIO_NUM_38, OUTPUT); // TOUCH_CS haut
+    digitalWrite(GPIO_NUM_38, HIGH);
 
     Display& dsp = Display::getInstance();
     PageRouter& router = PageRouter::getInstance();
