@@ -126,6 +126,11 @@ void AppConfig::setSPIBus()
     //
     // CS du LCD et du tactile explicitement hauts : avant dsp.init() le CS
     // du LCD (48) est flottant et le HX8357 peut piloter SDO (= MISO 41)
+    //
+    // WARNING there is a bug un unphone::checkPowerSwitch if you switch off while connected to a USB
+    // charger the SD CARD is initialized proprelly.
+    //
+    
     pinMode(48, OUTPUT);
     digitalWrite(48, HIGH);
     pinMode(unPhone::SD_CS, OUTPUT);
@@ -140,7 +145,6 @@ void AppConfig::setSPIBus()
     SPI.endTransaction();
     digitalWrite(unPhone::SD_CS, HIGH);
     LOG_DEBUG("AppConfig::loadConfigSD : busy recovery %s", ready >= 2 ? "ok" : "timeout");
-
 }
 
 SdStatus AppConfig::loadConfigSD()

@@ -14,7 +14,7 @@
 
 
 #include <unPhone.h>
-
+#include "driver/gpio.h"
 
 //#include <Adafruit_SPIFlash.h> // for LDF
 #include <Log.h>
@@ -124,6 +124,12 @@ void launch_tasks()
 
 void setup()
 {
+    // le deep sleep (extinction sous USB) fige les lignes SPI pour
+    // protéger la carte SD : les holds persistent au réveil, on les libère
+    gpio_hold_dis(GPIO_NUM_43);
+    gpio_hold_dis(GPIO_NUM_39);
+    gpio_hold_dis(GPIO_NUM_40);
+
     Display& dsp = Display::getInstance();
     PageRouter& router = PageRouter::getInstance();
     static unPhone ph = unPhone("energy"); // create then access over global.
