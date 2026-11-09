@@ -14,7 +14,6 @@
 
 
 #include <unPhone.h>
-#include "driver/gpio.h"
 
 //#include <Adafruit_SPIFlash.h> // for LDF
 #include <Log.h>
@@ -122,36 +121,8 @@ void launch_tasks()
     this_controler.get_simulation_controler()->start();
 }
 
-void init_bus_at_boot()
-{
-    // le deep sleep (extinction sous USB) fige les lignes SPI pour
-    // protéger la carte SD : les holds persistent au réveil, on les libère
-    gpio_hold_dis(GPIO_NUM_43);
-    gpio_hold_dis(GPIO_NUM_39);
-    gpio_hold_dis(GPIO_NUM_40);
-    gpio_hold_dis(GPIO_NUM_48);
-    gpio_hold_dis(GPIO_NUM_38);
-    // ... et on les reconfigure immédiatement en sorties sûres : après un
-    // réveil la carte est toujours alimentée (3V3 non coupé en deep sleep)
-    // et une fenêtre de lignes flottantes pendant le boot peut la verrouiller
-    pinMode(GPIO_NUM_43, OUTPUT); // SD_CS
-    digitalWrite(GPIO_NUM_43, HIGH);
-    pinMode(GPIO_NUM_39, OUTPUT); // SCK
-    digitalWrite(GPIO_NUM_39, LOW);
-    pinMode(GPIO_NUM_40, OUTPUT); // MOSI
-    digitalWrite(GPIO_NUM_40, LOW);
-    pinMode(GPIO_NUM_48, OUTPUT); // LCD_CS haut
-    digitalWrite(GPIO_NUM_48, HIGH);
-    pinMode(GPIO_NUM_38, OUTPUT); // TOUCH_CS haut
-    digitalWrite(GPIO_NUM_38, HIGH);
-    pinMode(GPIO_NUM_44, OUTPUT); // LORA_CS haut : le RFM95W partage MISO
-    digitalWrite(GPIO_NUM_44, HIGH);   // et son CS n'est jamais piloté
-    pinMode(GPIO_NUM_42, OUTPUT); // LORA_RST haut (reset inactif)
-    digitalWrite(GPIO_NUM_42, HIGH);
-}
 void setup()
 {
-   init_bus_at_boot();
     Display& dsp = Display::getInstance();
     PageRouter& router = PageRouter::getInstance();
     static unPhone ph = unPhone("energy"); // create then access over global.
