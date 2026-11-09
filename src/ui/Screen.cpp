@@ -18,7 +18,8 @@ Screen::~Screen()
 
 void Screen::create()
 {
-    this->page = lv_obj_create(lv_scr_act());  // should be nullptf
+    this->page = lv_obj_create(nullptr);  // should be nullptf
+
     if (!this->page) {  // ✅ Vérifier avant d'utiliser
         LOG_ERROR("Page::Page : lv_obj_create failed!");
         return;
@@ -41,14 +42,12 @@ void Screen::show()
 {
  //   LOG_DEBUG("Screen::show : ");
 
-    //lv_scr_load(this->page);
-    //lv_obj_set_style_bg_opa(page, LV_OPA_100, LV_PART_MAIN);
-    lv_obj_clear_flag(page, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_move_foreground(this->page);
+    lv_scr_load(this->page);
 }
 
 void Screen::hide()
 {
     LOG_DEBUG("Screen::hide : ");
-    lv_obj_add_flag(this->page, LV_OBJ_FLAG_HIDDEN);
+    // lv_obj_add_flag(this->page, LV_OBJ_FLAG_HIDDEN);
+    // nothing just display another page.
 }

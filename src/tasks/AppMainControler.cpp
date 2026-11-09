@@ -1,5 +1,6 @@
 //
 // Created by Patrick Rouillon on 25/01/2026.
+// with the assistance of Mistral vibe.
 //
 
 #include "AppMainControler.h"
@@ -69,15 +70,13 @@ bool AppMainControler::manage_wifi_event()
         return false;
     }
     //  LOG_DEBUG("AppMainControler::manage_wifi_event :%d", ev.getId());
-
     StatusPage* p = router.getStatusPage();
-
-    p->setWifiSSID(AppConfig::getInstance().wifi.sid);
 
     switch (ev.getId())
     {
     case AppEventType::WIFI_IDLE:
         // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
+        p->setWifiSSID(AppConfig::getInstance().wifi.sid);
 
         break;
     case AppEventType::WIFI_CONNECTED:
@@ -88,7 +87,6 @@ bool AppMainControler::manage_wifi_event()
             //    LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_CONNECTED :%s %s", "display IP", s.c_str());
             p->setIPAddress(s.c_str());
             p->addMessage("Wifi Connected");
-            //p->show();
         }
         break;
     case AppEventType::WIFI_DISCONNECTED:
