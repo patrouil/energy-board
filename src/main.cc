@@ -122,7 +122,7 @@ void launch_tasks()
     this_controler.get_simulation_controler()->start();
 }
 
-void setup()
+void init_bus_at_boot()
 {
     // le deep sleep (extinction sous USB) fige les lignes SPI pour
     // protéger la carte SD : les holds persistent au réveil, on les libère
@@ -145,6 +145,10 @@ void setup()
     pinMode(GPIO_NUM_38, OUTPUT); // TOUCH_CS haut
     digitalWrite(GPIO_NUM_38, HIGH);
 
+}
+void setup()
+{
+   init_bus_at_boot();
     Display& dsp = Display::getInstance();
     PageRouter& router = PageRouter::getInstance();
     static unPhone ph = unPhone("energy"); // create then access over global.
@@ -203,6 +207,6 @@ void setup()
 
 void loop()
 {
-    yield();
-    sleep(100);
+    // yield();
+    sleep(60);
 }
