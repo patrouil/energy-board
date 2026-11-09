@@ -4,8 +4,6 @@
 //
 
 #include "unPhone.h"
-#include <SPI.h>
-#include "driver/gpio.h"
 #include "Log.h"
 #include "UnphoneControler.h"
 
@@ -142,38 +140,6 @@ void UnphoneControler::run()
     {
         checkStack();
         handleButtonPress();
-
-        if (!unPhone::me->powerSwitchIsOn() && unPhone::me->usbPowerConnected())
-        {
-            // extinction sous USB = deep sleep (checkPowerSwitch) : le 3V3
-            // reste actif par le chargeur et la carte SD reste alimentée avec
-            // des lignes SPI flottantes. Le bruit du chargeur peut alors perturber
-            // horloge la carte et la verrouiller hors mode SPI. On fige donc
-            // les lignes dans un état sûr avant le sommeil.
-            SPI.end();
-            pinMode(unPhone::SD_CS, OUTPUT);
-            digitalWrite(unPhone::SD_CS, HIGH);
-            pinMode(39, OUTPUT); // SCK
-            digitalWrite(39, LOW);
-            pinMode(40, OUTPUT); // MOSI
-            digitalWrite(40, LOW);
-            pinMode(48, OUTPUT); // LCD_CS haut : sinon le HX8357 flottant
-            digitalWrite(48, HIGH);   // peut piloter SDO (= MISO partage)
-            pinMode(38, OUTPUT); // TOUCH_CS haut
-            digitalWrite(38, HIGH);
-            pinMode(44, OUTPUT); // LORA_CS haut : le RFM95W partage MISO
-            digitalWrite(44, HIGH);   // et son CS n'est jamais piloté
-            pinMode(42, OUTPUT); // LORA_RST haut (reset inactif)
-            digitalWrite(42, HIGH);
-            gpio_hold_en(GPIO_NUM_43);
-            gpio_hold_en(GPIO_NUM_39);
-            gpio_hold_en(GPIO_NUM_40);
-            gpio_hold_en(GPIO_NUM_48);
-            gpio_hold_en(GPIO_NUM_38);
-            gpio_hold_en(GPIO_NUM_44);
-            gpio_hold_en(GPIO_NUM_42);
-            gpio_deep_sleep_hold_en();
-        }
 
         // float v = unPhone::me->batteryVoltage();
         unPhone::me->checkPowerSwitch();
