@@ -144,7 +144,10 @@ void init_bus_at_boot()
     digitalWrite(GPIO_NUM_48, HIGH);
     pinMode(GPIO_NUM_38, OUTPUT); // TOUCH_CS haut
     digitalWrite(GPIO_NUM_38, HIGH);
-
+    pinMode(GPIO_NUM_44, OUTPUT); // LORA_CS haut : le RFM95W partage MISO
+    digitalWrite(GPIO_NUM_44, HIGH);   // et son CS n'est jamais piloté
+    pinMode(GPIO_NUM_42, OUTPUT); // LORA_RST haut (reset inactif)
+    digitalWrite(GPIO_NUM_42, HIGH);
 }
 void setup()
 {
