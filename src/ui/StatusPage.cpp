@@ -81,6 +81,14 @@ void StatusPage::create()
     // lv_obj_set_height(messageLabel, height - 200);
 
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
+
+    // Hauteur fixe de MAX_MESSAGES lignes de texte
+    lv_label_set_long_mode(messageLabel, LV_LABEL_LONG_WRAP);
+    lv_obj_set_width(messageLabel, lv_disp_get_hor_res(Display::getInstance().lvgl_display()) - 2 * Theme::LABEL_SPACING);
+    const lv_font_t* font = lv_obj_get_style_text_font(messageLabel, LV_PART_MAIN);
+    lv_coord_t line_height = lv_font_get_line_height(font)
+                           + lv_obj_get_style_text_line_space(messageLabel, LV_PART_MAIN);
+    lv_obj_set_height(messageLabel, MAX_MESSAGES * line_height);
     this->setMessage("Welcome");
 
     //LOG_DEBUG("StatusPage::create done");
