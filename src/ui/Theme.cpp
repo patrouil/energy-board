@@ -23,7 +23,7 @@ const lv_font_t* Theme::SMALL_FONT = &lv_font_montserrat_10;
 const lv_font_t* Theme::LARGE_FONT = &lv_font_montserrat_16;
 const lv_font_t* Theme::HUGE_FONT = &lv_font_montserrat_38;
 
-const lv_coord_t Theme::LABEL_SPACING = 40;
+const lv_coord_t Theme::LABEL_SPACING = 6;
 
 Theme::Theme()
     : primaryColor(Theme::PRIMARY_COLOR),

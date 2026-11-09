@@ -69,6 +69,7 @@ public:
     AppConfigMqtt mqtt;
 
     bool loadDefaults();
+    void setSPIBus();
     bool loadConfigPref();
     bool saveConfig() const;
 

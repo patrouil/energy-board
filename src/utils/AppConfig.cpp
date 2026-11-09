@@ -116,12 +116,8 @@ bool AppConfig::loadDefaults()
     return true;
 }
 
-SdStatus AppConfig::loadConfigSD()
+void AppConfig::setSPIBus()
 {
-    LOG_DEBUG("AppConfig::loadConfigSD : ");
-
-    YAMLNode rootNode;
-
     // le slot microSD est alimenté par le rail 3V3 principal (schéma spin 9),
     // pas par EXPANDER_POWER : la carte reste sous tension à travers les
     // reboots du board. Si elle a été interrompue en cours d'opération elle
@@ -144,6 +140,17 @@ SdStatus AppConfig::loadConfigSD()
     SPI.endTransaction();
     digitalWrite(unPhone::SD_CS, HIGH);
     LOG_DEBUG("AppConfig::loadConfigSD : busy recovery %s", ready >= 2 ? "ok" : "timeout");
+
+}
+
+SdStatus AppConfig::loadConfigSD()
+{
+    LOG_DEBUG("AppConfig::loadConfigSD : ");
+
+    YAMLNode rootNode;
+
+    setSPIBus();
+    LOG_DEBUG("AppConfig::loadConfigSD : SPI bus ready");
 
     // Bus SPI déjà démarré (par le tactile dans unPhone::begin()) :
     // SdFat le réutilise sans le re-begin, sans jamais l'arrêter.

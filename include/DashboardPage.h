@@ -35,7 +35,7 @@ public:
 
     void create() override;
 
-    void setBottomMessage(const char* message);
+   //  void setBottomMessage(const char* message);
 
     void setPowerRange(int32_t min, int32_t max)
     {

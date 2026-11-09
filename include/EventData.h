@@ -1,5 +1,6 @@
 //
 // Created by Patrick Rouillon on 08/09/2026.
+// with the assistance of Mistral's Vibe Code.
 //
 
 #pragma once
@@ -57,6 +58,7 @@ public :
     static const uint16_t BUTTON_2 = 0x02;
     static const uint16_t BUTTON_3 = 0x04;
     uint16_t currentButton = 0;
+    bool is_sleeping = false;
 
 private :
     SemaphoreHandle_t logMutex = xSemaphoreCreateMutex();

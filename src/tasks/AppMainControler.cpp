@@ -70,10 +70,14 @@ bool AppMainControler::manage_wifi_event()
     }
     //  LOG_DEBUG("AppMainControler::manage_wifi_event :%d", ev.getId());
 
+    StatusPage* p = router.getStatusPage();
+
+    p->setWifiSSID(AppConfig::getInstance().wifi.sid);
+
     switch (ev.getId())
     {
     case AppEventType::WIFI_IDLE:
-       // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
+        // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_IDLE :%d", ev.getId());
 
         break;
     case AppEventType::WIFI_CONNECTED:
@@ -82,9 +86,8 @@ bool AppMainControler::manage_wifi_event()
             // notify MQTT and UI
             static String s = WiFi.localIP().toString();
             //    LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_CONNECTED :%s %s", "display IP", s.c_str());
-            StatusPage* p = router.getStatusPage();
             p->setIPAddress(s.c_str());
-            p->setMessage("Connected");
+            p->addMessage("Wifi Connected");
             //p->show();
         }
         break;
@@ -92,9 +95,8 @@ bool AppMainControler::manage_wifi_event()
         {
             // LOG_DEBUG("AppMainControler::APP_EVENT_WIFI_DISCONNECTED :%d", ev.getId());
             // notidy MQTT and UI
-            StatusPage* p = router.getStatusPage();
             p->setIPAddress("none");
-            p->setMessage("diconnected");
+            p->addMessage("Wifi diconnected");
         }
         break;
     default:
@@ -121,29 +123,36 @@ bool AppMainControler::manage_unphone_event()
     {
     case AppEventType::UNPHONE_BUTTON_PRESSED:
         {
-                    LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
+            LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
             String b = "button";
             uint16_t v = ev.getData().currentButton;
             if (v & EventData::BUTTON_1) b.concat(" 1");
             if (v & EventData::BUTTON_2) b.concat(" 2");
             if (v & EventData::BUTTON_3) b.concat(" 3");
 
-            router.getStatusPage()->setMessage(b.c_str());
-            if (v & EventData::BUTTON_1)
+            router.getStatusPage()->addMessage(b.c_str());
+            if (v & EventData::BUTTON_3)
             {
                 router.getStatusPage()->show();
             }
             else if (v & EventData::BUTTON_2)
             {
-                int p = this->get_simulation_controler()->switchPattern();
                 // LOG_DEBUG("AppMainControler::manage_incoming_event : pattern %d", p);
                 router.getDashboardPage()->show();
+            }
+            else if ( v & EventData::BUTTON_1)
+            {
+                char valueBuffer[40];
+                int p = this->get_simulation_controler()->switchPattern();
+                snprintf(valueBuffer, sizeof(valueBuffer), "new simulation pattern %d", p);
+
+                router.getStatusPage()->addMessage(valueBuffer);
             }
             break;
         }
     case AppEventType::UNPHONE_BUTTON_RELEASED:
         {
-            router.getStatusPage()->setMessage("button release");
+            router.getStatusPage()->addMessage("button release");
             break;
         }
     default:
@@ -225,16 +234,16 @@ bool AppMainControler::manage_simulation_event()
             char message[256];
             //LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION solar=%d lowrate=%d  grid=%d home=%d ",
             //          d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
-            sniprintf(message, sizeof(message), "solar=%d lowrate=%d  grid=%d home=%d ",
-                      d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
+            //sniprintf(message, sizeof(message), "solar=%d lowrate=%d  grid=%d home=%d ",
+            //          d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
             DashboardPage* p = router.getDashboardPage();
-            p->setBottomMessage(message);
+            // p->setBottomMessage(message);
 
             p->setPowerRange(0, d.maxGridPower);
             p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
             p->setHomeConsumption(d.homeConsumption);
             d.release();
-            if ( first)
+            if (first)
             {
                 p->show();
                 first = false;

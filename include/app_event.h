@@ -1,11 +1,9 @@
 //
 // Created by Patrick Rouillon on 23/01/2026.
+// with the assistance of Mistral's Vibe Code.
 //
 
 #pragma once
-
-#ifndef UPHONE1_APPEVENT_H
-#define UPHONE1_APPEVENT_H
 
 #include <stdint.h>
 
@@ -19,6 +17,7 @@ enum class AppEventType : uint8_t
     WIFI_DISCONNECTED = 12,
     UNPHONE_BUTTON_PRESSED = 20,
     UNPHONE_BUTTON_RELEASED = 21,
+    UNPHONE_STATUS_SLEEP = 22,
     MQTT_IDLE = 30,
     MQTT_CONNECTED = 31,
     MQTT_DISCONNECTED = 32,
@@ -40,5 +39,3 @@ private:
     AppEventType id = AppEventType::NONE;
     const EventData& data;
 };
-
-#endif //UPHONE1_APPEVENT_H

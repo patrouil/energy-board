@@ -75,11 +75,13 @@ void StatusPage::create()
 
     // Ligne pour les messages
     messageLabel = lv_label_create(this->page);
-    this->setMessage("Welcome");
+    lv_label_set_text_static(messageLabel, messageBuffer);
     // lv_obj_set_style_text_font(messageLabel, Theme::DEFAULT_FONT, LV_PART_MAIN);
     lv_obj_set_style_text_color(messageLabel, Theme::TEXT_COLOR, LV_PART_MAIN);
+    // lv_obj_set_height(messageLabel, height - 200);
 
     lv_obj_align_to(messageLabel, mqttLabel, LV_ALIGN_OUT_BOTTOM_MID, 0, Theme::LABEL_SPACING);
+    this->setMessage("Welcome");
 
     //LOG_DEBUG("StatusPage::create done");
 }
@@ -107,7 +109,8 @@ void StatusPage::setMQTTStatus(const char* status)
 void StatusPage::setMessage(const char* message)
 {
     messageCount = 0;
-    if ( messageLabel ) lv_label_set_text(messageLabel, message);
+    this->addMessage(message);
+
 }
 
 void StatusPage::addMessage(const char* message)
@@ -127,7 +130,7 @@ void StatusPage::addMessage(const char* message)
     messageCount++;
 
     this->updateMessageBuffer();
-    lv_label_set_text(messageLabel, messageBuffer);
+    lv_obj_invalidate(messageLabel);
 }
 
 void StatusPage::updateMessageBuffer()
@@ -144,5 +147,7 @@ void StatusPage::updateMessageBuffer()
         memcpy(messageBuffer + offset, messageLines[i], len);
         offset += len;
     }
+    LOG_DEBUG("StatusPage::updateMessageBuffer %d, %d", messageCount, offset);
+
     messageBuffer[offset] = '\0';
 }

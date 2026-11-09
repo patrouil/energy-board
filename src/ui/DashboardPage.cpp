@@ -120,21 +120,22 @@ void DashboardPage::create()
     lv_obj_set_grid_cell(cards,
                          LV_GRID_ALIGN_CENTER, 0, 1,
                          LV_GRID_ALIGN_CENTER, 2, 1);
-
+/*
     bottomMessage = create_ticker(this->page);
     APP_ASSERT(bottomMessage != nullptr);
     lv_obj_set_grid_cell(bottomMessage,
                          LV_GRID_ALIGN_START, 0, 1,
                          LV_GRID_ALIGN_START, 3, 1);
-
+*/
     // LOG_DEBUG("DashboardPage::create done");
 }
-
+/*
 void DashboardPage::setBottomMessage(const char* message)
 {
     strncpy(bottomMessageBuffer, message, sizeof(bottomMessageBuffer));
     lv_label_set_text_static(bottomMessage, bottomMessageBuffer);
 }
+*/
 
 void DashboardPage::setHomeConsumption(int32_t homeConsumption)
 {
