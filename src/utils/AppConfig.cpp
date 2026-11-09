@@ -120,16 +120,30 @@ SdStatus AppConfig::loadConfigSD()
 {
     LOG_DEBUG("AppConfig::loadConfigSD : ");
 
-    unPhone* ph = unPhone::me;
     YAMLNode rootNode;
 
-    // power-cycle du rail SD : au boot l'état du rail est indéterminé
-    // (broches TCA9555 en entrée avant unPhone::begin) et la carte peut
-    // démarrer dans un état non initialisé qui ne répond pas à CMD0
-    ph->expanderPower(false);
-    delay(200);
-    ph->expanderPower(true);
-    delay(250);
+    // le slot microSD est alimenté par le rail 3V3 principal (schéma spin 9),
+    // pas par EXPANDER_POWER : la carte reste sous tension à travers les
+    // reboots du board. Si elle a été interrompue en cours d'opération elle
+    // reste "busy" (DO à 0) et ignore CMD0. SdFat n'appelle pas waitReady()
+    // avant CMD0 : on horloge donc la carte CS bas jusqu'à relâche de DO.
+    //
+    // CS du LCD et du tactile explicitement hauts : avant dsp.init() le CS
+    // du LCD (48) est flottant et le HX8357 peut piloter SDO (= MISO 41)
+    pinMode(48, OUTPUT);
+    digitalWrite(48, HIGH);
+    pinMode(unPhone::SD_CS, OUTPUT);
+    digitalWrite(unPhone::SD_CS, LOW);
+    SPI.beginTransaction(SPISettings(400000, MSBFIRST, SPI_MODE0));
+    // jusqu'à ~1 s d'horloge ; la carte signale ready par deux 0xFF
+    uint8_t ready = 0;
+    for (uint32_t i = 0; i < 50000 && ready < 2; i++)
+    {
+        ready = (SPI.transfer(0xFF) == 0xFF) ? ready + 1 : 0;
+    }
+    SPI.endTransaction();
+    digitalWrite(unPhone::SD_CS, HIGH);
+    LOG_DEBUG("AppConfig::loadConfigSD : busy recovery %s", ready >= 2 ? "ok" : "timeout");
 
     // Bus SPI déjà démarré (par le tactile dans unPhone::begin()) :
     // SdFat le réutilise sans le re-begin, sans jamais l'arrêter.
@@ -139,15 +153,6 @@ SdStatus AppConfig::loadConfigSD()
         SD_SCK_MHZ(25), // 25 MHz comme la lib unPhone
         &SPI // instance explicite (FSPI, pins 39/40/41 du variant)
     );
-
-    pinMode(unPhone::SD_CS, OUTPUT);
-    digitalWrite(unPhone::SD_CS, LOW);
-    SPI.beginTransaction(SPISettings(400000, MSBFIRST, SPI_MODE0));
-    uint8_t ready = 0;
-    for (uint32_t i = 0; i < 50000 && ready < 2; i++)
-        ready = (SPI.transfer(0xFF) == 0xFF) ? ready + 1 : 0;
-    SPI.endTransaction();
-    digitalWrite(unPhone::SD_CS, HIGH);
 
     bool started = false;
     for (int attempt = 0; attempt < 3 && !started; attempt++)
