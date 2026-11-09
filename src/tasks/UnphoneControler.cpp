@@ -161,11 +161,17 @@ void UnphoneControler::run()
             digitalWrite(48, HIGH);   // peut piloter SDO (= MISO partage)
             pinMode(38, OUTPUT); // TOUCH_CS haut
             digitalWrite(38, HIGH);
+            pinMode(44, OUTPUT); // LORA_CS haut : le RFM95W partage MISO
+            digitalWrite(44, HIGH);   // et son CS n'est jamais piloté
+            pinMode(42, OUTPUT); // LORA_RST haut (reset inactif)
+            digitalWrite(42, HIGH);
             gpio_hold_en(GPIO_NUM_43);
             gpio_hold_en(GPIO_NUM_39);
             gpio_hold_en(GPIO_NUM_40);
             gpio_hold_en(GPIO_NUM_48);
             gpio_hold_en(GPIO_NUM_38);
+            gpio_hold_en(GPIO_NUM_44);
+            gpio_hold_en(GPIO_NUM_42);
             gpio_deep_sleep_hold_en();
         }
 
