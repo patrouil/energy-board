@@ -7,7 +7,7 @@
 
 #include "Log.h"
 #include "PageRouter.h"
-#include "utils/wattHelper.h"
+#include "../../include/wattHelper.h"
 
 
 AppMainControler::AppMainControler() : AppTask("mainControler", APP_TASK_STACK_DEFAULT, APP_TASK_PRIORITY_BUSINESS,
@@ -55,6 +55,45 @@ AppMainControler::~AppMainControler()
     this->unphoneManager = nullptr;
     this->unphoneOutQueue = nullptr;
 }
+
+
+void AppMainControler::manageEnergyEvent(const EventData& event_data)
+{
+    PageRouter& router = PageRouter::getInstance();
+    DashboardPage* p = router.getDashboardPage();
+
+    p->setPowerRange(0, event_data.maxGridPower);
+    p->setProductionValue(event_data.solarPower, event_data.lowRateMaxPower, event_data.gridPower);
+    p->setHomeConsumption(event_data.homeConsumption);
+
+    activityManager.setProductionPower(event_data.solarPower);
+    warningManager.setPower(event_data.homeConsumption, event_data.lowRateMaxPower);
+
+    if (!activityManager.isActive())
+    {
+        if (currentScreen != ScreenId::DARK_PAGE)
+            currentScreen = router.display_screen(ScreenId::DARK_PAGE);
+    }
+    else // active
+    {
+        switch (currentScreen)
+        {
+        case ScreenId::BOOT_PAGE:
+            currentScreen = router.display_screen(ScreenId::DASHBOARD_PAGE);
+            break;
+        case ScreenId::DARK_PAGE:
+            router.getDarkPage()->hide(); // special case for this page.
+            currentScreen = router.display_screen(ScreenId::DASHBOARD_PAGE);
+            break;
+            // nothing for DASHBOARD and STATUS PAGE.
+        }
+    }
+    if ((currentScreen == ScreenId::DASHBOARD_PAGE) && warningManager.isWarning())
+    {
+        unphoneManager->vibe();
+    }
+}
+
 
 bool AppMainControler::manage_wifi_event()
 {
@@ -121,26 +160,37 @@ bool AppMainControler::manage_unphone_event()
     {
     case AppEventType::UNPHONE_BUTTON_PRESSED:
         {
-            LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
-            String b = "button";
             uint16_t v = ev.getData().currentButton;
+            char valueBuffer[40];
+
+            LOG_DEBUG("AppMainControler::APP_EVENT_UNPHONE_BUTTON :%d %x", ev.getId(), ev.getData().currentButton);
+            /* String b = "button";
             if (v & EventData::BUTTON_1) b.concat(" 1");
             if (v & EventData::BUTTON_2) b.concat(" 2");
             if (v & EventData::BUTTON_3) b.concat(" 3");
 
             router.getStatusPage()->addMessage(b.c_str());
+            */
             if (v & EventData::BUTTON_3)
             {
-                router.getStatusPage()->show();
+                if (currentScreen == ScreenId::STATUS_PAGE)
+                {
+                    dataSource = (dataSource == DataSource::SOURCE_MQTT)
+                                     ? DataSource::SOURCE_SIMUL
+                                     : DataSource::SOURCE_MQTT;
+                    snprintf(valueBuffer, sizeof(valueBuffer), "using datasource %s",
+                             dataSource == DataSource::SOURCE_MQTT ? "MQTT" : "Simulation");
+                    router.getStatusPage()->addMessage(valueBuffer);
+                }
+                currentScreen = router.display_screen(ScreenId::STATUS_PAGE);
             }
             else if (v & EventData::BUTTON_2)
             {
                 // LOG_DEBUG("AppMainControler::manage_incoming_event : pattern %d", p);
-                router.getDashboardPage()->show();
+                currentScreen = router.display_screen(ScreenId::DASHBOARD_PAGE);
             }
-            else if ( v & EventData::BUTTON_1)
+            else if (v & EventData::BUTTON_1)
             {
-                char valueBuffer[40];
                 int p = this->get_simulation_controler()->switchPattern();
                 snprintf(valueBuffer, sizeof(valueBuffer), "new simulation pattern %d", p);
 
@@ -150,9 +200,14 @@ bool AppMainControler::manage_unphone_event()
         }
     case AppEventType::UNPHONE_BUTTON_RELEASED:
         {
-            router.getStatusPage()->addMessage("button release");
+            // router.getStatusPage()->addMessage("button release");
             break;
         }
+    case AppEventType::UNPHONE_MOVED:
+        {
+            activityManager.setDeviceMoved(true);
+        }
+        break;
     default:
         break;
     }
@@ -173,6 +228,8 @@ bool AppMainControler::manage_mqtt_event()
         LOG_ERROR("AppMainControler::manage_mqtt_event : unable to get event");
         return false;
     }
+    if (dataSource != DataSource::SOURCE_MQTT)
+        return false;
     // LOG_DEBUG("AppMainControler::manage_mqtt_event :%d", ev.getId());
 
     switch (ev.getId())
@@ -199,6 +256,9 @@ bool AppMainControler::manage_mqtt_event()
                       ev.getData().mqttTopic.c_str());
             String msg = ev.getData().mqttTopic + " : " + ev.getData().mqttPayload;
             router.getStatusPage()->setMessage(msg.c_str());
+
+
+            this->manageEnergyEvent(eventDataImage);
         }
         break;
     default:
@@ -209,7 +269,6 @@ bool AppMainControler::manage_mqtt_event()
 
 bool AppMainControler::manage_simulation_event()
 {
-    static bool first = true;
     if (this->simulationOutQueue == nullptr || this->simulationOutQueue->isEmpty())
         return false;
 
@@ -220,6 +279,8 @@ bool AppMainControler::manage_simulation_event()
         LOG_ERROR("AppMainControler::manage_simulation_event : unable to get event");
         return false;
     }
+    if (dataSource != DataSource::SOURCE_SIMUL)
+        return false;
     // LOG_DEBUG("AppMainControler::manage_simulation_event :%d", ev.getId());
     PageRouter& router = PageRouter::getInstance();
 
@@ -230,24 +291,20 @@ bool AppMainControler::manage_simulation_event()
             const EventData& d = ev.getData();
             d.lock();
             char message[256];
-            //LOG_DEBUG("AppMainControler::SIMULATED_PRODUCTION solar=%d lowrate=%d  grid=%d home=%d ",
-            //          d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
-            //sniprintf(message, sizeof(message), "solar=%d lowrate=%d  grid=%d home=%d ",
-            //          d.solarPower, d.lowRateMaxPower, d.gridPower, d.homeConsumption);
-            DashboardPage* p = router.getDashboardPage();
-            // p->setBottomMessage(message);
 
-            p->setPowerRange(0, d.maxGridPower);
-            p->setProductionValue(d.solarPower, d.lowRateMaxPower, d.gridPower);
-            p->setHomeConsumption(d.homeConsumption);
+            eventDataImage.maxGridPower = d.maxGridPower;
+            eventDataImage.lowRateMaxPower = d.lowRateMaxPower;
+            eventDataImage.homeConsumption = d.homeConsumption;
+            eventDataImage.gridPower = d.gridPower;
+            eventDataImage.solarPower = d.solarPower;
+            eventDataImage.maxSolarPower = d.maxSolarPower;
+
+            this->manageEnergyEvent(eventDataImage);
+
             d.release();
-            if (first)
-            {
-                p->show();
-                first = false;
-            }
         }
         break;
+
     default:
         break;
     }

@@ -83,7 +83,7 @@ Screen* PageRouter::get_screen(ScreenId id)
 }
 
 
-void PageRouter::display_screen(ScreenId id)
+ScreenId PageRouter::display_screen(ScreenId id)
 {
     Screen* screen = get_screen(id);
     if (screen != nullptr)
@@ -95,4 +95,5 @@ void PageRouter::display_screen(ScreenId id)
     {
         LOG_ERROR("PageRouter::display_screen: Failed to display screen %d", static_cast<uint8_t>(id));
     }
+    return id;
 }

@@ -9,7 +9,7 @@
 #include "AppTask.h"
 #include "Log.h"
 #include "Theme.h"
-#include "utils/wattHelper.h"
+#include "../../include/wattHelper.h"
 
 static const lv_coord_t POWER_CARD_VALUE_OFFSET_X = 0 ; // -2;
 static const lv_coord_t POWER_CARD_VALUE_OFFSET_Y = 0; //-10;

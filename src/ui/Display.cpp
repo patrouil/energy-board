@@ -8,7 +8,7 @@
 #include "Theme.h"
 
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t color_buffer[Display::displayWidth * Display::displayHeight / 10];
+static lv_color_t color_buffer[Display::displayWidth * Display::displayHeight / 4];
 
 lv_disp_drv_t Display::disp_drv;
 

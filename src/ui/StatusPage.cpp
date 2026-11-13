@@ -152,7 +152,7 @@ void StatusPage::updateMessageBuffer()
         memcpy(messageBuffer + offset, messageLines[i], len);
         offset += len;
     }
-    LOG_DEBUG("StatusPage::updateMessageBuffer %d, %d", messageCount, offset);
+    //LOG_DEBUG("StatusPage::updateMessageBuffer %d, %d", messageCount, offset);
 
     messageBuffer[offset] = '\0';
 }

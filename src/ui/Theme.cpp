@@ -36,28 +36,20 @@ Theme::Theme()
 }
 
 
-Theme::~Theme() {
-    if (theme) {
-        // lv_theme_delete(theme);
-    }
-}
-
-
 Theme& Theme::getInstance() {
     static Theme instance;
     return instance;
 }
 
 
-void Theme::init(lv_disp_t *disp) {
+void Theme::default_init(lv_disp_t *disp) {
     lv_style_set_bg_color(&style, backgroundColor);
     lv_style_set_text_color(&style, textColor);
     lv_style_set_text_font(&style, font);
 
-    static lv_theme_t* theme_ptr = lv_theme_default_init(disp,
+    lv_theme_default_init(disp,
         primaryColor, secondaryColor,
         LV_THEME_DEFAULT_DARK, font);
-    theme = theme_ptr;
 }
 
 void Theme::apply(lv_obj_t* obj) {
@@ -66,7 +58,3 @@ void Theme::apply(lv_obj_t* obj) {
     lv_obj_set_style_text_font(obj, DEFAULT_FONT, LV_PART_MAIN);
 }
 
-
-lv_theme_t* Theme::getTheme() const {
-    return theme;
-}

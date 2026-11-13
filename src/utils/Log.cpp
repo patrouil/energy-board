@@ -80,7 +80,7 @@ void Log::_print(const char* format, va_list args)
             }
             if (*format == 's')
             {
-                register char* s = (char*)va_arg(args, int);
+                 char* s = (char*)va_arg(args, char *);
                 _stream->print(s);
                 continue;
             }

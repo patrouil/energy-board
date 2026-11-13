@@ -15,13 +15,13 @@ void DarkPage::create()
 void DarkPage::show()
 {
     Screen::show();
-    unPhone::me->backlight(true);
-    LOG_DEBUG("DarkPage::show : backlight on");
+    unPhone::me->backlight(false);
+    // LOG_DEBUG("DarkPage::show : backlight off");
 }
 
 void DarkPage::hide()
 {
     Screen::hide();
-    unPhone::me->backlight(false);
+    unPhone::me->backlight(true);
     LOG_DEBUG("DarkPage::hide : backlight off");
 }

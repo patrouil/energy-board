@@ -75,7 +75,7 @@ public:
      * @brief Affiche un écran.
      * @param id Identifiant de l'écran à afficher.
      */
-    void display_screen(ScreenId id);
+    ScreenId display_screen(ScreenId id);
 
 private:
 

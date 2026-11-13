@@ -1,6 +1,7 @@
 //
 // Created by Patrick Rouillon on 04/01/2026.
-//
+// with the assistance of Mistral Vibe (https://github.com/mistral-vibe).
+
 
 // sketch.ino ////////////////////////////////////////////////////////////////
 // LVGL on unPhone demo //////////////////////////////////////////////////////
@@ -107,7 +108,8 @@ void panic_handler(void* arg)
 {
     printf("PANIC: %s\n", (char*)arg);
     // Logs ou actions avant redémarrage
-    delay(100000);
+    delay(3600);
+    esp_restart();
 }
 
 void launch_tasks()
@@ -127,11 +129,14 @@ void setup()
     PageRouter& router = PageRouter::getInstance();
     static unPhone ph = unPhone("energy"); // create then access over global.
 
+#if defined( UNPHONE_PRODUCTION_BUILD)
+    LOG_INIT(Log::INFO, 115200);
+#else
     LOG_INIT(Log::DEBUG, 115200);
+#endif
     LOG_DEBUG("unphone  init");
 
     ph.begin();
-
     // load config before anything else using the SPI bus
     AppConfig& this_config = AppConfig::getInstance();
     this_config.loadDefaults(); // start by defaults values
@@ -141,7 +146,7 @@ void setup()
     try
     {
         dsp.init();
-        Theme::getInstance().init(dsp.lvgl_display());
+        Theme::getInstance().default_init(dsp.lvgl_display());
         ph.tftp = (void*)&(dsp.get_tft_screen());
 
         ph.tsp->setRotation(1);
@@ -162,11 +167,12 @@ void setup()
 
     BootPage* boot_page = static_cast<BootPage*>(router.get_screen(ScreenId::BOOT_PAGE));
     boot_page->set_version(ph.version());
-    boot_page->set_sd_status(sd_status);
-
+    if ( sd_status != SdStatus::OK)
+        boot_page->set_sd_status(sd_status);
+    else
+        boot_page->set_sd_status("waiting WiFi connection....");
     boot_page->show();
     lv_timer_handler();
-    // sleep(3);
 
     // if no setting stay freezed.
     if (sd_status == SdStatus::OK)
@@ -181,6 +187,5 @@ void setup()
 
 void loop()
 {
-    // yield();
     sleep(60);
 }

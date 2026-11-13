@@ -58,7 +58,7 @@ public :
     static const uint16_t BUTTON_2 = 0x02;
     static const uint16_t BUTTON_3 = 0x04;
     uint16_t currentButton = 0;
-    bool is_sleeping = false;
+    bool movedDevice = false;
 
 private :
     SemaphoreHandle_t logMutex = xSemaphoreCreateMutex();

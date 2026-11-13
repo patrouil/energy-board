@@ -23,8 +23,8 @@ static constexpr char CONFIG_FILE_NAME[] = "energy.yaml";
 
 const char* YAML_DEFAULTS = R"_YAML_STRING_(
 wifi:
-    wifisid: 7mar-guest
-    wifikey: Welcome7
+    wifisid: XXXXXX
+    wifikey: XXXXXX
 mqtt:
     mqttserver : broker.hivemq.com
     username :
@@ -37,42 +37,15 @@ subscription :
     maxgrid : home/status/maxgridpower
 )_YAML_STRING_";
 
-Preferences AppConfig::prefs;
-
-bool AppConfig::loadConfigPref()
+AppConfig::AppConfig()
 {
-    prefs.begin("energy", false);
-    if (!prefs.isKey(WIFI_SID_KEY))
-    {
-        return false;
-    }
-    prefs.getString(WIFI_SID_KEY, (this->wifi.sid), sizeof(this->wifi.sid) - 1);
-    this->wifi.sid[sizeof(this->wifi.sid) - 1] = '\0';
-    prefs.getString(WIFI_PASSWORD_KEY, (this->wifi.password), sizeof(this->wifi.password) - 1);
-    this->wifi.sid[sizeof(this->wifi.password) - 1] = '\0';
-    if (!prefs.isKey(MQTT_SERVER_KEY))
-    {
-        return false;
-    }
-    prefs.getString(MQTT_SERVER_KEY, (this->mqtt.server), sizeof(this->mqtt.server));
-    this->wifi.sid[sizeof(this->mqtt.server) - 1] = '\0';
-    prefs.getString(MQTT_USERNAME_KEY, (this->mqtt.username), sizeof(this->mqtt.username));
-    this->wifi.sid[sizeof(this->mqtt.username) - 1] = '\0';
-    prefs.getString(MQTT_PASSWORD_KEY, (this->mqtt.password), sizeof(this->mqtt.password));
-    this->wifi.sid[sizeof(this->mqtt.password) - 1] = '\0';
+    wifi.sid[0] = '\0';
+    wifi.password[0] = '\0';
 
-    prefs.end();
-    return true;
-}
+    mqtt.server[0] = '\0';
+    mqtt.username[0] = '\0';
+    mqtt.password[0] = '\0';
 
-bool AppConfig::saveConfig() const
-{
-    prefs.putString(WIFI_SID_KEY, (this->wifi.sid));
-    prefs.putString(WIFI_PASSWORD_KEY, (this->wifi.password));
-    prefs.putString(MQTT_SERVER_KEY, (this->mqtt.server));
-    prefs.putString(MQTT_USERNAME_KEY, (this->mqtt.username));
-    prefs.putString(MQTT_PASSWORD_KEY, (this->mqtt.password));
-    return true;
 }
 
 bool AppConfig::bindYaml(::YAMLNode& rootNode)

@@ -15,13 +15,13 @@ AppWifiControler::AppWifiControler(AppConfigWifi* wificonfig, AppEventQueue* out
 {
     this->wificonfig = wificonfig;
 
-   // LOG_DEBUG("AppWifiControler::AppWifiControler");
+    // LOG_DEBUG("AppWifiControler::AppWifiControler");
 }
 
 
 AppWifiControler::~AppWifiControler()
 {
-   // LOG_DEBUG("AppWifiControler::AppWifiControler");
+    // LOG_DEBUG("AppWifiControler::AppWifiControler");
     this->disconnect();
 }
 
@@ -30,20 +30,18 @@ bool AppWifiControler::connect(uint16_t maxTries)
     if (this->wificonfig == nullptr
         || this->status == WIFI_DO_NOTHING_STATE)
     {
-      //  LOG_DEBUG("AppWifiControler::connect : wifi not ready %s",
+        //  LOG_DEBUG("AppWifiControler::connect : wifi not ready %s",
         //          (this->wificonfig == nullptr) ? "???" : this->wificonfig->sid);
         return false;
     }
-   // LOG_DEBUG("AppWifiControler::connect : wifi  ready");
+    // LOG_DEBUG("AppWifiControler::connect : wifi  ready");
 
     for (uint16_t i = 0; i < maxTries; i++)
     {
         try
         {
-          //  LOG_DEBUG("AppWifiControler : Attempting to connect to WPA SSID: %s / %s", this->wificonfig->sid,
-            //          this->wificonfig->password);
             WiFi.begin(this->wificonfig->sid, this->wificonfig->password);
-        //    LOG_DEBUG("AppWifiControler : done begin");
+            //    LOG_DEBUG("AppWifiControler : done begin");
             for (uint8_t j = 0; j < 20; j++)
             {
                 // 20 * 500ms = 10s
@@ -93,7 +91,7 @@ void AppWifiControler::run()
         uint8_t s = WiFi.status();
         if (s != this->status) // status change
         {
-          //  LOG_INFO("AppWifiControler : new status is %d", s);
+            //  LOG_INFO("AppWifiControler : new status is %d", s);
             this->status = s;
             switch (s)
             {
@@ -121,10 +119,10 @@ void AppWifiControler::run()
         }
         else if (this->status != WL_CONNECTED)
         {
-       //     LOG_DEBUG("AppWifiControler : trying to connect");
+            //     LOG_DEBUG("AppWifiControler : trying to connect");
             if (!this->connect(1))
             {
-          //      LOG_ERROR("AppWifiControler : unable to connect");
+                //      LOG_ERROR("AppWifiControler : unable to connect");
             }
         }
 

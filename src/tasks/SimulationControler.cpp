@@ -8,7 +8,7 @@
 #include <esp_system.h>
 
 #include "Log.h"
-#include "utils/wattHelper.h"
+#include "../../include/wattHelper.h"
 
 //  solarPower, gridPower
 static constexpr int32_t testPatterns[][2] = {

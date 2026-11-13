@@ -32,19 +32,13 @@ public:
     static const lv_color_t BLANC_EDF;
     static const lv_color_t VERT_EDF;
 
-    Theme();
-    ~Theme();
-    void init(lv_disp_t *);
+    void default_init(lv_disp_t *);
 
     void apply(lv_obj_t* obj);
 
-    lv_theme_t* getTheme() const;
-    // Supprime les constructeurs publics
-    Theme(Theme const&) = delete;
-    void operator=(Theme const&) = delete;
 
 private:
-    lv_theme_t* theme;
+    Theme();
 
     lv_style_t style;
     lv_color_t primaryColor;

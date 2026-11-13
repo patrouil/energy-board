@@ -6,7 +6,7 @@
 #include "AppTask.h"
 #include "Log.h"
 #include "Theme.h"
-#include "utils/wattHelper.h"
+#include "../../include/wattHelper.h"
 
 static const lv_coord_t POWER_SCALE_MAJOR_LEN = 18;
 static const lv_coord_t POWER_SCALE_MINOR_LEN = 10;

@@ -7,8 +7,20 @@
 #include "AppTask.h"
 #include "AppWifiControler.h"
 #include "MqttControler.h"
+#include "PageRouter.h"
 #include "SimulationControler.h"
 #include "UnphoneControler.h"
+#include "ActivityManager.h"
+#include "WarningManager.h"
+
+
+enum class DataSource : uint8_t
+{
+    SOURCE_MQTT = 0,
+    SOURCE_SIMUL,
+    SOURCE_BOTH,
+};
+
 
 class AppMainControler : public AppTask
 {
@@ -23,6 +35,7 @@ private:
     bool manage_wifi_event();
     bool manage_unphone_event();
     bool manage_mqtt_event();
+    void manageEnergyEvent(const EventData& event_data);
     bool manage_simulation_event();
 
     // MQTT section
@@ -36,6 +49,13 @@ private:
     // unphone section
     AppEventQueue* unphoneOutQueue = nullptr;
     UnphoneControler* unphoneManager = nullptr;
+
+    ActivityManager  activityManager;
+    ScreenId currentScreen = ScreenId::BOOT_PAGE;
+    DataSource dataSource = DataSource::SOURCE_MQTT;
+    WarningManager warningManager;
+
+    EventData eventDataImage;
 
 public:
     static AppMainControler& getInstance()

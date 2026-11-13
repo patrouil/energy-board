@@ -4,8 +4,6 @@
 
 #pragma once
 
-#ifndef UPHONE1_MQTTCONTROLER_H
-#define UPHONE1_MQTTCONTROLER_H
 
 #include "mqtt_client.h"
 
@@ -57,5 +55,3 @@ public:
     void setup();
     void run() override;
 };
-
-#endif //UPHONE1_MQTTCONTROLER_H

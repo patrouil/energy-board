@@ -104,6 +104,7 @@ void MqttControler::onMqttEvent(void* handler_arg, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DATA:
         {
+            // TODO check data before reading.
             if (event->topic != nullptr && event->data != nullptr)
             {
                 self->mqttData.mqttTopic = String(event->topic, event->topic_len);
@@ -205,7 +206,7 @@ void MqttControler::run()
     while (true)
     {
 
-        if ( this->mqttClient != nullptr)
+        if ( this->mqttClient == nullptr)
         {
             this->connect();
         }

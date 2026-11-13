@@ -7,8 +7,6 @@
 #pragma once
 
 
-#include <Preferences.h>
-
 #include <unPhone.h>
 
 #include "ArduinoYaml.hpp"
@@ -52,10 +50,8 @@ private :
     bool bindYaml(::YAMLNode &rootNode);
 
 protected :
-    AppConfig() = default;
+    AppConfig() ;
     ~AppConfig() = default;
-
-    static Preferences prefs;
 
 public:
 
@@ -70,8 +66,6 @@ public:
 
     bool loadDefaults();
     void setSPIBus();
-    bool loadConfigPref();
-    bool saveConfig() const;
 
     SdStatus loadConfigSD();
 
